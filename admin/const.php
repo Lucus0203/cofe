@@ -7,7 +7,7 @@ if(empty($httpsflag)){
 }else{
 	$urlprefix="http://";
 }
-define('APP_SITE', 'http://www.kfyw021.com/');
+define('APP_SITE', 'http://localhost/cofe/');
 define('SITE',$urlprefix.$_SERVER['HTTP_HOST'].substr($_SERVER['PHP_SELF'],0,strrpos ($_SERVER['PHP_SELF'],'/')+1));
 define('BAIDU_AK', 'ho6LXkYw6eWBzWFlPvcMpLhR');
 
