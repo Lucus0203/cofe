@@ -81,6 +81,12 @@
                  	<label><input name="status" type="radio" value="2" checked="checked">发布中</label>
                  </td>
              </tr>
+             <tr>
+                 <td style="text-align:center;">是否要水印</td>
+                 <td>
+                 	<label><input name="iswatermark" type="checkbox" value="1" checked="checked">有水印</label>
+                 </td>
+             </tr>
          </table>
          <p class="btn"><input type="submit" value=" 确定添加 "></p>
          </form>

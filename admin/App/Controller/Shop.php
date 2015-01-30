@@ -69,9 +69,18 @@ class Controller_Shop extends FLEA_Controller_Action {
 		$act=isset ( $_POST ['act'] ) ? $_POST ['act'] : '';
 		if($act=='add'){
 			$data=$_POST;
+			//水印
+			$ImgWaterMark= & get_singleton ( "Service_ImgWaterMark" );
+			$waterpath=SERVERROOT.'/resource/images/watermark.png';
+			$waterpath_menu=SERVERROOT.'/resource/images/watermark_menu.png';
+			
 			$Upload=$this->getUploadObj('shop');
 			$img=$Upload->upload('img');
 			if($img['status']==1){
+				if($data['iswatermark']=='1'){
+					$path=str_replace(APP_SITE,'../', $img['file_path']);
+					$ImgWaterMark->imageWaterMark($path,9,$waterpath);
+				}
 				$data['img']=$img['file_path'];
 			}
 			//判断经纬度
@@ -89,6 +98,10 @@ class Controller_Shop extends FLEA_Controller_Action {
 			$imgs=$Upload->uploadFiles('shop_img');
 			if($imgs['status']==1){
 				foreach ($imgs['filepaths'] as $k => $p){
+					if($data['iswatermark']=='1'){
+						$path=str_replace(APP_SITE,'../', $p);
+						$ImgWaterMark->imageWaterMark($path,9,$waterpath);
+					}
 					$shopimg=array('shop_id'=>$id,'img'=>$p);
 					$this->_shop_img->create($shopimg);
 				}
@@ -99,6 +112,10 @@ class Controller_Shop extends FLEA_Controller_Action {
 			$files=$Upload->uploadFiles('menu_img');
 			if($files['status']==1){
 				foreach ($files['filepaths'] as $k => $p){
+					if($data['iswatermark']=='1'){
+						$path=str_replace(APP_SITE,'../', $p);
+						$ImgWaterMark->imageWaterMark($path,9,$waterpath_menu);
+					}
 					$mu=array('shop_id'=>$id,'title'=>$data['menu_title'][$k],'img'=>$p,'created'=>date("Y-m-d H:i:s"));
 					$this->_shop_menu->create($mu);
 				}
@@ -115,10 +132,19 @@ class Controller_Shop extends FLEA_Controller_Action {
 		$msg='';
 		if($act=='edit'){
 			$data=$_POST;
+			//水印
+			$ImgWaterMark= & get_singleton ( "Service_ImgWaterMark" );
+			$waterpath=SERVERROOT.'/resource/images/watermark.png';
+			$waterpath_menu=SERVERROOT.'/resource/images/watermark_menu.png';
+			
 			$Upload=$this->getUploadObj('shop');
 			$img=$Upload->upload('file');
 			if($img['status']==1){
 				$this->delAppImg($data['img']);
+				if($data['iswatermark']=='1'){
+					$path=str_replace(APP_SITE,'../', $img['file_path']);
+					$ImgWaterMark->imageWaterMark($path,9,$waterpath);
+				}
 				$data['img']=$img['file_path'];
 			}
 			//判断经纬度
@@ -134,6 +160,7 @@ class Controller_Shop extends FLEA_Controller_Action {
 			$this->_shop_img->removeByConditions(array('shop_id'=>$id));
 			$this->_shop_menu->removeByConditions(array('shop_id'=>$id));
 			//创建新更多店铺图
+
 			if(isset($data['shop_oldimg'] )){
 				foreach ($data['shop_oldimg'] as $mk=>$pub){
 					$pp=array('shop_id'=>$id,'img'=>$pub);
@@ -143,6 +170,10 @@ class Controller_Shop extends FLEA_Controller_Action {
 			$shimgs=$Upload->uploadFiles('shop_img');
 			if($shimgs['status']==1){
 				foreach ($shimgs['filepaths'] as $k=>$p){
+					if($data['iswatermark']=='1'){
+						$path=str_replace(APP_SITE,'../', $p);
+						$ImgWaterMark->imageWaterMark($path,9,$waterpath);
+					}
 					$pp=array('shop_id'=>$id,'img'=>$p,'created'=>date("Y-m-d H:i:s"));
 					$this->_shop_img->create($pp);
 				}
@@ -159,6 +190,10 @@ class Controller_Shop extends FLEA_Controller_Action {
 			$files=$Upload->uploadFiles('menu_img');
 			if($files['status']==1){
 				foreach ($files['filepaths'] as $k=>$p){
+					if($data['iswatermark']=='1'){
+						$path=str_replace(APP_SITE,'../', $p);
+						$ImgWaterMark->imageWaterMark($path,9,$waterpath_menu);
+					}
 					$pp=array('shop_id'=>$id,'title'=>$data['menu_title'][$k],'img'=>$p,'created'=>date("Y-m-d H:i:s"));
 					$this->_shop_menu->create($pp);
 				}
