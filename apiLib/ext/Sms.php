@@ -3,23 +3,17 @@ class Sms{
 	var $_uid;
 	var $_pass;
 	var $_auth;
-	private function __construct() {
+	function __construct() {
 		$this->_uid="80265";
 		$this->_pass="zcsy123";
 		$this->_auth=md5("zcsyzcsy123");
-		$ctime = filectime($this->_token_file);
-		$this->_access_token = file_get_contents($this->_token_file);
-		if(empty($this->_access_token)||(time() - $ctime)>=60*60*24*5){//五天
-			$this->setToken();
-		}
 	}
 	
 	private function __clone() {
 	}
 	
 	function sendMsg($msg,$mobile){
-		$msg="验证码是2718232,来自咖啡约我测试信息";
-		$url='http://210.5.158.31/hy?uid='.$this->_uid.'&auth='.$this->_auth.'&mobile='.$mobile.'&msg='.$msg.'&expid=0&encode=utf-8';
+		$url='http://210.5.158.31:9011/hy?uid='.$this->_uid.'&auth='.$this->_auth.'&mobile='.$mobile.'&msg='.$msg.'&expid=0&encode=utf-8';
 		return $this->Get($url);
 	}
 	

@@ -1,6 +1,8 @@
 <script type="text/javascript" src="{$smarty.const.SITE}resource/js/shop_add.js"></script>
 <td valign="top" align="center">
  	<div class="main_ta_box">
+         <input type="hidden" id="provinceApiURL" value="{url controller=Api action=GetCityByProvince}" />
+         <input type="hidden" id="cityApiURL" value="{url controller=Api action=GetTownByCity}" />
          <div class="hd_t">添加店铺</div>
          <form action="" method="post" enctype="multipart/form-data" onsubmit="return checkFrom();">
          <input type="hidden" name="act" value="add" />
@@ -36,6 +38,27 @@
              <tr>
                  <td style="text-align:center;">电话</td>
                  <td><input name="tel" type="text" value="" style="width:240px;"></td>
+             </tr>
+             <tr>
+                 <td style="text-align:center;">城市区域</td>
+                 <td>
+	                <select name="province_id" class="province_id">
+		                {section name=sec loop=$provinces}
+							<option value="{$provinces[sec].id}" {if 19 eq $provinces[sec].id}selected{/if}>{$provinces[sec].name}</option>
+						{/section}
+					</select>
+	                <select name="city_id" class="city_id">
+					<option value="">不限</option>
+						{section name=sec loop=$city}
+							<option value="{$city[sec].id}" {if 200 eq $city[sec].id}selected{/if}>{$city[sec].name}</option>
+						{/section}
+					</select>
+					<select name="town_id" class="town_id">
+						{section name=sec loop=$towns}
+							<option value="{$towns[sec].id}">{$towns[sec].name}</option>
+						{/section}
+					</select>
+                 </td>
              </tr>
              <tr>
                  <td style="text-align:center;">地址</td>

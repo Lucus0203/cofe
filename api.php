@@ -1,5 +1,5 @@
 <?php
-header('Content-Type: application/json');
+//header('Content-Type: application/json');
 ini_set('date.timezone','Asia/Shanghai');
 define ( 'APP_DIR', dirname ( __FILE__ ) );
 define ( 'DS', DIRECTORY_SEPARATOR );
@@ -32,6 +32,9 @@ if(!empty($c)){
 			break;
 		case 'feedback':
 			include 'apiAction/feedback.php';
+			break;
+		case 'sendmsg':
+			include 'apiAction/sendmsg.php';
 			break;
 		default:
 			break;

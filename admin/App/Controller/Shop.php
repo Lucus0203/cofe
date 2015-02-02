@@ -14,6 +14,9 @@ class Controller_Shop extends FLEA_Controller_Action {
 	var $_admin;
 	var $_adminid;
 	var $_tags;
+	var $_address_city;
+	var $_address_province;
+	var $_address_town;
 
 	function __construct() {
 		$this->_common = get_singleton ( "Class_Common" );
@@ -23,6 +26,9 @@ class Controller_Shop extends FLEA_Controller_Action {
 		$this->_shop_bbs = get_singleton ( "Model_ShopBbs" );
 		$this->_shop_menu = get_singleton ( "Model_ShopMenu" );
 		$this->_shop_img = get_singleton ( "Model_ShopImg" );
+		$this->_address_city = get_singleton ( "Model_AddressCity" );
+		$this->_address_province = get_singleton ( "Model_AddressProvince" );
+		$this->_address_town = get_singleton ( "Model_AddressTown" );
 		$this->_adminid = isset ( $_SESSION ['loginuserid'] ) ? $_SESSION ['loginuserid'] : "";
 		$this->_tags=array('休闲小憩','情侣约会','随便吃吃','朋友聚餐','可以刷卡','有下午茶',
 							'家庭聚会','无线上网','供应早餐','有露天位','免费停车','有无烟区',
@@ -42,11 +48,26 @@ class Controller_Shop extends FLEA_Controller_Action {
 		$page_no = isset ( $_GET ['page_no'] ) ? $_GET ['page_no'] : 1;
 		$page_size = 20;
 		$title = isset ( $_GET ['title'] ) ? trim($_GET ['title']) : '';
+		$province_id = isset ( $_GET ['province_id'] ) ? $this->_common->filter($_GET ['province_id']) : '9';
+		$city_id = isset ( $_GET ['city_id'] ) ? $this->_common->filter($_GET ['city_id']) : '75';
+		$town_id = isset ( $_GET ['town_id'] ) ? $this->_common->filter($_GET ['town_id']) : '';
 
 		$conditions=array();
 		if(!empty($title)){
 			$conditions[]=" INSTR(title,'".addslashes($title)."') or INSTR(address,'".addslashes($title)."') ";
 			$pageparm['title']=$title;
+		}
+		if(!empty($province_id)){
+			$conditions['province_id']=$province_id;
+			$pageparm['province_id']=$province_id;
+		}
+		if(!empty($city_id)){
+			$conditions['city_id']=$city_id;
+			$pageparm['city_id']=$city_id;
+		}
+		if(!empty($town_id)){
+			$conditions['town_id']=$town_id;
+			$pageparm['town_id']=$town_id;
 		}
 
 		$total=$this->_shop->findCount($conditions);
@@ -62,7 +83,13 @@ class Controller_Shop extends FLEA_Controller_Action {
 
 		$list=$this->_shop->findAll($conditions,"id desc limit $start,$page_size");
 
-		$this->_common->show ( array ('main' => 'shop/shop_list.tpl','list'=>$list,'page'=>$page,'title'=>$title) );
+		
+		$provinces=$this->_address_province->findAll();
+		$prov=$this->_address_province->findByField('id',$province_id);
+		$city=$this->_address_city->findAll(array('provinceCode'=>$prov['code']));
+		$ctow=$this->_address_city->findByField('id',$city_id);
+		$towns=$this->_address_town->findAll(array('cityCode'=>$ctow['code']));
+		$this->_common->show ( array ('main' => 'shop/shop_list.tpl','list'=>$list,'page'=>$page,'title'=>$title,'province_id'=>$province_id,'city_id'=>$city_id,'town_id'=>$town_id,'provinces'=>$provinces,'city'=>$city,'towns'=>$towns) );
 	}
 
 	function actionAdd(){
@@ -123,7 +150,14 @@ class Controller_Shop extends FLEA_Controller_Action {
 			$url=url('Shop','Index');
 			redirect($url);
 		}
-		$this->_common->show ( array ('main' => 'shop/shop_add.tpl','tags'=>$this->_tags) );
+		
+		$provinces=$this->_address_province->findAll();
+		$prov=$this->_address_province->findByField('id',19);//广州
+		$city=$this->_address_city->findAll(array('provinceCode'=>$prov['code']));
+		$ctow=$this->_address_city->findByField('id',200);//广州
+		$towns=$this->_address_town->findAll(array('cityCode'=>$ctow['code']));
+		
+		$this->_common->show ( array ('main' => 'shop/shop_add.tpl','tags'=>$this->_tags,'provinces'=>$provinces,'city'=>$city,'towns'=>$towns) );
 	}
 	
 	function actionEdit(){
@@ -214,7 +248,15 @@ class Controller_Shop extends FLEA_Controller_Action {
 			}
 			$tags[$k]=$tag;
 		}
-		$this->_common->show ( array ('main' => 'shop/shop_edit.tpl','data'=>$data,'menu'=>$menu,'shopimg'=>$shopimg,'msg'=>$msg,'tags'=>$tags) );
+		$data['province_id']=empty($data['province_id'])?19:$data['province_id'];
+		$data['city_id']=empty($data['city_id'])?200:$data['city_id'];
+		$provinces=$this->_address_province->findAll();
+		$prov=$this->_address_province->findByField('id',$data['province_id']);//广州
+		$city=$this->_address_city->findAll(array('provinceCode'=>$prov['code']));
+		$ctow=$this->_address_city->findByField('id',$data['city_id']);//广州
+		$towns=$this->_address_town->findAll(array('cityCode'=>$ctow['code']));
+		
+		$this->_common->show ( array ('main' => 'shop/shop_edit.tpl','data'=>$data,'menu'=>$menu,'shopimg'=>$shopimg,'msg'=>$msg,'tags'=>$tags,'provinces'=>$provinces,'city'=>$city,'towns'=>$towns) );
 	}
 	
 	function actionDelShopImg(){//删除更多店铺图

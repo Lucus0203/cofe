@@ -5,13 +5,8 @@ class db {
 	private static $sql;
 	private static $instance;
 	private function __construct() {
-		$this->conn = mysql_connect ( SERVER_NAME, DB_USER_NAME, DB_PASSWORD );
-		try {
-			mysql_select_db ( DATABASE, $this->conn );
-		} catch ( Exception $e ) {
-			echo $e->getMessage ();
-		}
-		mysql_query ( "set names utf8;",$this->conn );
+		$this->conn = mysqli_connect ( SERVER_NAME, DB_USER_NAME, DB_PASSWORD,DATABASE )or die("Error " . mysqli_error($this->conn));
+		mysqli_query ($this->conn, "set names utf8;");
 	}
 	private function __clone() {
 	}
@@ -46,10 +41,10 @@ class db {
 			$fieldstr = '*';
 		}
 		self::$sql = "select {$fieldstr} from {$table} {$where}";
-		$result = mysql_query ( self::$sql, $this->conn );
+		$result = mysqli_query ($this->conn, self::$sql );
 		$resuleRow = array ();
 		$i = 0;
-		while ( $row = mysql_fetch_assoc ( $result ) ) {
+		while ( $row = mysqli_fetch_assoc ( $result ) ) {
 			foreach ( $row as $k => $v ) {
 				$resuleRow [$i] [$k] = $v;
 			}
@@ -79,9 +74,9 @@ class db {
 			$fieldstr = '*';
 		}
 		self::$sql = "select {$fieldstr} from {$table} {$where}";
-		$result = mysql_query ( self::$sql, $this->conn );
+		$result = mysqli_query ($this->conn, self::$sql );
 		$resuleRow = array ();
-		while ( $row = mysql_fetch_assoc ( $result ) ) {
+		while ( $row = mysqli_fetch_assoc ( $result ) ) {
 			return $row;
 		}
 	}
@@ -97,8 +92,8 @@ class db {
 			$where = 'where ' . $where . '1=1';
 		}
 		self::$sql = "select count(*) as count from {$table} {$where}";
-		$result = mysql_query ( self::$sql, $this->conn );
-		while ( $row = @mysql_fetch_assoc ( $result ) ) {
+		$result = mysqli_query ($this->conn, self::$sql );
+		while ( $row = @mysqli_fetch_assoc ( $result ) ) {
 			return @$row['count'];
 			//return array_shift($row);
 		}
@@ -117,8 +112,8 @@ class db {
 		$values = rtrim ( $values, ',' );
 		$datas = rtrim ( $datas, ',' );
 		self::$sql = "INSERT INTO  {$table} ({$values}) VALUES ({$datas})";
-		if (mysql_query ( self::$sql )) {
-			return mysql_insert_id ();
+		if (mysqli_query ($this->conn, self::$sql )) {
+			return mysqli_insert_id ();
 		} else {
 			return false;
 		}
@@ -145,7 +140,7 @@ class db {
 			$updatastr = 'set ' . rtrim ( $updatastr, ',' );
 		}
 		self::$sql = "update {$table} {$updatastr} {$where}";
-		return mysql_query ( self::$sql );
+		return mysqli_query ($this->conn, self::$sql );
 	}
 	/**
 	 * 删除记录
@@ -161,15 +156,15 @@ class db {
 			$where = 'where ' . $where . '1=1';
 		}
 		self::$sql = "delete from {$table} {$where}";
-		return mysql_query ( self::$sql );
+		return mysqli_query ($this->conn, self::$sql );
 	}
 	
 	//用sql查询所有
 	public function getAllBySql($sql) {
 		self::$sql = $sql;
-		$result = mysql_query ( self::$sql );
+		$result = mysqli_query ($this->conn, self::$sql );
 		$return = array ();
-		while ( $row = @mysql_fetch_assoc ( $result ) ) {
+		while ( $row = @mysqli_fetch_assoc ( $result ) ) {
 			$return [] = @$row;
 		}
 		return $return;
@@ -178,15 +173,15 @@ class db {
 	//用sql查询一条记录
 	public function getRowBySql($sql){
 		self::$sql = $sql;
-		$result = mysql_query ( self::$sql );
-		while ( $row = @mysql_fetch_assoc ( $result ) ) {
+		$result = mysqli_query ($this->conn, self::$sql );
+		while ( $row = @mysqli_fetch_assoc ( $result ) ) {
 			return @$row;
 		}
 	}
 	public function getCountBySql($sql){
 		self::$sql = "select count(*) as count from ($sql) s ";
-		$result = mysql_query ( self::$sql);
-		while ( $row = @mysql_fetch_assoc ( $result ) ) {
+		$result = mysqli_query ($this->conn, self::$sql );
+		while ( $row = @mysqli_fetch_assoc ( $result ) ) {
 			return @$row['count'];
 		}
 	}

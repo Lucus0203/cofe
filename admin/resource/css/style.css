@@ -58,5 +58,6 @@ ul{list-style:none;}
 .hd_del_ta td{background:#ffffff; padding:5px; text-align:left}
 .hd_del_ta td.hd_ta_t{background:#977342; text-align:center;color:#fff;}
 .hd_del_ta td input{padding:3px 10px 3px 10px; font-size:15px;}
+.hd_del_ta td select{font-size:15px;}
 
 .main_ta_box p.btn input{font-size:15px;margin:10px 0 20px 30px;text-align:left;}

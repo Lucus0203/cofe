@@ -5,7 +5,27 @@
          <form action="" method="get">
          <input type="hidden" name="controller" value="Shop" />
          <input type="hidden" name="action" value="Index" />
-         <div class="hd_t1">查找店铺<input class="cz_input" type="text" name="title" value="{$title}"><input class="cz_btn" type="submit" value="查找"></div>
+         <div class="hd_t1">
+         	<select name="province_id" class="province_id">
+				<option value="">不限{$province_id}</option>
+				{section name=sec loop=$provinces}
+				<option value="{$provinces[sec].id}" {if $province_id eq $provinces[sec].id}selected{/if}>{$provinces[sec].name}</option>
+				{/section}
+			</select>
+			<select name="city_id" class="city_id">
+				<option value="">不限</option>
+				{section name=sec loop=$city}
+				<option value="{$city[sec].id}" {if $city_id eq $city[sec].id}selected{/if}>{$city[sec].name}</option>
+				{/section}
+			</select>
+			<select name="town_id" class="town_id">
+				<option value="">不限</option>
+				{section name=sec loop=$towns}
+				<option value="{$towns[sec].id}" {if $town_id eq $towns[sec].id}selected{/if}>{$towns[sec].name}</option>
+				{/section}
+			</select>
+			&nbsp;
+			关键字<input class="cz_input" type="text" name="title" value="{$title}"><input class="cz_btn" type="submit" value="查找"></div>
          </form>
          <table class="hd_ta" border="0" cellpadding="0" cellspacing="1" width="97%" align="center">
 			<colgroup>

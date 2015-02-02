@@ -6,6 +6,7 @@
     	<div class="main_l_menu"><a href="{url controller=Shop action=Add}">添加店铺</a></div>
         <div class="main_l_menu"><a href="{url controller=User action=Index}">用户管理</a></div>
     	<div class="main_l_menu"><a href="{url controller=UserEvent action=Index}">用户活动</a></div>
+    	<div class="main_l_menu"><a href="{url controller=BusinessCircle action=Index}">商圈管理</a></div>
         <div class="menu_b_box">
 	        <div class="main_l_menu"><a href="{url controller=User action=Feedback}">用户反馈</a></div>
 	        <div class="main_l_menu"><a href="{url controller=Index action=Banner}">首页滚动图</a></div>
