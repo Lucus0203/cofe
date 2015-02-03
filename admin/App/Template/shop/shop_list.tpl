@@ -1,6 +1,8 @@
 <script type="text/javascript" src="{$smarty.const.SITE}resource/js/shop_list.js"></script>
 <td valign="top" align="center">
  	<div class="main_ta_box">
+         <input type="hidden" id="provinceApiURL" value="{url controller=Api action=GetCityByProvince}" />
+         <input type="hidden" id="cityApiURL" value="{url controller=Api action=GetTownByCity}" />
          <div class="hd_t">咖啡店铺</div>
          <form action="" method="get">
          <input type="hidden" name="controller" value="Shop" />

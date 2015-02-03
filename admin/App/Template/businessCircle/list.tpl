@@ -1,5 +1,7 @@
-<script type="text/javascript" src="{$smarty.const.SITE}resource/js/business_circle_list.js"></script>
+<script type="text/javascript" src="{$smarty.const.SITE}resource/js/business_circle.js"></script>
 <td valign="top" align="center">
+         <input type="hidden" id="provinceApiURL" value="{url controller=Api action=GetCityByProvince}" />
+         <input type="hidden" id="cityApiURL" value="{url controller=Api action=GetTownByCity}" />
  	<div class="main_ta_box">
          <div class="hd_t">商圈</div>
          <form action="{url controller=BusinessCircle action=Add}" method="post">

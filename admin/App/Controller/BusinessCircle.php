@@ -32,7 +32,7 @@ class Controller_BusinessCircle extends FLEA_Controller_Action {
 	}
 	
 	/**
-	 * 店铺留言
+	 * 商圈
 	 *
 	 */
 	function actionIndex() {
@@ -89,6 +89,32 @@ class Controller_BusinessCircle extends FLEA_Controller_Action {
 		$data=$_POST;
 		$data=$this->_business_circle->create($data);
 		redirect($_SERVER['HTTP_REFERER']);
+	}
+	
+	function actionEdit(){
+		$id=$this->_common->filter($_GET['id']);
+		if(empty($id)){
+			redirect($_SERVER['HTTP_REFERER']);
+		}
+		$msg='';
+
+		$act=isset ( $_POST ['act'] ) ? $_POST ['act'] : '';
+		if($act=='edit'){
+			$data=$_POST;
+			$this->_business_circle->update($data);
+			$msg="更新成功";
+		}
+		
+		$circle=$this->_business_circle->findByField('id',$id);
+		
+		$provinces=$this->_address_province->findAll();
+		$prov=$this->_address_province->findByField('id',$circle['province_id']);
+		$city=$this->_address_city->findAll(array('provinceCode'=>$prov['code']));
+		$ctow=$this->_address_city->findByField('id',$circle['city_id']);
+		$towns=$this->_address_town->findAll(array('cityCode'=>$ctow['code']));
+		
+		$this->_common->show ( array ('main' => 'businessCircle/edit.tpl','data'=>$circle,'provinces'=>$provinces,'city'=>$city,'towns'=>$towns,'msg'=>$msg) );
+		
 	}
 	
 	function actionDel(){//删除
