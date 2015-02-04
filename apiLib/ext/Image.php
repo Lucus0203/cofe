@@ -81,7 +81,7 @@ class FLEA_Helper_Image
         );
 
         $handle = $ext2functions[$fileext]($filename);
-        $img =& new FLEA_Helper_Image($handle);
+        $img = new FLEA_Helper_Image($handle);
         return $img;
     }
 

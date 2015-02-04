@@ -86,12 +86,14 @@ function noNull($a){
 }
 
 function replaceNull($arr){
-	foreach ($arr as $k=>$a){
- 		if(is_array($a)){
- 			$arr[$k]=replaceNull($a);
- 		}else{
-			$arr[$k]=is_null($a)?'':$a;
- 		}
+	if(is_array($arr)&&!empty($arr)){
+		foreach ($arr as $k=>$a){
+	 		if(is_array($a)&&!empty($a)){
+	 			$arr[$k]=replaceNull($a);
+	 		}else{
+				$arr[$k]=is_null($a)?'':$a;
+	 		}
+		}
 	}
 	return $arr;
 }
