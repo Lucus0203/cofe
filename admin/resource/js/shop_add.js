@@ -56,6 +56,7 @@ $(function(){
 			data:{'province_id':pro_id},
 			success:function(res){
 				$('.city_id').eq(index).html('<option value="">选择</option>'+res);
+				$('.town_id').eq(index).html('<option value="">选择</option>');
 			}
 		})
 	});
