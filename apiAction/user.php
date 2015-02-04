@@ -1,8 +1,12 @@
 <?php
 require_once APP_DIR.DS.'apiLib'.DS.'ext'.DS.'Upload.php';
 require_once APP_DIR.DS.'apiLib'.DS.'ext'.DS.'Huanxin.php';
+require_once APP_DIR.DS.'apiLib'.DS.'ext'.DS.'Sms.php';
 $act=filter($_REQUEST['act']);
 switch ($act){
+	case 'getCaptchaCode':
+		getCaptchaCode();//获取验证码
+		break;
 	case 'register':
 		register();//注册
 		break;
@@ -47,6 +51,32 @@ switch ($act){
 		break;
 	default:
 		break;
+}
+
+//验证码
+function getCaptchaCode(){
+	global $db;
+	$data=filter($_REQUEST);
+	$mobile=$data['mobile'];
+	if(trim($mobile)==''){
+		echo json_result(null,'5','请填写手机号码');//请填写手机号码
+		return;
+	}
+	if(trim($mobile)!=''&&!checkMobile($mobile)){
+		echo json_result(null,'6','手机号码不正确');//手机号码不正确
+		return;
+	}
+	if(!empty($mobile)&&$db->getCount("user",array('mobile'=>$mobile))>0){
+		echo json_result(null,'7','手机已被使用');
+		return;
+	}
+	$sms=new Sms();
+	$code=999999;//rand(100000, 999999);
+	//$sms->sendMsg("您本次验证码是:".$code."，欢迎您使用", $mobile);
+	$user=array('mobile'=>$mobile,'captcha_code'=>$code);
+	$db->create('user', $user);
+	echo json_result(array('code'=>$code));
+	
 }
 
 //注册

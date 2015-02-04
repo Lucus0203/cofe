@@ -113,7 +113,7 @@ class db {
 		$datas = rtrim ( $datas, ',' );
 		self::$sql = "INSERT INTO  {$table} ({$values}) VALUES ({$datas})";
 		if (mysqli_query ($this->conn, self::$sql )) {
-			return mysqli_insert_id ();
+			return mysqli_insert_id ($this->conn);
 		} else {
 			return false;
 		}
