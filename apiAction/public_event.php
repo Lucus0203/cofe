@@ -30,6 +30,7 @@ function getEvents(){
 	$sql .= " pe.num asc,pe.datetime,pe.id desc limit $start,$page_size";
 	$list=$db->getAllBySql($sql);
 	foreach ($list as $k=>$v){
+		//$list[$k]['datetime']=strtotime($v['datetime']);
 		$list[$k]['distance']=(!empty($v['lat'])&&!empty($v['lng'])&&!empty($lng)&&!empty($lat))?getDistance($lat,$lng,$v['lat'],$v['lng']):lang_UNlOCATE;
 	}
 	echo json_result($list);
@@ -62,7 +63,12 @@ function joinEvent(){
 			$up=array('user_id'=>$userid,'public_event_id'=>$eventid,'created'=>date("Y-m-d H:i:s"));
 			$db->create('public_users', $up);
 		}
-		echo json_result(array('eventid'=>$eventid));
+		//活动用户及头像地址
+		$sql="select u.id as user_id,u.nick_name,u.user_name,up.path from ".DB_PREFIX."public_users pu left join ".DB_PREFIX."user u on pu.user_id = u.id left join ".DB_PREFIX."user_photo up on u.head_photo_id = up.id where pu.public_event_id=".$eventid;
+		$pub_event['user_count']=$db->getCountBySql($sql);//参与人数
+		$pub_event['users_photo']=$db->getAllBySql($sql);
+		echo json_result($pub_event);
+		//echo json_result(array('eventid'=>$eventid));
 	}else{
 		echo json_result(null,'20','用户未登录或者该活动已删除');
 	}

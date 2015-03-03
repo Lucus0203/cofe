@@ -85,7 +85,16 @@ class Service_Page {
 			if($end>$this->_total){
 				$end=$this->_total;
 			}
-			$pagecontent='<div class="hd_t2">共<span>'.$this->_total.'</span>条记录&nbsp;&nbsp;&nbsp;<span>'.$this->_page_num.'</span>条记录/页<a href="'.$url.'&page_no=1">首页</a><a href="'.$prevurl.'">上一页</a><a href="'.$nexturl.'">下一页</a><a href="'.$url.'&page_no='.$pages.'">尾页</a>&nbsp;&nbsp;&nbsp;页次：'.$this->_page_no.'/'.$pages.'页</div>';
+			$select='<select class="selectPage">';
+			for ($p=1;$p<=$pages;$p++){
+				if($p==$this->_page_no){
+					$select.='<option value="'.$p.'" selected>'.$p.'</option>';
+				}else{
+					$select.='<option value="'.$p.'">'.$p.'</option>';
+				}
+			}
+			$select.='</select>';
+			$pagecontent='<div class="hd_t2">共<span>'.$this->_total.'</span>条记录&nbsp;&nbsp;&nbsp;<span>'.$this->_page_num.'</span>条记录/页<a href="'.$url.'&page_no=1">首页</a><a href="'.$prevurl.'">上一页</a><a href="'.$nexturl.'">下一页</a><a href="'.$url.'&page_no='.$pages.'">尾页</a>&nbsp;&nbsp;&nbsp;页次：'.$select.'/'.$pages.'页</div>';
 		}
 		
 		return $pagecontent;

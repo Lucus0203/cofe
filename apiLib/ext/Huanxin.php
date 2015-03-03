@@ -89,6 +89,11 @@ Class Huanxin {
 		$data=array('username'=>$username,'password'=>$password);
 		return $this->sendJsonData("https://a1.easemob.com/zcsy/coffee/users",json_encode($data),1);
 	}
+	//修改密码
+	function updatePass($username,$password){
+		$data=array('newpassword'=>$password);
+		return $this->sendJsonData("https://a1.easemob.com/zcsy/coffee/users/{$username}/password",json_encode($data),1);
+	}
 	//查找
 	function findIMUser($username){
 		return $this->getJsonData("https://a1.easemob.com/zcsy/coffee/users/".$username);

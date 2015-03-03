@@ -1,11 +1,20 @@
 <?php
 $act=filter($_REQUEST['act']);
 switch ($act){
+	case 'recommendShops':
+		recommendShops();
+		break;
 	case 'nearbyShops':
 		nearbyShops();//附近店铺
 		break;
+	case 'getShopByConditions':
+		getShopByConditions();//店铺筛选
+		break;
 	case 'favoriteShops':
 		favoriteShops();//用户收藏的店铺
+		break;
+	case 'removeFavoriteShopById'://取消收藏
+		removeFavoriteShopById();
 		break;
 	case 'shopInfo':
 		shopInfo();//店铺详情
@@ -20,6 +29,15 @@ switch ($act){
 		break;
 }
 
+//推荐的店铺
+function recommendShops(){
+	global $db;
+	$sql="select id,img from ".DB_PREFIX."shop where status=2 and recommend=1 and img <>'' and img is not null";
+	$sql.=" order by id desc";
+	$shops=$db->getAllBySql($sql);
+	echo json_result($shops);
+}
+
 //附近咖啡
 function nearbyShops(){
 	global $db;
@@ -29,6 +47,45 @@ function nearbyShops(){
 	$page_size = PAGE_SIZE;
 	$start = ($page_no - 1) * $page_size;
 	$sql="select * from ".DB_PREFIX."shop where status=2 ";
+	$sql.=(!empty($lng)&&!empty($lat))?" order by sqrt(power(lng-{$lng},2)+power(lat-{$lat},2))":'';
+	
+	$sql .= " limit $start,$page_size";
+	$shops=$db->getAllBySql($sql);
+	foreach ($shops as $k=>$v){
+		$shops[$k]['distance']=(!empty($v['lat'])&&!empty($v['lng'])&&!empty($lng)&&!empty($lat))?getDistance($lat,$lng,$v['lat'],$v['lng']):lang_UNlOCATE;
+	}
+	echo json_result($shops);
+}
+
+//筛选出的店铺
+function getShopByConditions(){
+	global $db;
+	$lng=filter($_REQUEST['lng']);
+	$lat=filter($_REQUEST['lat']);
+	$provinceid = !empty ( $_GET ['provinceid'] ) ? $_GET ['provinceid'] : '';//省
+	$cityid = !empty ( $_GET ['cityid'] ) ? $_GET ['cityid'] : '';//市
+	$townid = !empty ( $_GET ['townid'] ) ? $_GET ['townid'] : '';//区
+	$circleid = !empty ( $_GET ['circleid'] ) ? $_GET ['circleid'] : '';//商圈
+	$page_no = isset ( $_GET ['page'] ) ? $_GET ['page'] : 1;
+	$page_size = PAGE_SIZE;
+	$start = ($page_no - 1) * $page_size;
+	
+	$conditions="";
+	if(!empty($provinceid)){
+		$conditions.=" and province_id=$provinceid ";
+	}
+	if(!empty($cityid)){
+		$conditions.=" and city_id=$cityid ";
+	}
+	if(!empty($townid)){
+		$conditions.=" and town_id=$townid ";
+	}
+	if(!empty($circleid)){
+		$locat=$db->getRow('business_circle',array('id'=>$circleid),array("lng","lat"));
+		$lng=$locat['lng'];
+		$lat=$locat['lat'];
+	}
+	$sql="select * from ".DB_PREFIX."shop where status=2 $conditions ";
 	$sql.=(!empty($lng)&&!empty($lat))?" order by sqrt(power(lng-{$lng},2)+power(lat-{$lat},2))":'';
 	
 	$sql .= " limit $start,$page_size";
@@ -53,15 +110,35 @@ function favoriteShops(){
 	$page_size = PAGE_SIZE;
 	$start = ($page_no - 1) * $page_size;
 	
-	$sql="select shop.*,shopuser.shop_id from ".DB_PREFIX."shop shop left join ".DB_PREFIX."shop_users shopuser on shop.id=shopuser.shop_id where shopuser.user_id=".$userid." and status=2 ";
+	$sql="select shop.id,shop.title,shop.subtitle,shop.address,shop.img,shopuser.shop_id from ".DB_PREFIX."shop shop left join ".DB_PREFIX."shop_users shopuser on shop.id=shopuser.shop_id where shopuser.user_id=".$userid." and status=2 ";
 	$sql.=(!empty($lng)&&!empty($lat))?" order by sqrt(power(lng-{$lng},2)+power(lat-{$lat},2))":'';
 	
 	$sql .= " limit $start,$page_size";
 	$shops=$db->getAllBySql($sql);
 	foreach ($shops as $k=>$v){
+		$shops[$k]['num']=$db->getCount('shop_users',array('shop_id'=>$v['shop_id']));
 		$shops[$k]['distance']=(!empty($v['lat'])&&!empty($v['lng'])&&!empty($lng)&&!empty($lat))?getDistance($lat,$lng,$v['lat'],$v['lng']):lang_UNlOCATE;
 	}
 	echo json_result($shops);
+}
+
+//取消收藏的店铺
+function removeFavoriteShopById(){
+	global $db;
+	$userid=filter(!empty($_REQUEST['userid'])?$_REQUEST['userid']:'');
+	$shopid=filter(!empty($_REQUEST['shopid'])?$_REQUEST['shopid']:'');
+	if(empty($userid)){
+		echo json_result(null,'21','用户未登录');
+		return;
+	}
+	if(empty($shopid)){
+		echo json_result(null,'22','没有找到这个店铺');
+		return;
+	}
+	$up=array('user_id'=>$userid,'shop_id'=>$shopid);
+	$db->delete('shop_users', $up);
+	echo json_result(array('success'=>'TRUE'));
+	
 }
 
 //咖啡店铺详情
@@ -76,8 +153,9 @@ function shopInfo(){
 	if(!empty($shopid)){
 		$shop=$db->getRow('shop',array('id'=>$shopid));
 		$shop['distance']=(!empty($shop['lat'])&&!empty($shop['lng'])&&!empty($lng)&&!empty($lat))?getDistance($lat,$lng,$shop['lat'],$shop['lng']):lang_UNlOCATE;
-		$shop['menus']=$db->getAll('shop_menu',array('shop_id'=>$shopid));
+		$shop['menus']=$db->getAll('shop_menu',array('shop_id'=>$shopid),null," limit 4 ");
 		$bbs_sql="select up.path,u.nick_name,u.user_name,bbs.* from ".DB_PREFIX."shop_bbs bbs left join ".DB_PREFIX."user u on u.id=bbs.user_id left join ".DB_PREFIX."user_photo up on up.id=u.head_photo_id where bbs.allow=1 and bbs.shop_id=$shopid";
+		$shop['bbsCount']=$db->getCountBySql($bbs_sql);
 		$bbs_sql.=" order by bbs.id desc limit $start,$page_size";
 		$shop['bbs']=$db->getAllBySql($bbs_sql);
 		//特色

@@ -4,8 +4,11 @@ require_once APP_DIR.DS.'apiLib'.DS.'ext'.DS.'Huanxin.php';
 require_once APP_DIR.DS.'apiLib'.DS.'ext'.DS.'Sms.php';
 $act=filter($_REQUEST['act']);
 switch ($act){
-	case 'getCaptchaCode':
-		getCaptchaCode();//获取验证码
+	case 'getVerificationCode':
+		getVerificationCode();//获取验证码
+		break;
+	case 'resetPassword':
+		resetPassword();//重置密码
 		break;
 	case 'register':
 		register();//注册
@@ -19,6 +22,9 @@ switch ($act){
 	case 'infoEdit':
 		infoEdit();//个人信息修改
 		break;
+	case 'infoImgs'://相册
+		infoImgs();
+		break;
 	case 'uploadImgs'://上传多个图片
 		uploadImgs();
 		break;
@@ -31,6 +37,9 @@ switch ($act){
 	case 'changeHeadImg'://选择头像
 		changeHeadImg();
 		break;
+	case 'uploadHeadImg':
+		uploadHeadImg();
+		break;
 	case 'getAdd':
 		getLocation();//获取常住经纬度
 		break;
@@ -41,7 +50,7 @@ switch ($act){
 		updateCurrent();//更新当前经纬度
 		break;
 	case 'allowLngLat':
-		allowLngLat();//获取经纬度
+		allowLngLat();//允许获取经纬度
 		break;
 	case 'allowFind':
 		allowFind();//允许找到我
@@ -49,15 +58,25 @@ switch ($act){
 	case 'allowFlow':
 		allowFlow();//允许关注我
 		break;
+	case 'allowNews':
+		allowNews();//允许新消息
+		break;
 	default:
 		break;
 }
 
 //验证码
-function getCaptchaCode(){
+function getVerificationCode(){
 	global $db;
 	$data=filter($_REQUEST);
 	$mobile=$data['mobile'];
+	$type=empty($data['type'])?'':$data['type'];//1注册验证码2找回密码验证码
+	if($type!=2){
+		if($db->getCountBySql("select id from ".DB_PREFIX."user where mobile='$mobile' and uuid is not null and uuid <> '' ")>0){
+			echo json_result(null,'7','此手机号已经注册过');
+			return;
+		}
+	}
 	if(trim($mobile)==''){
 		echo json_result(null,'5','请填写手机号码');//请填写手机号码
 		return;
@@ -66,75 +85,115 @@ function getCaptchaCode(){
 		echo json_result(null,'6','手机号码不正确');//手机号码不正确
 		return;
 	}
+	//生成验证码
+	$code=rand(100000, 999999);
 	if(!empty($mobile)&&$db->getCount("user",array('mobile'=>$mobile))>0){
-		echo json_result(null,'7','手机已被使用');
-		return;
+		$db->update('user',array('captcha_code'=>$code),array('mobile'=>$mobile));
+	}else{
+		$user=array('mobile'=>$mobile,'captcha_code'=>$code);
+		$db->create('user', $user);
 	}
 	$sms=new Sms();
-	$code=999999;//rand(100000, 999999);
-	//$sms->sendMsg("您本次验证码是:".$code."，欢迎您使用", $mobile);
-	$user=array('mobile'=>$mobile,'captcha_code'=>$code);
-	$db->create('user', $user);
-	echo json_result(array('code'=>$code));
+	$sms->sendMsg("您本次验证码是:".$code."，欢迎您使用", $mobile);
+	echo json_result(array('success'=>"TRUE"));//array('code'=>$code)
 	
+}
+//重置密码
+function resetPassword(){
+	global $db;
+	$data=filter($_REQUEST);
+	$mobile=!empty($data['mobile'])?$data['mobile']:'';
+	$code=!empty($data['code'])?$data['code']:'';
+	$user_pass=!empty($data['user_password'])?$data['user_password']:'';
+	if(trim($mobile)==''){
+		echo json_result(null,'5','请填写手机号码');//请填写手机号码
+		return;
+	}
+	if(trim($mobile)!=''&&!checkMobile($mobile)){
+		echo json_result(null,'6','手机号码不正确');//手机号码不正确
+		return;
+	}
+	
+	if(trim($user_pass)==''){
+		echo json_result(null,'7','请填写密码');//请填写密码
+		return;
+	}
+	
+	if($db->getCount("user",array('mobile'=>$mobile,'captcha_code'=>$code))<=0){
+		echo json_result(null,'8','验证码不正确');
+		return;
+	}
+	$userInfo=$db->getRow('user',array('mobile'=>$mobile));
+	if(!empty($userInfo['uuid'])){
+		$pass=array('user_password'=>md5($user_pass));
+		$HuanxinObj=Huanxin::getInstance();
+		$huserObj=$HuanxinObj->updatePass(strtolower($mobile), md5($user_pass));
+		if($huserObj->duration){
+			$flag=$db->update('user', $pass ,array('mobile'=>$mobile,'captcha_code'=>$code));
+		}else{
+			echo json_result(null,'9','密码修改失败,请联系客服');
+		}
+	}else{
+		$user=array('user_password'=>md5($user_pass),'mobile'=>$mobile,'sex'=>'3','age'=>'保密','constellation'=>'保密','created'=>date("Y-m-d H:i:s"));
+		$HuanxinObj=Huanxin::getInstance();
+		$huserObj=$HuanxinObj->addNewAppUser(strtolower($mobile), md5($user_pass));
+		$uuid=$huserObj->entities[0]->uuid;
+		if(empty($uuid)){
+			echo json_result(null,'101','密码修改失败,请联系客服');
+			return;
+		}
+		$user['uuid']=$uuid;
+		$flag=$db->update('user', $user ,array('mobile'=>$mobile,'captcha_code'=>$code));
+	}
+	echo json_result(array('success'=>$flag));//成功
 }
 
 //注册
 function register(){
 	global $db;
 	$data=filter($_REQUEST);
-	$user_name=$data['user_name'];
-	$user_pass=$data['user_password'];
-	$email=$data['email'];
-	$tel=$data['mobile'];
-	if(trim($user_name)==''){
-		echo json_result(null,'2','请填写帐号');
+	$mobile=!empty($data['mobile'])?$data['mobile']:'';
+	$code=!empty($data['code'])?$data['code']:'';
+	$user_pass=!empty($data['user_password'])?$data['user_password']:'';
+	$sex=!empty($data['sex'])?$data['sex']:'3';
+	if(trim($mobile)==''){
+		echo json_result(null,'5','请填写手机号码');//请填写手机号码
 		return;
 	}
-	if(trim($email)==''&&trim($tel)==''){
-		echo json_result(null,'3','请填写邮箱或者手机号');
-		return;
-	}
-	if(trim($email)!=''&&!checkEmail($email)){
-		echo json_result(null,'4','邮箱格式不正确');
-		return;
-	}
-// 	if(trim($tel)==''){
-// 		echo json_result(null,'5','请填写手机号码');//请填写手机号码
-// 		return;
-// 	}
-	if(trim($tel)!=''&&!checkMobile($tel)){
+	if(trim($mobile)!=''&&!checkMobile($mobile)){
 		echo json_result(null,'6','手机号码不正确');//手机号码不正确
 		return;
 	}
+	
+// 	if(trim($email)!=''&&!checkEmail($email)){
+// 		echo json_result(null,'4','邮箱格式不正确');
+// 		return;
+// 	}
 	if(trim($user_pass)==''){
 		echo json_result(null,'7','请填写密码');//请填写密码
 		return;
 	}
-	if($db->getCount("user",array('user_name'=>$user_name))>0){
-		echo json_result(null,'8','帐号已被使用');
-		return;
-	}
-	if(!empty($email)&&$db->getCount("user",array('email'=>$email))>0){
-		echo json_result(null,'9','邮箱已被使用');
+
+	if($db->getCount("user",array('mobile'=>$mobile,'captcha_code'=>$code))<=0){
+		echo json_result(null,'8','验证码不正确');
 		return;
 	}
 	
-	if(!empty($tel)&&$db->getCount("user",array('mobile'=>$tel))>0){
-		echo json_result(null,'10','手机已被使用');
+	if($db->getCountBySql("select id from ".DB_PREFIX."user where mobile='$mobile' and uuid is not null and uuid <> '' ")>0){
+		echo json_result(null,'9','此手机号已经注册过');
 		return;
 	}
-	$user=array('user_name'=>$user_name,'user_password'=>md5($user_pass),'email'=>$email,'mobile'=>$tel,'created'=>date("Y-m-d H:i:s"));
+	$user=array('user_password'=>md5($user_pass),'mobile'=>$mobile,'sex'=>$sex,'age'=>'保密','constellation'=>'保密','created'=>date("Y-m-d H:i:s"));
 	$HuanxinObj=Huanxin::getInstance();
-	$huserObj=$HuanxinObj->addNewAppUser(strtolower($user_name), md5($user_pass));
+	$huserObj=$HuanxinObj->addNewAppUser(strtolower($mobile), md5($user_pass));
 	$uuid=$huserObj->entities[0]->uuid;
 	if(empty($uuid)){
-		echo json_result(null,'101','注册失败');
+		echo json_result(null,'101','注册失败,请联系客服');
 		return;
 	}
 	$user['uuid']=$uuid;
-	$user_id=$db->create('user', $user);
-	echo json_result(array('userid'=>$user_id));//成功
+	$flag=$db->update('user', $user ,array('mobile'=>$mobile,'captcha_code'=>$code));
+	echo json_result(array('success'=>$flag));//成功
 }
 
 //登录
@@ -178,9 +237,10 @@ function login(){
 function info(){
 	global $db;
 	$data=filter($_REQUEST);
-	$user_id=$data['user_id'];
-	$myself_id=$data['myself_id'];//登陆者id
+	$user_id=$data['userid'];
+	$myself_id=$data['myselfid'];//登陆者id
 	$info=$db->getRow('user',array('id'=>$user_id));
+	unset($info['user_password']);
 	//查询人物关系 当myself_id不为空的时候
 	if(!empty($myself_id)){
 		//我关注的
@@ -207,6 +267,7 @@ function info(){
 		$me=$db->getRow('user',array('id'=>$myself_id));
 		$info['distance']=(!empty($me['lat'])&&!empty($me['lng'])&&!empty($info['lat'])&&!empty($info['lng']))?getDistance($info['lat'],$info['lng'],$me['lat'],$me['lng']):lang_UNlOCATE;
 		$info['lasttime']=time2Units(time()-strtotime($info['logintime']));
+		$info['address']=($info['allow_find']==1)&&!empty($info['lat'])&&!empty($info['lng'])?getAddressFromBaidu($info['lng'],$info['lat']):"未获取到位置";
 	}
 	//头像
 	if(!empty($info['head_photo_id'])){
@@ -229,24 +290,53 @@ function info(){
 function infoEdit(){
 	global $db;
 	$data=filter($_REQUEST);
-	$user_id=$data['user_id'];
+	$user_id=$data['userid'];
 	if(empty($user_id)){
 		echo json_result(null,'14','获取不到当前用户id');
 		return;
 	}
-	$info['sex']=$data['sex'];
-	//$info['user_name']=$data['user_name'];
-	$info['talk']=$data['talk'];
-	$info['constellation']=$data['constellation'];
-	$info['nick_name']=$data['nick_name'];
-	if($data['head_photo_id']!=''){
+	$info=array();
+	if(!empty($data['sex'])){
+		$info['sex']=$data['sex'];
+	}
+	if(!empty($data['age'])){
+		$info['age']=$data['age'];
+	}
+	if(!empty($data['user_name'])){
+		$info['user_name']=$data['user_name'];
+		if($db->getCountBySql("select id from ".DB_PREFIX."user where user_name='{$data['user_name']}' and id <> $user_id ")>0){
+			echo json_result(null,'15','约我账号已被使用');
+			return;
+		}
+	}
+	if(!empty($data['talk'])){
+		$info['talk']=$data['talk'];
+	}
+	if(!empty($data['constellation'])){
+		$info['constellation']=$data['constellation'];
+	}
+	if(!empty($data['nick_name'])){
+		$info['nick_name']=$data['nick_name'];
+		$info['pinyin']=!empty($info['nick_name'])?getFirstCharter($info['nick_name']):'';
+	}
+	if(!empty($data['head_photo_id'])){
 		$info['head_photo_id']=$data['head_photo_id'];
 	}
-	$info['career']=$data['career'];
-	$info['signature']=$data['signature'];
-	$info['home']=$data['home'];
-	$info['address']=$data['address'];
-	$info['interest']=$data['interest'];
+	if(!empty($data['career'])){
+		$info['career']=$data['career'];
+	}
+	if(!empty($data['signature'])){
+		$info['signature']=$data['signature'];
+	}
+	if(!empty($data['home'])){
+		$info['home']=$data['home'];
+	}
+	if(!empty($data['address'])){
+		$info['address']=$data['address'];
+	}
+	if(!empty($data['interest'])){
+		$info['interest']=$data['interest'];
+	}
 	//经纬度
 	$loc_json=file_get_contents("http://api.map.baidu.com/geocoder/v2/?address=".$data['address']."&output=json&ak=".BAIDU_AK);
 	$loc=json_decode($loc_json);
@@ -277,14 +367,38 @@ function infoEdit(){
 			$db->create('user_photo', $photo);
 		}
 	}
+
+	$info=$db->getRow('user',array('id'=>$user_id));
+	if(!empty($info['head_photo_id'])){
+		$head=$db->getRow('user_photo',array('id'=>$info['head_photo_id']));
+		$info['head_photo']=$head['path'];
+	}
+	unset($info['user_password']);
+	echo json_result($info);
+}
+
+//相册
+function infoImgs(){
+	global $db;
+	$data=filter($_REQUEST);
+	$user_id=$data['userid'];
+	if(empty($user_id)){
+		echo json_result(null,'14','获取不到当前用户id');
+		return;
+	}
+	$user_photo=$db->getAll('user_photo',array('user_id'=>$user_id,'isdelete'=>0));
+	foreach ($user_photo as $k=>$p){
+		$user_photo[$k]['ishead']=($p['id']==$info['head_photo_id'])?1:0;
+	}
+	$info['photos']=$user_photo;
+	echo json_result($info);
 	
-	echo json_result(array('userid'=>$user_id));
 }
 
 //上传多图
 function uploadImgs(){
 	global $db;
-	$user_id=filter($_REQUEST['user_id']);
+	$user_id=filter($_REQUEST['userid']);
 	if(empty($user_id)){
 		echo json_result(null,'14','获取不到当前用户id');
 		return;
@@ -316,7 +430,7 @@ function uploadImgs(){
 //上传单张图片
 function uploadOnceImg(){
 	global $db;
-	$user_id=filter($_REQUEST['user_id']);
+	$user_id=filter($_REQUEST['userid']);
 	if(empty($user_id)){
 		echo json_result(null,'14','获取不到当前用户id');
 		return;
@@ -329,8 +443,8 @@ function uploadOnceImg(){
 	}
 	$upload->setDir($folder.date("Ymd")."/");
 	$upload->setPrefixName('user'.$user_id);
-	$upload->setSHeight(200);
-	$upload->setSWidth(200);
+	$upload->setSHeight(290);
+	$upload->setSWidth(290);
 	$upload->setLHeight(640);
 	$upload->setLWidth(640);
 	$file=$upload->upLoadImg('photo');//$_File['photo'.$i]
@@ -346,9 +460,8 @@ function uploadOnceImg(){
 		//默认一张图片做头像
 		$userinfo=$db->getRow('user',array('id'=>$user_id));
 		if(empty($userinfo['head_photo_id'])){
-			$userinfo['head_photo_id']=$photo['id'];
+			$db->update('user', array('head_photo_id'=>$photo['id']),array('id'=>$user_id));
 		}
-		$db->update('user', array('head_photo_id'=>$photo['id']),array('id'=>$user_id));
 	}
 	echo json_result($photo);
 }
@@ -356,29 +469,32 @@ function uploadOnceImg(){
 //删除图片
 function deleteImg(){
 	global $db;
-	$user_id=filter($_REQUEST['user_id']);
+	$user_id=filter($_REQUEST['userid']);
 	if(empty($user_id)){
 		echo json_result(null,'14','获取不到当前用户id');
 		return;
 	}
-	$pid=filter($_REQUEST['pid']);
-	$photo=$db->getRow('user_photo',array('id'=>$pid,'user_id'=>$user_id));
-	if(!is_array($photo)){
-		echo json_result(null,'38','图片已删除');
-		return;
+	$pids=filter($_REQUEST['pid']);
+	$pids=explode(",", $pids);
+	foreach ($pids as $pid){
+		$photo=$db->getRow('user_photo',array('id'=>$pid,'user_id'=>$user_id));
+		if(!is_array($photo)){
+			echo json_result(null,'38','图片已删除');
+			return;
+		}
+		$path=str_replace(APP_SITE, "", $photo['path']);
+		unlink($path);
+		$path=str_replace("_s", "_b", $path);
+		unlink($path);
+		$db->delete('user_photo', array('id'=>$pid,'user_id'=>$user_id));
 	}
-	$path=str_replace(APP_SITE, "", $photo['path']);
-	unlink($path);
-	$path=str_replace("_s", "_b", $path);
-	unlink($path);
-	$db->delete('user_photo', array('id'=>$pid,'user_id'=>$user_id));
 	echo json_result(array('userid'=>$user_id));
 }
 
 //选择头像
 function changeHeadImg(){
 	global $db;
-	$user_id=filter($_REQUEST['user_id']);
+	$user_id=filter($_REQUEST['userid']);
 	if(empty($user_id)){
 		echo json_result(null,'14','获取不到当前用户id');
 		return;
@@ -395,11 +511,47 @@ function changeHeadImg(){
 	
 }
 
+//上传头像
+function uploadHeadImg(){
+	global $db;
+	$user_id=filter($_REQUEST['userid']);
+	if(empty($user_id)){
+		echo json_result(null,'14','获取不到当前用户id');
+		return;
+	}
+	//上传相册图片
+	$upload=new UpLoad();
+	$folder="upload/userPhoto/";
+	if (! file_exists ( $folder )) {
+		mkdir ( $folder, 0777 );
+	}
+	$upload->setDir($folder.date("Ymd")."/");
+	$upload->setPrefixName('user'.$user_id);
+	$upload->setSHeight(290);
+	$upload->setSWidth(290);
+	$upload->setLHeight(640);
+	$upload->setLWidth(640);
+	$file=$upload->upLoadImg('photo');//$_File['photo'.$i]
+	if($file['status']!=0&&$file['status']!=1){
+		echo json_result(null,'37',$file['errMsg']);
+		return;
+	}
+	if($file['status']==1){
+		$photo['path']=APP_SITE.$file['s_path'];
+		$photo['user_id']=$user_id;
+		$photo['created']=date("Y-m-d H:i:s");
+		$photo['id']=$db->create('user_photo', $photo);
+		
+		$db->update('user', array('head_photo_id'=>$photo['id']),array('id'=>$user_id));
+	}
+	echo json_result(array('path'=>$photo['path']));
+}
+
 //常住位置经纬度
 function getLocation(){
 	global $db;
 	$data=filter($_REQUEST);
-	$user_id=$data['user_id'];
+	$user_id=$data['userid'];
 	if(empty($user_id)){
 		echo json_result(null,'15','找不到用户');
 		return;
@@ -412,7 +564,7 @@ function getLocation(){
 function getCurrent(){
 	global $db;
 	$data=filter($_REQUEST);
-	$user_id=$data['user_id'];
+	$user_id=$data['userid'];
 	if(empty($user_id)){
 		echo json_result(null,'16','找不到用户');
 		return;
@@ -425,7 +577,7 @@ function getCurrent(){
 function updateCurrent(){
 	global $db;
 	$data=filter($_REQUEST);
-	$user_id=$data['user_id'];
+	$user_id=$data['userid'];
 	if(empty($user_id)){
 		echo json_result(null,'17','找不到用户');
 		return;
@@ -442,14 +594,15 @@ function updateCurrent(){
 	$info['lat']=$data['lat'];
 	$info['logintime']=date("Y-m-d H:i:s");
 	$db->update('user',$info,array('id'=>$user_id));
-	echo json_result(array('userid'=>$user_id));
+	$address=getAddressFromBaidu($info['lng'],$info['lat']);
+	echo json_result(array('address'=>$address));
 }
 
 //允许获取经纬度
 function allowLngLat(){
 	global $db;
 	$data=filter($_REQUEST);
-	$user_id=$data['user_id'];
+	$user_id=$data['userid'];
 	$allow=$data['allow'];//1允许2不允许
 	if (empty($user_id)){
 		echo json_result(null,'17','您还未登录');
@@ -463,7 +616,7 @@ function allowLngLat(){
 function allowFind(){
 	global $db;
 	$data=filter($_REQUEST);
-	$user_id=$data['user_id'];
+	$user_id=$data['userid'];
 	$allow=$data['allow'];//1允许2不允许
 	if (empty($user_id)){
 		echo json_result(null,'17','您还未登录');
@@ -476,12 +629,25 @@ function allowFind(){
 function allowFlow(){
 	global $db;
 	$data=filter($_REQUEST);
-	$user_id=$data['user_id'];
+	$user_id=$data['userid'];
 	$allow=$data['allow'];//1允许2不允许
 	if (empty($user_id)){
 		echo json_result(null,'17','您还未登录');
 		return;
 	}
 	$db->update('user',array('allow_flow'=>$allow),array('id'=>$user_id));
+	echo json_result(array('userid'=>$user_id));
+}
+//允许新消息
+function allowNews(){
+	global $db;
+	$data=filter($_REQUEST);
+	$user_id=$data['userid'];
+	$allow=$data['allow'];//1允许2不允许
+	if (empty($user_id)){
+		echo json_result(null,'17','您还未登录');
+		return;
+	}
+	$db->update('user',array('allow_news'=>$allow),array('id'=>$user_id));
 	echo json_result(array('userid'=>$user_id));
 }

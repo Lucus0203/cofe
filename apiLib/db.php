@@ -20,7 +20,7 @@ class db {
 	/*
 	 * 查询数据库
 	 */
-	public function getAll($table, $condition = array(), $field = array()) {
+	public function getAll($table, $condition = array(), $field = array() , $limit="") {
 		$table=DB_PREFIX.$table;
 		$where = '';
 		if (! empty ( $condition )) {
@@ -40,11 +40,11 @@ class db {
 		} else {
 			$fieldstr = '*';
 		}
-		self::$sql = "select {$fieldstr} from {$table} {$where}";
+		self::$sql = "select {$fieldstr} from {$table} {$where} {$limit}";
 		$result = mysqli_query ($this->conn, self::$sql );
 		$resuleRow = array ();
 		$i = 0;
-		while ( $row = mysqli_fetch_assoc ( $result ) ) {
+		while ( $row = @mysqli_fetch_assoc ( $result ) ) {
 			foreach ( $row as $k => $v ) {
 				$resuleRow [$i] [$k] = $v;
 			}
@@ -91,7 +91,7 @@ class db {
 			}
 			$where = 'where ' . $where . '1=1';
 		}
-		self::$sql = "select count(*) as count from {$table} {$where}";
+		self::$sql = "select count(*) as count from {$table} {$where} limit 1";
 		$result = mysqli_query ($this->conn, self::$sql );
 		while ( $row = @mysqli_fetch_assoc ( $result ) ) {
 			return @$row['count'];
@@ -179,7 +179,7 @@ class db {
 		}
 	}
 	public function getCountBySql($sql){
-		self::$sql = "select count(*) as count from ($sql) s ";
+		self::$sql = "select count(*) as count from ($sql) s limit 1 ";
 		$result = mysqli_query ($this->conn, self::$sql );
 		while ( $row = @mysqli_fetch_assoc ( $result ) ) {
 			return @$row['count'];

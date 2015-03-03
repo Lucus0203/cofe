@@ -29,11 +29,6 @@
 							<option value="{$city[sec].id}" {if $data.city_id eq $city[sec].id}selected{/if}>{$city[sec].name}</option>
 						{/section}
 					</select>
-					<select name="town_id" class="town_id">
-						{section name=sec loop=$towns}
-							<option value="{$towns[sec].id}" {if $data.town_id eq $towns[sec].id}selected{/if}>{$towns[sec].name}</option>
-						{/section}
-					</select>
                  </td>
              </tr>
              <tr>

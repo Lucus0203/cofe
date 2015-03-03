@@ -177,7 +177,11 @@ class UpLoad {
 			mkdir ( $this->dir, 0777 );
 		}
 		$filename = $file ["tmp_name"];
-		$image_size = getimagesize ( $filename );
+		list($o_w, $o_h) = getimagesize ( $filename );
+		$s_height=$this->SWidth / $o_w * $o_h ;
+		$l_height=$this->LHeight / $o_w * $o_h ;
+		$this->setSHeight($s_height);
+		$this->setLHeight($l_height);
 		$pinfo = pathinfo ( $file ["name"] );
 		$ftype = $pinfo ['extension'];
 		$s = $this->dir . $this->prefixName.time () . "_s." . $ftype;

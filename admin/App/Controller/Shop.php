@@ -48,8 +48,8 @@ class Controller_Shop extends FLEA_Controller_Action {
 		$page_no = isset ( $_GET ['page_no'] ) ? $_GET ['page_no'] : 1;
 		$page_size = 20;
 		$title = isset ( $_GET ['title'] ) ? trim($_GET ['title']) : '';
-		$province_id = isset ( $_GET ['province_id'] ) ? $this->_common->filter($_GET ['province_id']) : '9';
-		$city_id = isset ( $_GET ['city_id'] ) ? $this->_common->filter($_GET ['city_id']) : '75';
+		$province_id = isset ( $_GET ['province_id'] ) ? $this->_common->filter($_GET ['province_id']) : '';
+		$city_id = isset ( $_GET ['city_id'] ) ? $this->_common->filter($_GET ['city_id']) : '';
 		$town_id = isset ( $_GET ['town_id'] ) ? $this->_common->filter($_GET ['town_id']) : '';
 
 		$conditions=array();
@@ -81,7 +81,7 @@ class Controller_Shop extends FLEA_Controller_Action {
 		$page = $pages->page ();
 		$start = ($page_no - 1) * $page_size;
 
-		$list=$this->_shop->findAll($conditions,"id desc limit $start,$page_size");
+		$list=$this->_shop->findAll($conditions," recommend,id desc limit $start,$page_size");
 
 		
 		$provinces=$this->_address_province->findAll();
@@ -152,9 +152,9 @@ class Controller_Shop extends FLEA_Controller_Action {
 		}
 		
 		$provinces=$this->_address_province->findAll();
-		$prov=$this->_address_province->findByField('id',19);//广州
+		$prov=$this->_address_province->findByField('id',1);//广州
 		$city=$this->_address_city->findAll(array('provinceCode'=>$prov['code']));
-		$ctow=$this->_address_city->findByField('id',200);//广州
+		$ctow=$this->_address_city->findByField('id',1);//广州
 		$towns=$this->_address_town->findAll(array('cityCode'=>$ctow['code']));
 		
 		$this->_common->show ( array ('main' => 'shop/shop_add.tpl','tags'=>$this->_tags,'provinces'=>$provinces,'city'=>$city,'towns'=>$towns) );
@@ -302,6 +302,18 @@ class Controller_Shop extends FLEA_Controller_Action {
 	function actionDePublic(){//不发布
 		$id=$this->_common->filter($_GET['id']);
 		$eve=array('id'=>$id,'status'=>2);
+		$this->_shop->update($eve);
+		redirect($_SERVER['HTTP_REFERER']);
+	}
+	function actionRecommend(){//推荐
+		$id=$this->_common->filter($_GET['id']);
+		$eve=array('id'=>$id,'recommend'=>1);
+		$this->_shop->update($eve);
+		redirect($_SERVER['HTTP_REFERER']);
+	}
+	function actionDeRecommend(){//不推荐
+		$id=$this->_common->filter($_GET['id']);
+		$eve=array('id'=>$id,'recommend'=>2);
 		$this->_shop->update($eve);
 		redirect($_SERVER['HTTP_REFERER']);
 	}

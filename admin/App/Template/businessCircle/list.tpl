@@ -24,14 +24,6 @@
 				</select>
 				</td>
 				<td>
-				<select name="town_id" class="town_id">
-					<option value="">不限</option>
-					{section name=sec loop=$towns}
-					<option value="{$towns[sec].id}">{$towns[sec].name}</option>
-					{/section}
-				</select>
-				</td>
-				<td>
 					名称<input name="name" value="">
 				</td>
 				<td>经度<input name="lng" value="">，维度<input name="lat" value="">
@@ -58,13 +50,6 @@
 					<option value="{$city[sec].id}" {if $city_id eq $city[sec].id}selected{/if}>{$city[sec].name}</option>
 					{/section}
 				</select>
-				行政区
-				<select name="town_id" class="town_id">
-					<option value="">不限</option>
-					{section name=sec loop=$towns}
-					<option value="{$towns[sec].id}" {if $town_id eq $towns[sec].id}selected{/if}>{$towns[sec].name}</option>
-					{/section}
-				</select>
 				<input class="cz_btn" type="submit" value="查找"></div>
          </form>
          
@@ -75,11 +60,9 @@
 				<col width="15%">
 				<col width="15%">
 				<col width="15%">
-				<col width="15%">
 			</colgroup>
              <tr>
                  <th>城市</th>
-                 <th>行政区</th>
                  <th>商圈</th>
                  <th>经纬度</th>
                  <th>查看地图</th>
@@ -88,7 +71,6 @@
              {section name=sec loop=$list}
              <tr>
                  <td>{$list[sec].city}</td>
-                 <td>{$list[sec].town}</td>
                  <td class="hd_td_l">{$list[sec].name}</td>
                  <td>{$list[sec].lng},<br/>{$list[sec].lat}</td>
                  <td><a href="http://api.map.baidu.com/lbsapi/getpoint/index.html" target="_blank">查看</a></td>

@@ -47,58 +47,60 @@ function convertSign($clum){
 }
 
 //留言板活动
+// function getEvents(){
+// 	global $db;
+// 	$lng=filter($_REQUEST['lng']);
+// 	$lat=filter($_REQUEST['lat']);
+// 	$page_no = isset ( $_GET ['page'] ) ? $_GET ['page'] : 1;
+// 	$page_size = PAGE_SIZE;
+// 	$start = ($page_no - 1) * $page_size;
+// 	$list=array();
+// 	用户活动
+// 	$beforeday=date("Y-m-d",strtotime("-2day",time()));
+// 	$sign1=convertSign('ue.title');
+// 	$sign2=convertSign('ue.address');
+// 	$uercount="select count(id) as num,user_event_id from ".DB_PREFIX."userevent_relation uer group by uer.user_event_id ";
+// 	$sql2="select null as public_event_id,ue.id as user_event_id,ue.title,ue.img,ue.address,ue.lng,ue.lat,uercount.num,ue.created,($sign1 + $sign2) as sign from ".DB_PREFIX."user_event ue
+// 	left join ($uercount) uercount on uercount.user_event_id = ue.id
+// 	where ue.allow = 1 and ue.status = 1 and datetime >= '$beforeday 00:00' order by sign desc,created desc,num desc";
+	
+// 	//$sql="select * from ( $sql1 union all $sql2 ) s order by created desc limit $start,$page_size";
+// 	$sql="select * from ( $sql2 ) s limit $start,$page_size";
+// 	$events=$db->getAllBySql($sql);
+// 	foreach ($events as $k=>$v){
+// 		$events[$k]['distance']=(!empty($v['lat'])&&!empty($v['lng'])&&!empty($lng)&&!empty($lat))?getDistance($lat,$lng,$v['lat'],$v['lng']):lang_UNlOCATE;
+// 	}
+// 	$list['events']=$events;
+	
+// 	echo json_result($list);
+// }
+
+//约会广场
 function getEvents(){
 	global $db;
-	$lng=filter($_REQUEST['lng']);
-	$lat=filter($_REQUEST['lat']);
+	$lng=filter(!empty($_REQUEST['lng'])?$_REQUEST['lng']:'');
+	$lat=filter(!empty($_REQUEST['lat'])?$_REQUEST['lat']:'');
 	$page_no = isset ( $_GET ['page'] ) ? $_GET ['page'] : 1;
 	$page_size = PAGE_SIZE;
 	$start = ($page_no - 1) * $page_size;
 	$list=array();
-	//官方活动
-// 	$pucount="select count(id) as num,public_event_id from ".DB_PREFIX."public_users pu group by pu.public_event_id ";
-// 	$sql1="select pe.id as public_event_id,null as user_event_id,pe.title,pe.img,pe.address,pe.lng,pe.lat,pucount.num,pubusers.created from ".DB_PREFIX."public_event pe
-// 	left join ($pucount) pucount on pucount.public_event_id = pe.id
-// 	left join ".DB_PREFIX."public_users pubusers on pubusers.public_event_id = pe.id
-// 	where pe.isdelete = 0 ";
 	//用户活动
 	$beforeday=date("Y-m-d",strtotime("-2day",time()));
-	$sign1=convertSign('ue.title');
-	$sign2=convertSign('ue.address');
 	$uercount="select count(id) as num,user_event_id from ".DB_PREFIX."userevent_relation uer group by uer.user_event_id ";
-	$sql2="select null as public_event_id,ue.id as user_event_id,ue.title,ue.img,ue.address,ue.lng,ue.lat,uercount.num,ue.created,($sign1 + $sign2) as sign from ".DB_PREFIX."user_event ue
+	$sql="select ue.id as user_event_id,ue.user_id,photo.path as photo,shop.img as shop_img,ue.title,ue.address,ue.lng,ue.lat,uercount.num,ue.created from ".DB_PREFIX."user_event ue
 	left join ($uercount) uercount on uercount.user_event_id = ue.id
-	where ue.allow = 1 and ue.status = 1 and datetime >= '$beforeday 00:00' order by sign desc,created desc,num desc";
-	
-	//$sql="select * from ( $sql1 union all $sql2 ) s order by created desc limit $start,$page_size";
-	$sql="select * from ( $sql2 ) s limit $start,$page_size";
+	left join ".DB_PREFIX."user user on user.id=ue.user_id
+	left join ".DB_PREFIX."user_photo photo on photo.id=user.head_photo_id
+	left join ".DB_PREFIX."shop shop on shop.id=ue.shop_id 
+	where ue.allow = 1 and ue.status = 1 ";//and ue.datetime >= '$beforeday 00:00' 
+	$sql.=(!empty($lng)&&!empty($lat))?" order by sqrt(power(ue.lng-{$lng},2)+power(ue.lat-{$lat},2)),created desc,num desc":' order by created desc,num desc';
+	$sql="select * from ( $sql ) s limit $start,$page_size";
 	$events=$db->getAllBySql($sql);
 	foreach ($events as $k=>$v){
 		$events[$k]['distance']=(!empty($v['lat'])&&!empty($v['lng'])&&!empty($lng)&&!empty($lat))?getDistance($lat,$lng,$v['lat'],$v['lng']):lang_UNlOCATE;
 	}
 	$list['events']=$events;
-	
-	//之前版本的查询方式
-// 	$pucount="select count(id) as num,public_event_id from ".DB_PREFIX."public_users pu group by pu.public_event_id ";
-// 	$sql="select pe.*,pu.num from ".DB_PREFIX."public_event pe left join ($pucount) pu on pu.public_event_id = pe.id where pe.isdelete = 0 order by ";
-// 	$sql.=(!empty($lng)&&!empty($lat))?" sqrt(power(pe.lng-{$lng},2)+power(pe.lat-{$lat},2)),pe.created desc":'pe.created desc';
-	
-// 	$sql .= " limit 0,$page_size";
-// 	$public_event=array();//$db->getAllBySql($sql);//官方活动
-// 	foreach ($public_event as $k=>$v){
-// 		$public_event[$k]['distance']=(!empty($v['lat'])&&!empty($v['lng'])&&!empty($lng)&&!empty($lat))?getDistance($lat,$lng,$v['lat'],$v['lng']):lang_UNlOCATE;
-// 	}
-// 	$list['public_event']=$public_event;
-// 	$uercount="select count(id) as num,user_event_id from ".DB_PREFIX."userevent_relation uer group by uer.user_event_id ";
-// 	$sql="select ue.*,uer.num from ".DB_PREFIX."user_event ue left join ($uercount) uer on uer.user_event_id = ue.id where ue.allow = 1 and ue.status = 1 order by ";
-// 	$sql.=(!empty($lng)&&!empty($lat))?" sqrt(power(ue.lng-{$lng},2)+power(ue.lat-{$lat},2)),ue.created desc":'ue.created desc';
-	
-// 	$sql .= " limit $start,$page_size";
-// 	$user_event=$db->getAllBySql($sql);//个人活动
-// 	foreach ($user_event as $k=>$v){
-// 		$user_event[$k]['distance']=(!empty($v['lat'])&&!empty($v['lng'])&&!empty($lng)&&!empty($lat))?getDistance($lat,$lng,$v['lat'],$v['lng']):lang_UNlOCATE;
-// 	}
-// 	$list['user_event']=$user_event;
+
 	echo json_result($list);
 }
 
@@ -106,8 +108,6 @@ function getEvents(){
 function myEvents(){
 	global $db;
 	$userid=filter($_REQUEST['userid']);
-	$lng=filter($_REQUEST['lng']);
-	$lat=filter($_REQUEST['lat']);
 	$page_no = isset ( $_GET ['page'] ) ? $_GET ['page'] : 1;
 	$page_size = PAGE_SIZE;
 	$start = ($page_no - 1) * $page_size;
@@ -115,13 +115,15 @@ function myEvents(){
 		echo json_result(null,'27','用户未登录');
 		return;
 	}
-	$uercount="select count(id) as num,user_event_id from ".DB_PREFIX."userevent_relation uer group by uer.user_event_id ";
-	$sql="select ue.*,uer.num from ".DB_PREFIX."user_event ue left join ($uercount) uer on uer.user_event_id = ue.id where ue.user_id=$userid and ue.allow = 1 and ue.status = 1 order by ue.created desc ";
+	$sql="select ue.id,ue.title,ue.dating,ue.datetime,photo.path as photo from ".DB_PREFIX."user_event ue 
+	left join ".DB_PREFIX."user user on user.id=ue.user_id
+	left join ".DB_PREFIX."user_photo photo on photo.id=user.head_photo_id
+	where ue.user_id=$userid and ue.allow = 1 and ue.status = 1 order by ue.created desc ";
 	$sql .= " limit $start,$page_size";
 	$list=$db->getAllBySql($sql);
-	foreach ($list as $k=>$v){
-		$list[$k]['distance']=(!empty($v['lat'])&&!empty($v['lng'])&&!empty($lng)&&!empty($lat))?getDistance($lat,$lng,$v['lat'],$v['lng']):lang_UNlOCATE;
-	}
+// 	foreach ($list as $k=>$v){
+// 		$list[$k]['distance']=(!empty($v['lat'])&&!empty($v['lng'])&&!empty($lng)&&!empty($lat))?getDistance($lat,$lng,$v['lat'],$v['lng']):lang_UNlOCATE;
+// 	}
 	echo json_result($list);
 }
 
@@ -129,8 +131,6 @@ function myEvents(){
 function myJoinEvents(){
 	global $db;
 	$userid=filter($_REQUEST['userid']);
-	$lng=filter($_REQUEST['lng']);
-	$lat=filter($_REQUEST['lat']);
 	$page_no = isset ( $_GET ['page'] ) ? $_GET ['page'] : 1;
 	$page_size = PAGE_SIZE;
 	$start = ($page_no - 1) * $page_size;
@@ -138,51 +138,19 @@ function myJoinEvents(){
 		echo json_result(null,'28','用户未登录');
 		return;
 	}
-	$list=array();
-	$pucount="select count(id) as num,public_event_id from ".DB_PREFIX."public_users pu group by pu.public_event_id ";
-	$sql1="select pe.id as public_event_id,null as user_event_id,pe.title,pe.img,pe.address,pe.lng,pe.lat,pucount.num,pubusers.created from ".DB_PREFIX."public_event pe
-	left join ($pucount) pucount on pucount.public_event_id = pe.id
-	left join ".DB_PREFIX."public_users pubusers on pubusers.public_event_id = pe.id
-	where pubusers.user_id = $userid and pe.isdelete = 0 ";
-	$uercount="select count(id) as num,user_event_id from ".DB_PREFIX."userevent_relation uer group by uer.user_event_id ";
-	
-	$sql2="select null,ue.id as user_event_id,ue.title,ue.img,ue.address,ue.lng,ue.lat,uercount.num,ue.created from ".DB_PREFIX."user_event ue
-	left join ($uercount) uercount on uercount.user_event_id = ue.id
+	$sql="select ue.id,ue.title,ue.dating,ue.datetime,photo.path as photo from ".DB_PREFIX."user_event ue
+	left join ".DB_PREFIX."user user on user.id=ue.user_id
+	left join ".DB_PREFIX."user_photo photo on photo.id=user.head_photo_id
 	left join ".DB_PREFIX."userevent_relation relation on relation.user_event_id=ue.id
-	where relation.user_id=$userid and ue.allow = 1 and ue.status = 1 ";
+	where relation.user_id=$userid and ue.allow = 1 and ue.status = 1 order by ue.created desc  ";
 	
-	$sql="select * from ( $sql1 union all $sql2 ) s order by created desc limit $start,$page_size";
+	$sql.=" limit $start,$page_size";
 	$events=$db->getAllBySql($sql);
-	foreach ($events as $k=>$v){
-		$events[$k]['distance']=(!empty($v['lat'])&&!empty($v['lng'])&&!empty($lng)&&!empty($lat))?getDistance($lat,$lng,$v['lat'],$v['lng']):lang_UNlOCATE;
-	}
-	$list['events']=$events;
+// 	foreach ($events as $k=>$v){
+// 		$events[$k]['distance']=(!empty($v['lat'])&&!empty($v['lng'])&&!empty($lng)&&!empty($lat))?getDistance($lat,$lng,$v['lat'],$v['lng']):lang_UNlOCATE;
+// 	}
 			
-// 	if($page_no==1){
-// 		$pucount="select count(id) as num,public_event_id from ".DB_PREFIX."public_users pu group by pu.public_event_id ";
-// 		$sql="select pe.*,pucount.num from ".DB_PREFIX."public_event pe 
-// 		left join ($pucount) pucount on pucount.public_event_id = pe.id 
-// 		left join ".DB_PREFIX."public_users pubusers on pubusers.public_event_id = pe.id 
-// 		where pubusers.user_id = $userid and pe.isdelete = 0 order by pe.created desc";
-// 		$public_event=$db->getAllBySql($sql);
-// 		foreach ($public_event as $k=>$v){
-// 			$public_event[$k]['distance']=(!empty($v['lat'])&&!empty($v['lng'])&&!empty($lng)&&!empty($lat))?getDistance($lat,$lng,$v['lat'],$v['lng']):lang_UNlOCATE;
-// 		}
-// 		$list['public_event']=$public_event;
-// 	}
-// 	$uercount="select count(id) as num,user_event_id from ".DB_PREFIX."userevent_relation uer group by uer.user_event_id ";
-// 	$sql="select ue.*,uercount.num from ".DB_PREFIX."user_event ue 
-// 	left join ($uercount) uercount on uercount.user_event_id = ue.id 
-// 	left join ".DB_PREFIX."userevent_relation relation on relation.user_event_id=ue.id 
-// 	where relation.user_id=$userid and ue.allow = 1 and ue.status = 1 order by ue.created desc ";
-// 	$sql .= " limit $start,$page_size";
-// 	$user_event=$db->getAllBySql($sql);
-// 	foreach ($user_event as $k=>$v){
-// 		$user_event[$k]['distance']=(!empty($v['lat'])&&!empty($v['lng'])&&!empty($lng)&&!empty($lat))?getDistance($lat,$lng,$v['lat'],$v['lng']):lang_UNlOCATE;
-// 	}
-// 	$list['user_event']=$user_event;
-	
-	echo json_result($list);
+	echo json_result($events);
 }
 
 //活动详情
@@ -200,13 +168,9 @@ function eventInfo(){
 	}
 	$event=$db->getRow('user_event',array('id'=>$eventid));
 	$event['distance']=(!empty($event['lat'])&&!empty($event['lng'])&&!empty($lng)&&!empty($lat))?getDistance($lat,$lng,$event['lat'],$event['lng']):lang_UNlOCATE;
-	$user=$db->getRow('user',array('id'=>$event['user_id']));
-	//根据经纬度获取地址 http://api.map.baidu.com/geocoder?location=纬度,经度&output=输出格式类型&key=用户密钥
-// 	$add_json=file_get_contents("http://api.map.baidu.com/geocoder?location=".$user['lat'].",".$user['lng']."&output=json&ak=".BAIDU_AK);
-// 	$add=json_decode($add_json);
-// 	if($add->status==0){
-// 		$user['address']=$add->result->formatted_address;//当前用户位置
-// 	}
+	$user=$db->getRow('user',array('id'=>$event['user_id']),array('id,head_photo_id,nick_name,lng,lat,constellation,age'));
+	$user['age']=empty($user['age'])?'保密':$user['age'];
+	$user['constellation']=empty($user['constellation'])?'保密':$user['constellation'];
 	//用户之间的距离
 	$user['distance']=(!empty($user['lat'])&&!empty($user['lng'])&&!empty($lng)&&!empty($lat))?getDistance($lat,$lng,$user['lat'],$user['lng']):lang_UNlOCATE;
 	$userphoto=$db->getRow('user_photo',array('id'=>$user['head_photo_id']));
@@ -220,18 +184,13 @@ function eventInfo(){
 	$sql="select up.path as head_path,u.nick_name,u.user_name,u.lng,u.lat,bbs.* from ".DB_PREFIX."userevent_bbs bbs left join ".DB_PREFIX."user u on u.id=bbs.user_id left join ".DB_PREFIX."user_photo up on up.id=u.head_photo_id 
 			where bbs.allow=1 and bbs.user_event_id=$eventid";
 	$sql.=" order by bbs.id desc limit $start,$page_size";
-	$bbs=$db->getAllBySql($sql);
-	foreach ($bbs as $k=>$b){
-// 		$add_json=file_get_contents("http://api.map.baidu.com/geocoder?location=".$b['lat'].",".$b['lng']."&output=json&ak=".BAIDU_AK);
-// 		$add=json_decode($add_json);
-// 		if($add->status==0){
-// 			$bbs[$k]['address']=$add->result->formatted_address;//当前用户位置
-// 		}
-		$bbs[$k]['distance']=(!empty($b['lat'])&&!empty($b['lng'])&&!empty($lng)&&!empty($lat))?getDistance($lat,$lng,$b['lat'],$b['lng']):lang_UNlOCATE;
+// 	$bbs=$db->getAllBySql($sql);
+// 	foreach ($bbs as $k=>$b){
+// 		$bbs[$k]['distance']=(!empty($b['lat'])&&!empty($b['lng'])&&!empty($lng)&&!empty($lat))?getDistance($lat,$lng,$b['lat'],$b['lng']):lang_UNlOCATE;
 		
-	}
-	$event['bbscount']=count($bbs);
-	$event['bbs']=$bbs;
+// 	}
+// 	$event['bbscount']=count($bbs);
+// 	$event['bbs']=$bbs;
 	
 	//增加浏览数
 	$viewcount=($event['viewcount']*1+1);
@@ -298,8 +257,9 @@ function eventPublic(){
 	$title=filter($_REQUEST['title']);
 	$dating=filter($_REQUEST['dating']);
 	$datetime=filter($_REQUEST['datetime']);
+	$shopid=filter($_REQUEST['shopid']);
 	$address=filter($_REQUEST['address']);
-	$content=filter($_REQUEST['content']);
+	$paytype=filter($_REQUEST['paytype']);
 	if(empty($userid)){
 		echo json_result(null,'31','用户未登录');
 		return;
@@ -320,34 +280,33 @@ function eventPublic(){
 		echo json_result(null,'35','请填写活动地点');
 		return;
 	}
-	if(empty($content)){
-		echo json_result(null,'36','请填写活动内容');
-		return;
-	}
-	$event=array('user_id'=>$userid,'title'=>$title,'dating'=>$dating,'datetime'=>$datetime,'address'=>$address,'content'=>$content,'created'=>date("Y-m-d H:i:s"));
+	$event=array('user_id'=>$userid,'title'=>$title,'dating'=>$dating,'datetime'=>$datetime,'shop_id'=>$shopid,'address'=>$address,'pay_type'=>$paytype,'created'=>date("Y-m-d H:i:s"));
 	//$file=$_FILES['photo'];上传图片
-	$upload=new UpLoad();
-	$folder="upload/userEvent/";
-	if (! file_exists ( $folder )) {
-		mkdir ( $folder, 0777 );
-	}
-	$upload->setDir($folder.date("Ymd")."/");
-	$upload->setPrefixName('user_event'.$userid);
-	$file=$upload->upLoad('photo');
-	if($file['status']!=0&&$file['status']!=1){
-		echo json_result(null,'37',$file['errMsg']);
-		return;
-	}
-	if($file['status']==1){
-		$event['img']=APP_SITE.$file['file_path'];
-	}
+// 	$upload=new UpLoad();
+// 	$folder="upload/userEvent/";
+// 	if (! file_exists ( $folder )) {
+// 		mkdir ( $folder, 0777 );
+// 	}
+// 	$upload->setDir($folder.date("Ymd")."/");
+// 	$upload->setPrefixName('user_event'.$userid);
+// 	$file=$upload->upLoad('photo');
+// 	if($file['status']!=0&&$file['status']!=1){
+// 		echo json_result(null,'37',$file['errMsg']);
+// 		return;
+// 	}
+// 	if($file['status']==1){
+// 		$event['img']=APP_SITE.$file['file_path'];
+// 	}
 	//获取经纬度
-	$loc_json=file_get_contents("http://api.map.baidu.com/geocoder/v2/?address=".$address."&output=json&ak=".BAIDU_AK);
-	$loc=json_decode($loc_json);
-	if($loc->status==0){
-		$event['lng']=$loc->result->location->lng;
-		$event['lat']=$loc->result->location->lat;
-	}
+// 	$loc_json=file_get_contents("http://api.map.baidu.com/geocoder/v2/?address=".$address."&output=json&ak=".BAIDU_AK);
+// 	$loc=json_decode($loc_json);
+// 	if($loc->status==0){
+// 		$event['lng']=$loc->result->location->lng;
+// 		$event['lat']=$loc->result->location->lat;
+// 	}
+	$shop=$db->getRow('shop',array('id'=>$shopid));
+	$event['lng']=$shop['lng'];
+	$event['lat']=$shop['lat'];
 	$eventid=$db->create('user_event', $event);
 	echo json_result(array('eventid'=>$eventid));
 }

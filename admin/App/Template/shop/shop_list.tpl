@@ -9,7 +9,7 @@
          <input type="hidden" name="action" value="Index" />
          <div class="hd_t1">
          	<select name="province_id" class="province_id">
-				<option value="">不限{$province_id}</option>
+				<option value="">不限</option>
 				{section name=sec loop=$provinces}
 				<option value="{$provinces[sec].id}" {if $province_id eq $provinces[sec].id}selected{/if}>{$provinces[sec].name}</option>
 				{/section}
@@ -49,7 +49,7 @@
                  <th>留言</th>
                  <th>坐标</th>
                  <th>地图</th>
-                 <th>发布状态</th>
+                 <th>状态</th>
                  <th>操作</th>
              </tr>
              {section name=sec loop=$list}
@@ -61,10 +61,14 @@
                  <td><a href="{url controller=Bbs action=Shop shopid=$list[sec].id}">查看</a></td>
                  <td>{$list[sec].lng},<br/>{$list[sec].lat}</td>
                  <td><a href="http://api.map.baidu.com/lbsapi/getpoint/index.html" target="_blank">查看</a></td>
-                 <td>{if $list[sec].status eq '1'}准备中{else}发布中{/if}</td>
+                 <td>
+                 	{if $list[sec].status eq '1'}准备中{else}发布中{/if}<br/>
+                 	{if $list[sec].recommend eq '1'}推荐{else}未推荐{/if}
+                 </td>
                  <td style="word-break:keep-all;">
                  	<a href="{url controller=Shop action=Edit id=$list[sec].id}">编辑</a><a class="delBtn" href="{url controller=Shop action=Del id=$list[sec].id}">删除</a><br/>
-                 	{if $list[sec].status eq '2'}<a class="pubBtn" href="{url controller=Shop action=Public id=$list[sec].id}">准备</a>{else}<a class="depubBtn" href="{url controller=Shop action=DePublic id=$list[sec].id}">发布{/if}</a>
+                 	{if $list[sec].status eq '2'}<a class="pubBtn" href="{url controller=Shop action=Public id=$list[sec].id}">准备</a>{else}<a class="depubBtn" href="{url controller=Shop action=DePublic id=$list[sec].id}">发布{/if}</a><br/>
+                 	{if $list[sec].recommend eq '2'}<a class="pubBtn" href="{url controller=Shop action=Recommend id=$list[sec].id}">推荐</a>{else}<a class="depubBtn" href="{url controller=Shop action=DeRecommend id=$list[sec].id}">不推荐{/if}</a>
                  </td>
              </tr>
              {/section}

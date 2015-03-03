@@ -5,16 +5,7 @@
 <title>{$smarty.const.DEFAUT_TITLE}</title>
 <link href="{$smarty.const.SITE}resource/css/style.css" rel="stylesheet" type="text/css">
 <script type="text/javascript" src="{$smarty.const.SITE}resource/js/jQuery.js"></script>
-<script type="text/javascript">
-{literal}
-$(function(){
-	$(window).resize(function(){
-		$('.main_l').height($(window).height()-160);
-	});
-	$('.main_l').height($(window).height()-160);
-});
-{/literal}
-</script>
+<script type="text/javascript" src="{$smarty.const.SITE}resource/js/common.js"></script>
 </head>
 <body>
 <div class="top">
