@@ -65,8 +65,8 @@ function sendInvitation(){
 // 	$Aumeng=new Umeng('Android');
 // 	$Aumeng->sendAndroidCustomizedcast("invitation",$to_userid,"您有新的邀约","咖啡约我","新的邀请函","go_app","");//go_activity
 	
-// 	$IOSumeng=new Umeng('IOS');
-// 	$IOSumeng->sendIOSCustomizedcast("invitation", $to_userid, "您有新的邀约");
+ 	$IOSumeng=new Umeng('IOS');
+ 	$IOSumeng->sendIOSCustomizedcast("invitation", $to_userid, "您有新的邀约");
 
 	echo json_result(array('success'=>'TRUE'));
 

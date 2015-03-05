@@ -92,7 +92,7 @@ function getEvents(){
 	left join ".DB_PREFIX."user user on user.id=ue.user_id
 	left join ".DB_PREFIX."user_photo photo on photo.id=user.head_photo_id
 	left join ".DB_PREFIX."shop shop on shop.id=ue.shop_id 
-	where ue.allow = 1 and ue.status = 1 ";//and ue.datetime >= '$beforeday 00:00' 
+	where ue.allow = 1 and ue.status = 1 and round(6378.138*2*asin(sqrt(pow(sin( ($lat*pi()/180-ue.lat*pi()/180)/2),2)+cos($lat*pi()/180)*cos(ue.lat*pi()/180)* pow(sin( ($lng*pi()/180-ue.lng*pi()/180)/2),2)))*1000) <= ".RANGE_KILO;//and ue.datetime >= '$beforeday 00:00' 
 	$sql.=(!empty($lng)&&!empty($lat))?" order by sqrt(power(ue.lng-{$lng},2)+power(ue.lat-{$lat},2)),created desc,num desc":' order by created desc,num desc';
 	$sql="select * from ( $sql ) s limit $start,$page_size";
 	$events=$db->getAllBySql($sql);
