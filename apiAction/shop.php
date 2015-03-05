@@ -80,13 +80,17 @@ function getShopByConditions(){
 	if(!empty($townid)){
 		$conditions.=" and town_id=$townid ";
 	}
+	
+	$circlerOrder="";
 	if(!empty($circleid)){
 		$locat=$db->getRow('business_circle',array('id'=>$circleid),array("lng","lat"));
-		$lng=$locat['lng'];
-		$lat=$locat['lat'];
+		$circle_lng=$locat['lng'];
+		$circle_lat=$locat['lat'];
+		$circlerOrder=" sqrt(power(lng-{$circle_lng},2)+power(lat-{$circle_lat},2)) , ";
 	}
+	
 	$sql="select * from ".DB_PREFIX."shop where status=2 $conditions ";
-	$sql.=(!empty($lng)&&!empty($lat))?" order by sqrt(power(lng-{$lng},2)+power(lat-{$lat},2))":'';
+	$sql.=(!empty($lng)&&!empty($lat))?" order by $circlerOrder sqrt(power(lng-{$lng},2)+power(lat-{$lat},2))":'';
 	
 	$sql .= " limit $start,$page_size";
 	$shops=$db->getAllBySql($sql);
