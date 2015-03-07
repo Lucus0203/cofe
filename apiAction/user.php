@@ -134,7 +134,7 @@ function resetPassword(){
 			echo json_result(null,'9','密码修改失败,请联系客服');
 		}
 	}else{
-		$user=array('user_password'=>md5($user_pass),'mobile'=>$mobile,'sex'=>'3','age'=>'保密','constellation'=>'保密','created'=>date("Y-m-d H:i:s"));
+		$user=array('user_password'=>md5($user_pass),'mobile'=>$mobile,'sex'=>'3','age'=>'','constellation'=>'保密','created'=>date("Y-m-d H:i:s"));
 		$HuanxinObj=Huanxin::getInstance();
 		$huserObj=$HuanxinObj->addNewAppUser(strtolower($mobile), md5($user_pass));
 		$uuid=$huserObj->entities[0]->uuid;
@@ -155,7 +155,6 @@ function register(){
 	$mobile=!empty($data['mobile'])?$data['mobile']:'';
 	$code=!empty($data['code'])?$data['code']:'';
 	$user_pass=!empty($data['user_password'])?$data['user_password']:'';
-	$sex=!empty($data['sex'])?$data['sex']:'3';
 	if(trim($mobile)==''){
 		echo json_result(null,'5','请填写手机号码');//请填写手机号码
 		return;
@@ -183,7 +182,7 @@ function register(){
 		echo json_result(null,'9','此手机号已经注册过');
 		return;
 	}
-	$user=array('user_password'=>md5($user_pass),'mobile'=>$mobile,'sex'=>$sex,'age'=>'保密','constellation'=>'保密','created'=>date("Y-m-d H:i:s"));
+	$user=array('user_password'=>md5($user_pass),'mobile'=>$mobile,'sex'=>'3','age'=>'','constellation'=>'保密','created'=>date("Y-m-d H:i:s"));
 	$HuanxinObj=Huanxin::getInstance();
 	$huserObj=$HuanxinObj->addNewAppUser(strtolower($mobile), md5($user_pass));
 	$uuid=$huserObj->entities[0]->uuid;
@@ -238,7 +237,7 @@ function info(){
 	global $db;
 	$data=filter($_REQUEST);
 	$user_id=$data['userid'];
-	$myself_id=$data['myselfid'];//登陆者id
+	$myself_id=$data['loginid'];//登陆者id
 	$info=$db->getRow('user',array('id'=>$user_id));
 	unset($info['user_password']);
 	//查询人物关系 当myself_id不为空的时候
@@ -249,20 +248,26 @@ function info(){
 		$myfun_count=$db->getCount('user_relation',array('user_id'=>$user_id,'relation_id'=>$myself_id));
 		if($myfav_count>0&&$myfun_count>0){
 			$info['relation']='好友';
+			$info['relation_status']=4;
 		}elseif ($myfun_count>0){
-			$info['relation']='关注我的人';
+			$info['relation']='被关注';//关注我的人
+			$info['relation_status']=3;
 			$re=$db->getRow('user_relation',array('user_id'=>$user_id,'relation_id'=>$myself_id));
-			if($re['status']==2){//在对方黑名单中则是陌生人
-				$info['relation']='陌生人';
+			if($re['status']==2){
+				$info['relation']='对方黑名单中';//对方黑名单中
+				$info['relation_status']=6;
 			}
 		}elseif ($myfav_count>0){
-			$info['relation']='我关注的人';
+			$info['relation']='关注中';//我关注的人
+			$info['relation_status']=2;
 			$re=$db->getRow('user_relation',array('user_id'=>$myself_id,'relation_id'=>$user_id));
 			if($re['status']==2){
-				$info['relation']='黑名单';
+				$info['relation']='黑名单';//黑名单
+				$info['relation_status']=5;
 			}
 		}else{
-			$info['relation']='陌生人';
+			$info['relation']='陌生人';//陌生人
+			$info['relation_status']=1;
 		}
 		$me=$db->getRow('user',array('id'=>$myself_id));
 		$info['distance']=(!empty($me['lat'])&&!empty($me['lng'])&&!empty($info['lat'])&&!empty($info['lng']))?getDistance($info['lat'],$info['lng'],$me['lat'],$me['lng']):lang_UNlOCATE;
@@ -297,7 +302,7 @@ function infoEdit(){
 	}
 	$info=array();
 	if(!empty($data['sex'])){
-		$info['sex']=$data['sex'];
+		$info['sex']=($data['sex']!=1&&$data['sex']!=2)?3:$data['sex'];
 	}
 	if(!empty($data['age'])){
 		$info['age']=$data['age'];
@@ -330,6 +335,15 @@ function infoEdit(){
 	}
 	if(!empty($data['home'])){
 		$info['home']=$data['home'];
+	}
+	if(!empty($data['home_province_id'])){
+		$info['home_province_id']=$data['home_province_id'];
+	}
+	if(!empty($data['home_city_id'])){
+		$info['home_city_id']=$data['home_city_id'];
+	}
+	if(!empty($data['home_town_id'])){
+		$info['home_town_id']=$data['home_town_id'];
 	}
 	if(!empty($data['address'])){
 		$info['address']=$data['address'];

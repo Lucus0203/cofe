@@ -98,6 +98,15 @@ Class Huanxin {
 	function findIMUser($username){
 		return $this->getJsonData("https://a1.easemob.com/zcsy/coffee/users/".$username);
 	}
+	//加入黑名单
+	function block($login,$user){
+		$data=array('usernames'=>array($user));
+		return $this->sendJsonData("https://a1.easemob.com/zcsy/coffee/users/{$login}/blocks/users'",json_encode($data),1);
+	}
+	//移除黑名单
+	function unblock($login,$user){
+		return $this->sendJsonData("https://a1.easemob.com/zcsy/coffee/users/{$login}/blocks/users/{$user}'",'','DELETE');
+	}
 	
 }
 

@@ -167,10 +167,12 @@ function eventInfo(){
 		return;
 	}
 	$event=$db->getRow('user_event',array('id'=>$eventid));
+	//店铺图片
+	$shopimg=$db->getRow('shop',array('id'=>$event['shop_id']),array('img'));
+	$event['shopimg']=$shopimg['img'];
+	//活动距离
 	$event['distance']=(!empty($event['lat'])&&!empty($event['lng'])&&!empty($lng)&&!empty($lat))?getDistance($lat,$lng,$event['lat'],$event['lng']):lang_UNlOCATE;
 	$user=$db->getRow('user',array('id'=>$event['user_id']),array('id,head_photo_id,nick_name,lng,lat,constellation,age'));
-	$user['age']=empty($user['age'])?'保密':$user['age'];
-	$user['constellation']=empty($user['constellation'])?'保密':$user['constellation'];
 	//用户之间的距离
 	$user['distance']=(!empty($user['lat'])&&!empty($user['lng'])&&!empty($lng)&&!empty($lat))?getDistance($lat,$lng,$user['lat'],$user['lng']):lang_UNlOCATE;
 	$userphoto=$db->getRow('user_photo',array('id'=>$user['head_photo_id']));

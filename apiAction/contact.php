@@ -1,4 +1,5 @@
 <?php
+require_once APP_DIR.DS.'apiLib'.DS.'ext'.DS.'Huanxin.php';
 $act=filter($_REQUEST['act']);
 switch ($act){
 	case 'getFriends':
@@ -58,14 +59,23 @@ switch ($act){
 	case 'follow'://邀约
 		follow();
 		break;
+	case 'unfollow'://不再关注
+		unfollow();
+		break;
+	case 'removeFan'://移除粉丝
+		removeFan();
+		break;
 	case 'black'://拉黑
 		black();
 		break;
+	case 'unblack';//移除黑名单
+		unblack();
+		break;
+	case 'relationName'://备注
+		relationName();
+		break;
 	case 'report'://举报
 		report();
-		break;
-	case 'unblack';//转粉
-		unblack();
 		break;
 	default:
 		break;
@@ -241,17 +251,23 @@ function myFavri(){//我关注的
 		echo json_result(null,'3','请重新登录');
 		return;
 	}
-	$sql="select u.id as user_id,u.nick_name,u.user_name,u.constellation,u.signature,u.sex,u.age,u.head_photo_id,upt.path as head_photo,u.lng,u.lat from ".DB_PREFIX."user u left join ".DB_PREFIX."user_relation ur1 on u.id=ur1.relation_id 
+
+	//好友
+	$friendsSql="select ur1.relation_id from ".DB_PREFIX."user_relation ur1 
+			left join ".DB_PREFIX."user_relation ur2 on ur1.relation_id = ur2.user_id
+			where ur2.relation_id = $userid and ur1.user_id = $userid and ur1.status=1 ";
+	//我关注的人
+	$mysql="select u.id as user_id,u.nick_name,u.user_name,u.constellation,u.signature,u.sex,u.age,u.head_photo_id,upt.path as head_photo,u.lng,u.lat from ".DB_PREFIX."user u left join ".DB_PREFIX."user_relation ur1 on u.id=ur1.relation_id 
 	left join ".DB_PREFIX."user_photo upt on u.head_photo_id = upt.id
-	where allow_find=1 and ur1.user_id = $userid and ur1.status=1 ";
+	where allow_find=1 and ur1.user_id = $userid and ur1.status=1 order by ur1.id desc ";
+	
+	//排除好友
+	$sql="select * from ($mysql) m where not exists ( select * from ($friendsSql) f where f.relation_id = m.user_id ) ";
 	
 	$res['count']=$db->getCountBySql($sql);
 	$sql .= " limit $start,$page_size";
 	$data=$db->getAllBySql($sql);
 	foreach ($data as $k=>$d){
-		$data[$k]['constellation']=empty($d['constellation'])?'保密':$d['constellation'];//星座
-		$data[$k]['age']=empty($d['age'])?'保密':$d['age'];//年龄
-		
 		$data[$k]['distance']=(!empty($d['lat'])&&!empty($d['lng'])&&!empty($lng)&&!empty($lat))?getDistance($lat,$lng,$d['lat'],$d['lng']):lang_UNlOCATE;
 		
 	}
@@ -274,15 +290,23 @@ function myFuns(){//关注我的
 		echo json_result(null,'3','请重新登录');
 		return;
 	}
-	$sql="select u.id as user_id,u.nick_name,u.user_name,u.constellation,u.signature,u.sex,u.age,u.head_photo_id,upt.path as head_photo,u.lng,u.lat from ".DB_PREFIX."user u left join ".DB_PREFIX."user_relation ur2 on u.id=ur2.user_id 
+	
+	//好友
+	$friendsSql="select ur1.relation_id from ".DB_PREFIX."user_relation ur1
+			left join ".DB_PREFIX."user_relation ur2 on ur1.relation_id = ur2.user_id
+				where ur2.relation_id = $userid and ur1.user_id = $userid and ur1.status=1 ";
+	//关注我的人
+	$mysql="select u.id as user_id,u.nick_name,u.user_name,u.constellation,u.signature,u.sex,u.age,u.head_photo_id,upt.path as head_photo,u.lng,u.lat from ".DB_PREFIX."user u left join ".DB_PREFIX."user_relation ur2 on u.id=ur2.user_id 
 			left join ".DB_PREFIX."user_photo upt on u.head_photo_id = upt.id
-			where ur2.relation_id = $userid and ur2.status=1 ";
+			where ur2.relation_id = $userid and ur2.status=1 order by ur2.id desc ";
+	
+	//排除好友
+	$sql="select * from ($mysql) m where not exists ( select * from ($friendsSql) f where f.relation_id = m.user_id ) ";
+	
 	$res['count']=$db->getCountBySql($sql);
 	$sql .= " limit $start,$page_size";
 	$data=$db->getAllBySql($sql);
 	foreach ($data as $k=>$d){
-		$data[$k]['constellation']=empty($d['constellation'])?'保密':$d['constellation'];//星座
-		$data[$k]['age']=empty($d['age'])?'保密':$d['age'];//年龄
 		$data[$k]['distance']=(!empty($d['lat'])&&!empty($d['lng'])&&!empty($lng)&&!empty($lat))?getDistance($lat,$lng,$d['lat'],$d['lng']):lang_UNlOCATE;
 		
 	}
@@ -367,8 +391,12 @@ function getUsersByConditions(){//筛选附近的人
 		echo json_result(null,'40','获取不到经纬度,请设置允许获取位置');
 		return;
 	}
-	$userinfo=$db->getRow('user',array('id'=>$userid));
+
 	$conditions="";
+	$homeselect=$homeorderby="";
+	if(!empty($userid)){
+		$conditions.=" and u.id <> $userid ";
+	}
 	if(!empty($type)){
 		if($type==1){
 			$conditions.=" and u.sex = 2 ";
@@ -377,15 +405,22 @@ function getUsersByConditions(){//筛选附近的人
 			$conditions.=" and u.sex = 1 ";
 		}
 		if($type==3){
-			$conditions.=" and home='{$userinfo['home']}'";
+			if(empty($userid)){
+				echo json_result(null,'2','如果想查看同籍的人请先登录');
+				return;
+			}
+			$userinfo=$db->getRow('user',array('id'=>$userid));
+			$homeselect=", if (home_town_id='{$userinfo['home_town_id']}',1,if (home_city_id='{$userinfo['home_city_id']}',2,3)) as homeorder ";
+			$conditions.=" and (home_town_id='{$userinfo['home_town_id']}' or home_city_id='{$userinfo['home_city_id']}' or home_province_id='{$userinfo['home_province_id']}' )";
+			$homeorderby=" homeorder asc ,";//先是县区再市最后省排序
 		}
 	}
-	$sql="select u.id,u.nick_name,u.user_name,u.nick_name,u.head_photo_id,upt.user_id,upt.path as head_photo,u.sex,u.age,u.constellation,u.lng,u.lat from ".DB_PREFIX."user u 
+	$sql="select u.id,u.nick_name,u.user_name,u.nick_name,u.head_photo_id,upt.user_id,upt.path as head_photo,u.sex,u.age,u.constellation,u.lng,u.lat $homeselect from ".DB_PREFIX."user u 
 		left join ".DB_PREFIX."user_photo upt on u.head_photo_id = upt.id
 		where u.allow_add = 1 and allow_find=1 and round(6378.138*2*asin(sqrt(pow(sin( ($lat*pi()/180-lat*pi()/180)/2),2)+cos($lat*pi()/180)*cos(lat*pi()/180)* pow(sin( ($lng*pi()/180-lng*pi()/180)/2),2)))*1000) <= ".RANGE_KILO;
 	$sql.=$conditions;
 	
-	$data=$db->getAllBySql($sql." order by  sqrt(power(lng-{$lng},2)+power(lat-{$lat},2)) limit $start,$page_size");
+	$data=$db->getAllBySql($sql." order by $homeorderby sqrt(power(lng-{$lng},2)+power(lat-{$lat},2)) limit $start,$page_size");
 	foreach ($data as $k=>$d){
 		$data[$k]['distance']=(!empty($d['lat'])&&!empty($d['lng'])&&!empty($lng)&&!empty($lat))?getDistance($lat,$lng,$d['lat'],$d['lng']):lang_UNlOCATE;
 		
@@ -532,7 +567,41 @@ function follow(){//关注
 		unset($relation['updated']);
 		$db->update('user_relation', $relation,$rinfo);//重新关注
 	}
-	echo json_result(array('userid'=>$userid));
+	echo json_result(array('success'=>'TRUE'));
+}
+
+//不再关注
+function unfollow(){
+	global $db;
+	$loginid=filter($_REQUEST['loginid']);
+	$userid=filter($_REQUEST['userid']);
+	if(empty($loginid)){
+		echo json_result(null,2,'请先登录');
+		return;
+	}
+	if(empty($userid)){
+		echo json_result(null,3,'对方不在您的关注状态中');
+		return;
+	}
+	$db->delete('user_relation', array('user_id'=>$loginid,'relation_id'=>$userid));
+	echo json_result(array('success'=>'TRUE'));
+}
+
+//移除粉丝
+function removeFan(){
+	global $db;
+	$loginid=filter($_REQUEST['loginid']);
+	$userid=filter($_REQUEST['userid']);
+	if(empty($loginid)){
+		echo json_result(null,2,'请先登录');
+		return;
+	}
+	if(empty($userid)){
+		echo json_result(null,3,'对方不是您的粉丝');
+		return;
+	}
+	$db->delete('user_relation', array('user_id'=>$userid,'relation_id'=>$loginid));
+	echo json_result(array('success'=>'TRUE'));
 }
 
 function black(){//拉黑
@@ -561,27 +630,18 @@ function black(){//拉黑
 		unset($relation['updated']);
 		$db->update('user_relation', $relation,$rinfo);//重新关注
 	}
+	
+	$login=$db->getRow('user',array('id'=>$loginid),array('mobile'));
+	$user=$db->getRow('user',array('id'=>$userid),array('mobile'));
+	//环信拉黑
+	$HuanxinObj=Huanxin::getInstance();
+	$huserObj=$HuanxinObj->block($login['mobile'], $user['mobile']);
+	
 	$db->update('user_relation',array('status'=>2),array('user_id'=>$loginid,'relation_id'=>$userid));
-	echo json_result(array('userid'=>$userid));
+	echo json_result(array('success'=>'TRUE'));
 }
 
-function report(){
-	global $db;
-	$loginid=filter($_REQUEST['loginid']);
-	$userid=filter($_REQUEST['userid']);
-	//举报
-	$rinfo=array('user_id'=>$loginid,'relation_id'=>$userid);
-	$reportcount=$db->getCount('user_report',array('user_id'=>$loginid,'relation_id'=>$userid));
-	if($reportcount==0){//没举报
-		$rinfo['created']=date("Y-m-d H:i:s");
-		$db->create('user_report', $rinfo);//关注
-		echo json_result(array('success'=>"举报成功"));
-	}else{//已经举报
-		echo json_result(array('success'=>"已经举报"));
-	}
-}
-
-function unblack(){//转粉
+function unblack(){//移除黑名单
 	global $db;
 	$loginid=filter($_REQUEST['loginid']);
 	$userid=filter($_REQUEST['userid']);
@@ -607,8 +667,16 @@ function unblack(){//转粉
 		unset($relation['updated']);
 		$db->update('user_relation', $relation,$rinfo);//重新关注
 	}
+	
+
+	$login=$db->getRow('user',array('id'=>$loginid),array('mobile'));
+	$user=$db->getRow('user',array('id'=>$userid),array('mobile'));
+	//环信移除黑名单
+	$HuanxinObj=Huanxin::getInstance();
+	$huserObj=$HuanxinObj->unblock($login['mobile'], $user['mobile']);
+	
 	$db->update('user_relation',array('status'=>1),array('user_id'=>$loginid,'relation_id'=>$userid));
-	echo json_result(array('userid'=>$userid));
+	echo json_result(array('success'=>'TRUE'));
 }
 
 function getUsersByGroupId($userid,$groupid){//获取分组好友
@@ -618,5 +686,38 @@ function getUsersByGroupId($userid,$groupid){//获取分组好友
 		where ur1.user_id = $userid and ur1.status=1  and ur1.group_id =".$groupid." order by ur1.created asc";
 	$users=$db->getAllBySql($sql);
 	return $users;
+}
+
+//备注
+function relationName(){
+	global $db;
+	$loginid=filter($_REQUEST['loginid']);
+	$userid=filter($_REQUEST['userid']);
+	$name=filter($_REQUEST['name']);
+	if(empty($loginid)){
+		echo json_result(null,2,'请先登录');
+		return;
+	}
+	$conditions=array('user_id'=>$loginid,'relation_id'=>$userid);
+	$db->update('user_relation',array('relation_name'=>$name),$conditions);
+	echo json_result(array('success'=>'TRUE'));
+}
+
+//举报
+function report(){
+	global $db;
+	$loginid=filter($_REQUEST['loginid']);
+	$userid=filter($_REQUEST['userid']);
+	$content=filter($_REQUEST['content']);
+	//举报
+	$rinfo=array('user_id'=>$loginid,'relation_id'=>$userid,'content'=>$content);
+	$reportcount=$db->getCount('user_report',array('relation_id'=>$userid));
+	$rinfo['created']=date("Y-m-d H:i:s");
+	$db->create('user_report', $rinfo);//举报
+
+	$reportcount=$db->getCount('user_report',array('relation_id'=>$userid));
+	$db->update('user', array('report'=>$reportcount));//更新举报次数
+
+	echo json_result(array('success'=>"TRUE"));
 }
 

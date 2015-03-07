@@ -26,6 +26,9 @@ switch ($act){
 	case 'cancelInvitation'://取消邀请函
 		cancelInvitation();
 		break;
+	case 'delInvitation'://取消邀请函
+		delInvitation();
+		break;
 	default:
 		break;
 }
@@ -161,7 +164,7 @@ function invitationBySend(){
 	$sql="select inv.id,inv.title,tu.nick_name as to_nick_name,inv.to_user_id,inv.status,inv.isreaded_user,inv.isreaded_to_user,upt.path as photo from ".DB_PREFIX."invitation inv 
 			left join ".DB_PREFIX."user tu on inv.to_user_id = tu.id 
 			left join ".DB_PREFIX."user_photo upt on upt.id=tu.head_photo_id where 1=1 ";
-	$sql.=" and inv.user_id=$userid ";
+	$sql.=" and inv.user_id=$userid and inv.del_user <> '1' ";
 	$data=$db->getAllBySql($sql);
 	echo json_result($data);
 }
@@ -177,7 +180,7 @@ function invitationByAccept(){
 	$sql="select inv.id,inv.title,u.nick_name,inv.user_id,inv.status,inv.isreaded_user,inv.isreaded_to_user,upt.path as photo from ".DB_PREFIX."invitation inv 
 			left join ".DB_PREFIX."user u on inv.user_id = u.id 
 			left join ".DB_PREFIX."user_photo upt on upt.id=u.head_photo_id where 1=1 ";
-	$sql.=" and inv.to_user_id=$userid ";
+	$sql.=" and inv.to_user_id=$userid and inv.del_to_user <> '1' ";
 	$data=$db->getAllBySql($sql);
 	echo json_result($data);
 	
@@ -200,5 +203,32 @@ function cancelInvitation(){
 	$db->update('invitation', array('status'=>4),array('id'=>$invitationid,'user_id'=>$userid));
 	echo json_result(array('success'=>'TRUE'));
 }
+
+//删除邀请函邀请函
+function delInvitation(){
+	global $db;
+	$userid=filter(!empty($_REQUEST['userid'])?$_REQUEST['userid']:'');//登录者id
+	$invitationid=filter(!empty($_REQUEST['invitationid'])?$_REQUEST['invitationid']:'');//邀请函id
+	if(empty($userid)){
+		echo json_result(null,'2','请重新登录');
+		return;
+	}
+	//发起者删除
+	$condition=array('id'=>$invitationid,'user_id'=>$userid);
+	$count=$db->getCount('invitation',$condition);
+	if($count>0){
+		$condition=array('id'=>$invitationid,'user_id'=>$userid);
+		$db->update('invitation', array('del_user'=>'1'),$condition);
+	}
+	//接受者删除
+	$condition=array('id'=>$invitationid,'to_user_id'=>$userid);
+	$count=$db->getCount('invitation',$condition);
+	if($count>0){
+		$condition=array('id'=>$invitationid,'user_id'=>$userid);
+		$db->update('invitation', array('del_user'=>'1'),$condition);
+	}
+	echo json_result(array('success'=>'TRUE'));
+}
+
 
 
