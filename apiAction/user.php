@@ -242,33 +242,9 @@ function info(){
 	unset($info['user_password']);
 	//查询人物关系 当myself_id不为空的时候
 	if(!empty($myself_id)){
-		//我关注的
-		$myfav_count=$db->getCount('user_relation',array('user_id'=>$myself_id,'relation_id'=>$user_id));
-		//关注我的
-		$myfun_count=$db->getCount('user_relation',array('user_id'=>$user_id,'relation_id'=>$myself_id));
-		if($myfav_count>0&&$myfun_count>0){
-			$info['relation']='好友';
-			$info['relation_status']=4;
-		}elseif ($myfun_count>0){
-			$info['relation']='被关注';//关注我的人
-			$info['relation_status']=3;
-			$re=$db->getRow('user_relation',array('user_id'=>$user_id,'relation_id'=>$myself_id));
-			if($re['status']==2){
-				$info['relation']='对方黑名单中';//对方黑名单中
-				$info['relation_status']=6;
-			}
-		}elseif ($myfav_count>0){
-			$info['relation']='关注中';//我关注的人
-			$info['relation_status']=2;
-			$re=$db->getRow('user_relation',array('user_id'=>$myself_id,'relation_id'=>$user_id));
-			if($re['status']==2){
-				$info['relation']='黑名单';//黑名单
-				$info['relation_status']=5;
-			}
-		}else{
-			$info['relation']='陌生人';//陌生人
-			$info['relation_status']=1;
-		}
+		$relation_status=getRelationStatus($myself_id,$user_id);
+		$info['relation']=$relation_status['relation'];//陌生人
+		$info['relation_status']=$relation_status['relation_status'];
 		$me=$db->getRow('user',array('id'=>$myself_id));
 		$info['distance']=(!empty($me['lat'])&&!empty($me['lng'])&&!empty($info['lat'])&&!empty($info['lng']))?getDistance($info['lat'],$info['lng'],$me['lat'],$me['lng']):lang_UNlOCATE;
 		$info['lasttime']=time2Units(time()-strtotime($info['logintime']));
@@ -664,4 +640,42 @@ function allowNews(){
 	}
 	$db->update('user',array('allow_news'=>$allow),array('id'=>$user_id));
 	echo json_result(array('userid'=>$user_id));
+}
+
+function getRelationStatus($myself_id,$user_id){
+	global $db;
+	$info=array();
+	//我关注的
+	$myfav_count=$db->getCount('user_relation',array('user_id'=>$myself_id,'relation_id'=>$user_id));
+	//关注我的
+	$myfun_count=$db->getCount('user_relation',array('user_id'=>$user_id,'relation_id'=>$myself_id));
+	if($myfav_count>0&&$myfun_count>0){
+		$info['relation']='好友';
+		$info['relation_status']=4;
+	}elseif ($myfav_count>0){
+		$info['relation']='关注中';//我关注的人
+		$info['relation_status']=2;
+	}elseif ($myfun_count>0){
+		$info['relation']='被关注';//关注我的人
+		$info['relation_status']=3;
+	}
+	if ($myfun_count>0){
+		$re=$db->getRow('user_relation',array('user_id'=>$user_id,'relation_id'=>$myself_id));
+		if($re['status']==2){
+			$info['relation']='对方黑名单中';//对方黑名单中
+			$info['relation_status']=6;
+		}
+	}
+	if ($myfav_count>0){
+		$re=$db->getRow('user_relation',array('user_id'=>$myself_id,'relation_id'=>$user_id));
+		if($re['status']==2){
+			$info['relation']='黑名单';//黑名单
+			$info['relation_status']=5;
+		}
+	}
+	if($myfav_count<=0&&$myfun_count<=0){
+		$info['relation']='陌生人';//陌生人
+		$info['relation_status']=1;
+	}
+	return $info;
 }

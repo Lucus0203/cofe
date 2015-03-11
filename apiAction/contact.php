@@ -736,12 +736,12 @@ function getRelationStatus($myself_id,$user_id){
 	if($myfav_count>0&&$myfun_count>0){
 		$info['relation']='好友';
 		$info['relation_status']=4;
-	}elseif ($myfun_count>0){
-		$info['relation']='被关注';//关注我的人
-		$info['relation_status']=3;
 	}elseif ($myfav_count>0){
 		$info['relation']='关注中';//我关注的人
 		$info['relation_status']=2;
+	}elseif ($myfun_count>0){
+		$info['relation']='被关注';//关注我的人
+		$info['relation_status']=3;
 	}
 	if ($myfun_count>0){
 		$re=$db->getRow('user_relation',array('user_id'=>$user_id,'relation_id'=>$myself_id));

@@ -172,7 +172,7 @@ function eventInfo(){
 	$event['shopimg']=$shopimg['img'];
 	//活动距离
 	$event['distance']=(!empty($event['lat'])&&!empty($event['lng'])&&!empty($lng)&&!empty($lat))?getDistance($lat,$lng,$event['lat'],$event['lng']):lang_UNlOCATE;
-	$user=$db->getRow('user',array('id'=>$event['user_id']),array('id,head_photo_id,nick_name,lng,lat,constellation,age'));
+	$user=$db->getRow('user',array('id'=>$event['user_id']),array('id,head_photo_id,nick_name,lng,lat,constellation,age,sex'));
 	//用户之间的距离
 	$user['distance']=(!empty($user['lat'])&&!empty($user['lng'])&&!empty($lng)&&!empty($lat))?getDistance($lat,$lng,$user['lat'],$user['lng']):lang_UNlOCATE;
 	$userphoto=$db->getRow('user_photo',array('id'=>$user['head_photo_id']));
