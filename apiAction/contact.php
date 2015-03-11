@@ -567,7 +567,8 @@ function follow(){//关注
 		unset($relation['updated']);
 		$db->update('user_relation', $relation,$rinfo);//重新关注
 	}
-	echo json_result(array('success'=>'TRUE'));
+	$res=getRelationStatus($loginid, $userid);
+	echo json_result($res);
 }
 
 //不再关注
@@ -584,7 +585,8 @@ function unfollow(){
 		return;
 	}
 	$db->delete('user_relation', array('user_id'=>$loginid,'relation_id'=>$userid));
-	echo json_result(array('success'=>'TRUE'));
+	$res=getRelationStatus($loginid, $userid);
+	echo json_result($res);
 }
 
 //移除粉丝
@@ -601,7 +603,8 @@ function removeFan(){
 		return;
 	}
 	$db->delete('user_relation', array('user_id'=>$userid,'relation_id'=>$loginid));
-	echo json_result(array('success'=>'TRUE'));
+	$res=getRelationStatus($loginid, $userid);
+	echo json_result($res);
 }
 
 function black(){//拉黑
@@ -638,7 +641,8 @@ function black(){//拉黑
 	$huserObj=$HuanxinObj->block($login['mobile'], $user['mobile']);
 	
 	$db->update('user_relation',array('status'=>2),array('user_id'=>$loginid,'relation_id'=>$userid));
-	echo json_result(array('success'=>'TRUE'));
+	$res=getRelationStatus($loginid, $userid);
+	echo json_result($res);
 }
 
 function unblack(){//移除黑名单
@@ -676,7 +680,8 @@ function unblack(){//移除黑名单
 	$huserObj=$HuanxinObj->unblock($login['mobile'], $user['mobile']);
 	
 	$db->update('user_relation',array('status'=>1),array('user_id'=>$loginid,'relation_id'=>$userid));
-	echo json_result(array('success'=>'TRUE'));
+	$res=getRelationStatus($loginid, $userid);
+	echo json_result($res);
 }
 
 function getUsersByGroupId($userid,$groupid){//获取分组好友
@@ -719,5 +724,38 @@ function report(){
 	$db->update('user', array('report'=>$reportcount));//更新举报次数
 
 	echo json_result(array('success'=>"TRUE"));
+}
+
+function getRelationStatus($myself_id,$user_id){
+	global $db;
+	$info=array();
+	//我关注的
+	$myfav_count=$db->getCount('user_relation',array('user_id'=>$myself_id,'relation_id'=>$user_id));
+	//关注我的
+	$myfun_count=$db->getCount('user_relation',array('user_id'=>$user_id,'relation_id'=>$myself_id));
+	if($myfav_count>0&&$myfun_count>0){
+		$info['relation']='好友';
+		$info['relation_status']=4;
+	}elseif ($myfun_count>0){
+		$info['relation']='被关注';//关注我的人
+		$info['relation_status']=3;
+		$re=$db->getRow('user_relation',array('user_id'=>$user_id,'relation_id'=>$myself_id));
+		if($re['status']==2){
+			$info['relation']='对方黑名单中';//对方黑名单中
+			$info['relation_status']=6;
+		}
+	}elseif ($myfav_count>0){
+		$info['relation']='关注中';//我关注的人
+		$info['relation_status']=2;
+		$re=$db->getRow('user_relation',array('user_id'=>$myself_id,'relation_id'=>$user_id));
+		if($re['status']==2){
+			$info['relation']='黑名单';//黑名单
+			$info['relation_status']=5;
+		}
+	}else{
+		$info['relation']='陌生人';//陌生人
+		$info['relation_status']=1;
+	}
+	return $info;
 }
 

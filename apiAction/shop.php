@@ -62,6 +62,7 @@ function getShopByConditions(){
 	global $db;
 	$lng=filter($_REQUEST['lng']);
 	$lat=filter($_REQUEST['lat']);
+	$keyword = !empty ( $_GET ['keyword'] ) ? $_GET ['keyword'] : '';//关键字
 	$provinceid = !empty ( $_GET ['provinceid'] ) ? $_GET ['provinceid'] : '';//省
 	$cityid = !empty ( $_GET ['cityid'] ) ? $_GET ['cityid'] : '';//市
 	$townid = !empty ( $_GET ['townid'] ) ? $_GET ['townid'] : '';//区
@@ -71,6 +72,9 @@ function getShopByConditions(){
 	$start = ($page_no - 1) * $page_size;
 	
 	$conditions="";
+	if(!empty($keyword)){
+		$conditions.=" and (INSTR(title,'".addslashes($keyword)."') or INSTR(subtitle,'".addslashes($keyword)."') or INSTR(address,'".addslashes($keyword)."') )";
+	}
 	if(!empty($provinceid)){
 		$conditions.=" and province_id=$provinceid ";
 	}
@@ -114,7 +118,7 @@ function favoriteShops(){
 	$page_size = PAGE_SIZE;
 	$start = ($page_no - 1) * $page_size;
 	
-	$sql="select shop.id,shop.title,shop.subtitle,shop.address,shop.img,shopuser.shop_id from ".DB_PREFIX."shop shop left join ".DB_PREFIX."shop_users shopuser on shop.id=shopuser.shop_id where shopuser.user_id=".$userid." and status=2 ";
+	$sql="select shop.id,shop.title,shop.subtitle,shop.address,shop.img,shopuser.shop_id,shop.lng,shop.lat from ".DB_PREFIX."shop shop left join ".DB_PREFIX."shop_users shopuser on shop.id=shopuser.shop_id where shopuser.user_id=".$userid." and status=2 ";
 	$sql.=(!empty($lng)&&!empty($lat))?" order by sqrt(power(lng-{$lng},2)+power(lat-{$lat},2))":'';
 	
 	$sql .= " limit $start,$page_size";
