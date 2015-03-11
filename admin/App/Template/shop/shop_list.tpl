@@ -31,7 +31,7 @@
          </form>
          <table class="hd_ta" border="0" cellpadding="0" cellspacing="1" width="97%" align="center">
 			<colgroup>
-				<col width="15%">
+				<col width="10%">
 				<col width="15%">
 				<col width="15%">
 				<col width="25%">

@@ -14,7 +14,7 @@
              </tr>
              {section name=ban loop=$banner}
              <tr>
-                 <td style="text-align:center;word-break:keep-all;">(宽高640:310)滚动图片</td>
+                 <td style="text-align:center;word-break:keep-all;">(宽高640:589)滚动图片</td>
                  <td>
                  	<img src="{$banner[ban].img}"><a class="delImg" rel="{$banner[ban].id}" href="{url controller=Index action=DelBanner}">删 除</a>
                  	<input name="oldbanner[]" type="hidden" value="{$banner[ban].img}" />
@@ -22,7 +22,7 @@
              </tr>
              {/section}
              <tr>
-                 <td style="text-align:center;">(宽高640:310)滚动图片</td>
+                 <td style="text-align:center;">(宽高640:589)滚动图片</td>
                  <td><input name="banners[]" type="file" style="width:240px;"></td>
              </tr>
              <tr id="banner_add"><td colspan="2" ><a style="margin-left:30px;" href="javascript:void(0)">添加图片</a></td></tr>

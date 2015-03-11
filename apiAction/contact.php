@@ -62,8 +62,8 @@ switch ($act){
 	case 'unfollow'://不再关注
 		unfollow();
 		break;
-	case 'removeFan'://移除粉丝
-		removeFan();
+	case 'removefan'://移除粉丝
+		removefan();
 		break;
 	case 'black'://拉黑
 		black();
@@ -590,7 +590,7 @@ function unfollow(){
 }
 
 //移除粉丝
-function removeFan(){
+function removefan(){
 	global $db;
 	$loginid=filter($_REQUEST['loginid']);
 	$userid=filter($_REQUEST['userid']);
@@ -739,20 +739,25 @@ function getRelationStatus($myself_id,$user_id){
 	}elseif ($myfun_count>0){
 		$info['relation']='被关注';//关注我的人
 		$info['relation_status']=3;
+	}elseif ($myfav_count>0){
+		$info['relation']='关注中';//我关注的人
+		$info['relation_status']=2;
+	}
+	if ($myfun_count>0){
 		$re=$db->getRow('user_relation',array('user_id'=>$user_id,'relation_id'=>$myself_id));
 		if($re['status']==2){
 			$info['relation']='对方黑名单中';//对方黑名单中
 			$info['relation_status']=6;
 		}
-	}elseif ($myfav_count>0){
-		$info['relation']='关注中';//我关注的人
-		$info['relation_status']=2;
+	}
+	if ($myfav_count>0){
 		$re=$db->getRow('user_relation',array('user_id'=>$myself_id,'relation_id'=>$user_id));
 		if($re['status']==2){
 			$info['relation']='黑名单';//黑名单
 			$info['relation_status']=5;
 		}
-	}else{
+	}
+	if($myfav_count<=0&&$myfun_count<=0){
 		$info['relation']='陌生人';//陌生人
 		$info['relation_status']=1;
 	}

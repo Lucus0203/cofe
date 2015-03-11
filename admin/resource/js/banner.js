@@ -1,6 +1,6 @@
 $(function(){
 	$('#banner_add').click(function(){
-		$(this).before('<tr><td style="text-align:center;">(宽高640:310)滚动图片</td>'+
+		$(this).before('<tr><td style="text-align:center;">(宽高640:589)滚动图片</td>'+
                 '<td><input name="banners[]" type="file" style="width:240px;"></td></tr>');
 	});
 	

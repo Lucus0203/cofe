@@ -161,7 +161,8 @@ function invitationBySend(){
 		echo json_result(null,'2','请重新登录');
 		return;
 	}
-	$sql="select inv.id,inv.title,tu.nick_name as to_nick_name,inv.to_user_id,inv.status,inv.isreaded_user,inv.isreaded_to_user,upt.path as photo from ".DB_PREFIX."invitation inv 
+	$sql="select inv.id,inv.title,inv.user_id,u.nick_name,tu.nick_name as to_nick_name,inv.to_user_id,inv.status,inv.isreaded_user,inv.isreaded_to_user,upt.path as photo from ".DB_PREFIX."invitation inv 
+			left join ".DB_PREFIX."user u on inv.user_id = u.id 
 			left join ".DB_PREFIX."user tu on inv.to_user_id = tu.id 
 			left join ".DB_PREFIX."user_photo upt on upt.id=tu.head_photo_id where 1=1 ";
 	$sql.=" and inv.user_id=$userid and inv.del_user <> '1' ";
@@ -177,8 +178,9 @@ function invitationByAccept(){
 		echo json_result(null,'2','请重新登录');
 		return;
 	}
-	$sql="select inv.id,inv.title,u.nick_name,inv.user_id,inv.status,inv.isreaded_user,inv.isreaded_to_user,upt.path as photo from ".DB_PREFIX."invitation inv 
+	$sql="select inv.id,inv.title,u.nick_name,inv.user_id,tu.nick_name as to_nick_name,inv.to_user_id,inv.status,inv.isreaded_user,inv.isreaded_to_user,upt.path as photo from ".DB_PREFIX."invitation inv 
 			left join ".DB_PREFIX."user u on inv.user_id = u.id 
+			left join ".DB_PREFIX."user tu on inv.to_user_id = tu.id 
 			left join ".DB_PREFIX."user_photo upt on upt.id=u.head_photo_id where 1=1 ";
 	$sql.=" and inv.to_user_id=$userid and inv.del_to_user <> '1' ";
 	$data=$db->getAllBySql($sql);
