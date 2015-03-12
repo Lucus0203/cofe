@@ -84,6 +84,8 @@ function getInvitation(){
 	$invitationid=filter(!empty($_REQUEST['invitationid'])?$_REQUEST['invitationid']:'');//邀请函id
 	$userid=filter(!empty($_REQUEST['userid'])?$_REQUEST['userid']:'');//登录者id
 	$invitation=$db->getRow('invitation',array('id'=>$invitationid));
+	$shop=$db->getRow('shop',array('id'=>$invitation['shop_id']),array('title'));
+	$invitation['shop_title']=$shop['title'];
 	if(empty($invitation)){
 		echo json_result(null,'2','您查看的内容不存在');
 		return;
@@ -94,9 +96,11 @@ function getInvitation(){
 	if($invitation['to_user_id']==$userid){
 		$db->update('invitation', array('isreaded_to_user'=>1),array('id'=>$invitationid));
 	}
-	$from=$db->getRow('user',array('id'=>$invitation['user_id']));
+	$from=$db->getRow('user',array('id'=>$invitation['user_id']),array('head_photo_id','nick_name'));
+	$invitation['user_nickname']=$from['nick_name'];
 	$invitation['user_photo']='';
-	$touser=$db->getRow('user',array('id'=>$invitation['to_user_id']));
+	$touser=$db->getRow('user',array('id'=>$invitation['to_user_id']),array('head_photo_id','nick_name'));
+	$invitation['to_user_nickname']=$touser['nick_name'];
 	$invitation['to_user_photo']='';
 	if(!empty($from['head_photo_id'])){
 		$fromphoto=$db->getRow('user_photo',array('id'=>$from['head_photo_id']));
@@ -247,13 +251,16 @@ function delInvitation(){
 	$condition=array('id'=>$invitationid,'user_id'=>$userid);
 	$count=$db->getCount('invitation',$condition);
 	if($count>0){
+		$data=array('del_user'=>'1');
 		$inv=$db->getRow('invitation',array('id'=>$invitationid),array('status'));
-		if($inv['status']==1){
+		if($inv['status']==1&&$inv['isreaded_to_user']==2){
 			echo json_result(null,'3','请等待对方回应或取消');
 			return;
+		}elseif($inv['status']==1){
+			$data['status']=4;
 		}
 		$condition=array('id'=>$invitationid,'user_id'=>$userid);
-		$db->update('invitation', array('del_user'=>'1'),$condition);
+		$db->update('invitation', $data,$condition);
 	}
 	//接受者删除
 	$condition=array('id'=>$invitationid,'to_user_id'=>$userid);

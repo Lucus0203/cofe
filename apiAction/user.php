@@ -250,6 +250,9 @@ function info(){
 		$info['lasttime']=time2Units(time()-strtotime($info['logintime']));
 		$info['address']=($info['allow_find']==1)&&!empty($info['lat'])&&!empty($info['lng'])?getAddressFromBaidu($info['lng'],$info['lat']):"未获取到位置";
 	}
+	if(empty($myself_id)){
+		$info['address']=!empty($info['lat'])&&!empty($info['lng'])?getAddressFromBaidu($info['lng'],$info['lat']):"未获取到位置";
+	}
 	//头像
 	if(!empty($info['head_photo_id'])){
 		$head=$db->getRow('user_photo',array('id'=>$info['head_photo_id']));
