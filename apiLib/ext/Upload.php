@@ -189,12 +189,12 @@ class UpLoad {
 		
 		
 		//保存大图
-// 		$image_larg=& FLEA_Helper_Image::createFromFile($filename, $ftype);
-// 		$image_larg->crop($this->LWidth, $this->LHeight, true, true);
+		$image_larg=& FLEA_Helper_Image::createFromFile($filename, $ftype);
+		$image_larg->crop($this->LWidth, $this->LHeight, true, true);
 		
-// 		$image_larg->saveAsJpeg($b);
+		$image_larg->saveAsJpeg($b);
 		
-//		$image_larg->destory();
+		$image_larg->destory();
 		//保存小图
 		$image_thum=& FLEA_Helper_Image::createFromFile($filename, $ftype);
 		$image_thum->crop($this->SWidth, $this->SHeight, true, true);
@@ -204,7 +204,7 @@ class UpLoad {
 		$image_thum->destory();
 		
 		// 保存原始相片
-		$upload_flag=move_uploaded_file ( $filename, $b );
+		//$upload_flag=move_uploaded_file ( $filename, $b );
 		//echo $string;
 		
 		$res=array();

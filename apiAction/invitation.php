@@ -26,7 +26,7 @@ switch ($act){
 	case 'cancelInvitation'://取消邀请函
 		cancelInvitation();
 		break;
-	case 'delInvitation'://取消邀请函
+	case 'delInvitation'://删除邀请函
 		delInvitation();
 		break;
 	default:
@@ -65,11 +65,13 @@ function sendInvitation(){
 	$invitation=array('title'=>$title,'datetime'=>$datetime,'shop_id'=>$shopid,'address'=>$shop['address'],'lng'=>$shop['lng'],'lat'=>$shop['lat'],'tel'=>$tel,'user_id'=>$userid,'to_user_id'=>$to_userid,'isreaded_user'=>1,'isreaded_to_user'=>2,'status'=>1,'created'=>date("Y-m-d H:i:s"));
 	$db->create('invitation', $invitation);
 	
+	$fromuser=$db->getRow('user',array('id'=>$userid),array('nick_name'));
+	
 // 	$Aumeng=new Umeng('Android');
 // 	$Aumeng->sendAndroidCustomizedcast("invitation",$to_userid,"您有新的邀约","咖啡约我","新的邀请函","go_app","");//go_activity
 	
  	$IOSumeng=new Umeng('IOS');
- 	$IOSumeng->sendIOSCustomizedcast("invitation", $to_userid, "您有新的邀约");
+ 	$IOSumeng->sendIOSCustomizedcast("invitation", $to_userid, '您有一封来自"'.$fromuser['nick_name'].'"的邀请函',array('notify'=>'invitation'));
 
 	echo json_result(array('success'=>'TRUE'));
 
@@ -134,7 +136,15 @@ function acceptInvitation(){
 		return;
 	}
 	$db->update('invitation', array('isreaded_user'=>2,'isreaded_to_user'=>1,'status'=>2),array('id'=>$invitationid));
-	echo json_result(array('success'=>'TRUE'));
+	
+	//通知
+	$inv=$db->getRow('invitation',array('id'=>$invitationid),array('user_id'));
+	$touser=$db->getRow('user',array('id'=>$userid),array('nick_name'));
+	
+	$IOSumeng=new Umeng('IOS');
+ 	$IOSumeng->sendIOSCustomizedcast("invitation", $inv['user_id'], '"'.$touser['nick_name'].'"接受了您的邀请函',array('notify'=>'invitation'));
+	
+ 	echo json_result(array('success'=>'TRUE'));
 	
 }
 
@@ -149,6 +159,14 @@ function refuseInvitation(){
 		return;
 	}
 	$db->update('invitation', array('isreaded_user'=>2,'isreaded_to_user'=>1,'status'=>3),array('id'=>$invitationid));
+	
+	//通知
+	$inv=$db->getRow('invitation',array('id'=>$invitationid),array('user_id'));
+	$touser=$db->getRow('user',array('id'=>$userid),array('nick_name'));
+	
+	$IOSumeng=new Umeng('IOS');
+	$IOSumeng->sendIOSCustomizedcast("invitation", $inv['user_id'], '"'.$touser['nick_name'].'"拒绝了您的邀请函',array('notify'=>'invitation'));
+	
 	echo json_result(array('success'=>'TRUE'));
 	
 }
@@ -229,6 +247,11 @@ function delInvitation(){
 	$condition=array('id'=>$invitationid,'user_id'=>$userid);
 	$count=$db->getCount('invitation',$condition);
 	if($count>0){
+		$inv=$db->getRow('invitation',array('id'=>$invitationid),array('status'));
+		if($inv['status']==1){
+			echo json_result(null,'3','请等待对方回应或取消');
+			return;
+		}
 		$condition=array('id'=>$invitationid,'user_id'=>$userid);
 		$db->update('invitation', array('del_user'=>'1'),$condition);
 	}

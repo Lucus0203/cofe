@@ -32,10 +32,10 @@ class Umeng {
     protected $validation_token = NULL;
 
     function __construct($client) {
-    	if($client['client']=='Android'){
+    	if($client=='Android'){
 	        $this->appkey = Android_umeng_appkey;
 	        $this->appMasterSecret = Android_umeng_master_secret;
-    	}elseif($client['client']=='IOS'){
+    	}elseif($client=='IOS'){
 	        $this->appkey = IOS_umeng_appkey;
 	        $this->appMasterSecret = IOS_master_secret;
     	}
@@ -312,14 +312,14 @@ class Umeng {
             $customizedcast->setPredefinedKeyValue("alias_type", $alias_type);
             $customizedcast->setPredefinedKeyValue("alert", $alert);
             $customizedcast->setPredefinedKeyValue("badge", 1);
-            $customizedcast->setPredefinedKeyValue("sound", "chime");
+            $customizedcast->setPredefinedKeyValue("sound", "default");
             // Set 'production_mode' to 'true' if your app is under production mode
-            $customizedcast->setPredefinedKeyValue("production_mode", "false");
+            $customizedcast->setPredefinedKeyValue("production_mode", "true");
             foreach ($extras as $key=>$ext){
-            	$customizedcast->setPredefinedKeyValue($key, $ext);
+            	$customizedcast->setCustomizedField($key, $ext);
             }
-            //$customizedcast->setCustomizedField("display_type", "notification");
-            $customizedcast->setCustomizedField("display_type", "message");
+            $customizedcast->setCustomizedField("display_type", "notification");
+            //$customizedcast->setCustomizedField("display_type", "message");
             $body=array(
             		// 通知展现内容:
             		"ticker"=>$alert,     // 必填 通知栏提示文字
@@ -334,7 +334,7 @@ class Umeng {
             );
             $customizedcast->setCustomizedField("body", $body);
             //print("Sending customizedcast notification, please wait...\r\n");
-            $customizedcast->send();
+            $res=$customizedcast->send();
             //print("Sent SUCCESS\r\n");
         } catch (Exception $e) {
             //print("Caught exception: " . $e->getMessage());
