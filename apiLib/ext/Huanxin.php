@@ -103,6 +103,9 @@ Class Huanxin {
 	 * CURL Post
 	 */
 	private function postCurl($url, $option, $header = 0, $type = 'POST') {
+		array_push($header, 'Accept:application/json');
+		array_push($header, 'Content-Type:application/json');
+		
 		$curl = curl_init (); // 启动一个CURL会话
 		curl_setopt ( $curl, CURLOPT_URL, $url ); // 要访问的地址
 		curl_setopt ( $curl, CURLOPT_SSL_VERIFYPEER, FALSE ); // 对认证证书来源的检查
@@ -111,23 +114,22 @@ Class Huanxin {
 		curl_setopt ( $curl, CURLOPT_TIMEOUT, 30 ); // 设置超时限制防止死循环
 		curl_setopt ( $curl, CURLOPT_HTTPHEADER, $header ); // 设置HTTP头
 		curl_setopt ( $curl, CURLOPT_RETURNTRANSFER, 1 ); // 获取的信息以文件流的形式返回
-		
 		if (! empty ( $option )) {
 			$options = json_encode ( $option );
 			curl_setopt ( $curl, CURLOPT_POSTFIELDS, $options ); // Post提交的数据包
 		}
 		switch ($type){
 			case "GET" :
-				curl_setopt($ch, CURLOPT_HTTPGET, true);
+				curl_setopt($curl, CURLOPT_HTTPGET, true);
 				break;
 			case "POST":
-				curl_setopt($ch, CURLOPT_POST,true);
+				curl_setopt($curl, CURLOPT_POST,true);
 				break;
 			case "PUT" :
-				curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "PUT");
+				curl_setopt($curl, CURLOPT_CUSTOMREQUEST, "PUT");
 				break;
 			case "DELETE":
-				curl_setopt ($ch, CURLOPT_CUSTOMREQUEST, "DELETE");
+				curl_setopt ($curl, CURLOPT_CUSTOMREQUEST, "DELETE");
 				break;
 		}
 		curl_setopt ( $curl, CURLOPT_CUSTOMREQUEST, $type );
@@ -137,9 +139,25 @@ Class Huanxin {
 		//$res ['status'] = curl_getinfo ( $curl, CURLINFO_HTTP_CODE );
 		//pre ( $res );
 		curl_close ( $curl ); // 关闭CURL会话
-		return $result;
+		return json_decode($result);
 	}
 
+	//请求json数据
+	function getJsonData($url,$parm="",$post=0){
+		$ch = curl_init(); //初始化curl
+		curl_setopt($ch, CURLOPT_URL, $url); //抓取指定网页
+		curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1); //要求结果为字符串且输出到屏幕上
+		curl_setopt($ch, CURLOPT_POST, $post); //post提交方式
+		curl_setopt($ch, CURLOPT_HEADER, 0); //设置header
+		curl_setopt($ch, CURLOPT_POSTFIELDS, $parm);
+		curl_setopt($ch, CURLOPT_HTTPHEADER,array("Content-Type:application/json","Authorization: Bearer ".$this->_access_token));
+		curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE);// 终止从服务端进行验证
+		curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, FALSE);
+		$jsondata = curl_exec($ch); //运行curl
+		curl_close($ch);
+		return json_decode($jsondata);
+	}
+	
 	//发送json数据
 	function sendJsonData($url,$parm="",$post=0){
 		$ch = curl_init(); //初始化curl
@@ -157,21 +175,6 @@ Class Huanxin {
 	
 	}
 	
-	//请求json数据
-	function getJsonData($url,$parm="",$post=0){
-		$ch = curl_init(); //初始化curl
-		curl_setopt($ch, CURLOPT_URL, $url); //抓取指定网页
-		curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1); //要求结果为字符串且输出到屏幕上
-		curl_setopt($ch, CURLOPT_POST, $post); //post提交方式
-		curl_setopt($ch, CURLOPT_HEADER, 0); //设置header
-		curl_setopt($ch, CURLOPT_POSTFIELDS, $parm);
-		curl_setopt($ch, CURLOPT_HTTPHEADER,array("Content-Type:application/json","Authorization: Bearer ".$this->_access_token));
-		curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE);// 终止从服务端进行验证
-		curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, FALSE);
-		$jsondata = curl_exec($ch); //运行curl
-		curl_close($ch);
-		return json_decode($jsondata);
-	}
 	
 	//更新token时使用
 	function sendJsonDataWithNoToken($url,$parm="",$post=0){

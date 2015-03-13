@@ -132,6 +132,7 @@ function resetPassword(){
 			$flag=$db->update('user', $pass ,array('mobile'=>$mobile,'captcha_code'=>$code));
 		}else{
 			echo json_result(null,'9','密码修改失败,请联系客服');
+			return;
 		}
 	}else{
 		$user=array('user_password'=>md5($user_pass),'mobile'=>$mobile,'sex'=>'3','age'=>'','constellation'=>'保密','created'=>date("Y-m-d H:i:s"));

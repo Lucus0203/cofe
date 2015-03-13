@@ -645,7 +645,6 @@ function black(){//拉黑
 	//环信拉黑
 	$HuanxinObj=Huanxin::getInstance();
 	$huserObj=$HuanxinObj->block($login['mobile'], $user['mobile']);
-	print_r($huserObj);
 	
 	$db->update('user_relation',array('status'=>2),array('user_id'=>$loginid,'relation_id'=>$userid));
 	$res=getRelationStatus($loginid, $userid);
@@ -685,7 +684,6 @@ function unblack(){//移除黑名单
 	//环信移除黑名单
 	$HuanxinObj=Huanxin::getInstance();
 	$huserObj=$HuanxinObj->unblock($login['mobile'], $user['mobile']);
-	print_r($huserObj);
 	
 	$db->update('user_relation',array('status'=>1),array('user_id'=>$loginid,'relation_id'=>$userid));
 	$res=getRelationStatus($loginid, $userid);

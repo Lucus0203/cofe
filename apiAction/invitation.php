@@ -56,7 +56,14 @@ function sendInvitation(){
 	//待接收邀约数
 	$count=$db->getCount('invitation',array('status'=>1,'user_id'=>$userid));
 	if($count>0){
-		echo json_result(null,'2','您还有一个待对方接收的邀请,或许您想取消');//是的,要取消,不,再耐心等等
+		echo json_result(null,'2','您还有一个待对方接收的邀请');//是的,要取消,不,再耐心等等
+		return;
+	}
+	
+	//黑名单，对方暂不接受邀请
+	$relation=$db->getRow('user_relation',array('user_id'=>$to_userid,'relation_id'=>$userid),array('status'));
+	if(!empty($relation['status'])&&$relation['status']==2){
+		echo json_result(null,'3','对方暂不接受邀请');//是的,要取消,不,再耐心等等
 		return;
 	}
 	
