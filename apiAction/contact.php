@@ -77,6 +77,12 @@ switch ($act){
 	case 'report'://举报
 		report();
 		break;
+	case 'huanxinFriends'://环信好友
+		huanxinFriends();
+		break;
+	case 'huanxinBlocks'://环信黑名单
+		huanxinBlocks();
+		break;
 	default:
 		break;
 }
@@ -92,7 +98,7 @@ function getFriends(){//好友/所有联系人(互相关注)
 	$sql="select u.id as user_id,u.nick_name,u.user_name,u.signature,u.sex,u.age,u.constellation,upt.path as head_photo,u.lng,u.lat from ".DB_PREFIX."user u left join ".DB_PREFIX."user_relation ur1 on u.id=ur1.relation_id
 			left join ".DB_PREFIX."user_relation ur2 on ur1.relation_id = ur2.user_id 
 			left join ".DB_PREFIX."user_photo upt on u.head_photo_id = upt.id
-			where ur2.relation_id = $userid and ur1.user_id = $userid and ur1.status=1 ";
+			where ur2.relation_id = $userid and ur1.user_id = $userid and ur1.status=1 and ur2.status=1 ";
 	$z='a';
 	for($i=0;$i<26;$i++){
 		$s=$sql." and pinyin='{$z}' ORDER BY convert(nick_name using gbk); ";
@@ -639,6 +645,7 @@ function black(){//拉黑
 	//环信拉黑
 	$HuanxinObj=Huanxin::getInstance();
 	$huserObj=$HuanxinObj->block($login['mobile'], $user['mobile']);
+	print_r($huserObj);
 	
 	$db->update('user_relation',array('status'=>2),array('user_id'=>$loginid,'relation_id'=>$userid));
 	$res=getRelationStatus($loginid, $userid);
@@ -678,6 +685,7 @@ function unblack(){//移除黑名单
 	//环信移除黑名单
 	$HuanxinObj=Huanxin::getInstance();
 	$huserObj=$HuanxinObj->unblock($login['mobile'], $user['mobile']);
+	print_r($huserObj);
 	
 	$db->update('user_relation',array('status'=>1),array('user_id'=>$loginid,'relation_id'=>$userid));
 	$res=getRelationStatus($loginid, $userid);
@@ -724,6 +732,28 @@ function report(){
 	$db->update('user', array('report'=>$reportcount));//更新举报次数
 
 	echo json_result(array('success'=>"TRUE"));
+}
+
+//环信好友
+function huanxinFriends(){
+	global $db;
+	$loginid=filter($_REQUEST['loginid']);
+	$login=$db->getRow('user',array('id'=>$loginid),array('mobile'));
+
+	$HuanxinObj=Huanxin::getInstance();
+	$huserObj=$HuanxinObj->getFriends($login['mobile']);
+	print_r($huserObj);
+}
+
+//环信黑名单
+function huanxinBlocks(){
+	global $db;
+	$loginid=filter($_REQUEST['loginid']);
+	$login=$db->getRow('user',array('id'=>$loginid),array('mobile'));
+
+	$HuanxinObj=Huanxin::getInstance();
+	$huserObj=$HuanxinObj->getBlocks($login['mobile']);
+	print_r($huserObj);
 }
 
 function getRelationStatus($myself_id,$user_id){
