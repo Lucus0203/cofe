@@ -774,7 +774,7 @@ function getRelationStatus($myself_id,$user_id){
 	if ($myfun_count>0){
 		$re=$db->getRow('user_relation',array('user_id'=>$user_id,'relation_id'=>$myself_id));
 		if($re['status']==2){
-			$info['relation']='对方黑名单中';//对方黑名单中
+			$info['relation']='陌生人';//对方黑名单中
 			$info['relation_status']=6;
 		}
 	}
