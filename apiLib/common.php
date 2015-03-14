@@ -202,7 +202,8 @@ function getFirstCharter($str){
 	if($asc>=-12556&&$asc<=-11848) return 'X';
 	if($asc>=-11847&&$asc<=-11056) return 'Y';
 	if($asc>=-11055&&$asc<=-10247) return 'Z';
-	return $str{0};
+	//return $str{0};
+	return '';
 }
 
 

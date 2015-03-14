@@ -54,6 +54,7 @@ function nearbyShops(){
 	foreach ($shops as $k=>$v){
 		$shops[$k]['distance']=(!empty($v['lat'])&&!empty($v['lng'])&&!empty($lng)&&!empty($lat))?getDistance($lat,$lng,$v['lat'],$v['lng']):lang_UNlOCATE;
 	}
+	//echo json_result(array('shops'=>$shops));
 	echo json_result($shops);
 }
 
@@ -73,7 +74,8 @@ function getShopByConditions(){
 	
 	$conditions="";
 	if(!empty($keyword)){
-		$conditions.=" and (INSTR(title,'".addslashes($keyword)."') or INSTR(subtitle,'".addslashes($keyword)."') or INSTR(address,'".addslashes($keyword)."') )";
+		//$conditions.=" and (INSTR(title,'".addslashes($keyword)."') or INSTR(subtitle,'".addslashes($keyword)."') or INSTR(address,'".addslashes($keyword)."') )";
+		$conditions.=" and INSTR(title,'".addslashes($keyword)."') ";
 	}
 	if(!empty($provinceid)){
 		$conditions.=" and province_id=$provinceid ";
@@ -94,13 +96,16 @@ function getShopByConditions(){
 	}
 	
 	$sql="select * from ".DB_PREFIX."shop where status=2 $conditions ";
-	$sql.=(!empty($lng)&&!empty($lat))?" order by $circlerOrder sqrt(power(lng-{$lng},2)+power(lat-{$lat},2))":'';
+	$count=$db->getCountBySql($sql);
 	
+	$sql.=(!empty($lng)&&!empty($lat))?" order by $circlerOrder sqrt(power(lng-{$lng},2)+power(lat-{$lat},2))":'';
 	$sql .= " limit $start,$page_size";
 	$shops=$db->getAllBySql($sql);
 	foreach ($shops as $k=>$v){
 		$shops[$k]['distance']=(!empty($v['lat'])&&!empty($v['lng'])&&!empty($lng)&&!empty($lat))?getDistance($lat,$lng,$v['lat'],$v['lng']):lang_UNlOCATE;
 	}
+	//echo json_result(array('count'=>$count,'shops'=>$shops));
+
 	echo json_result($shops);
 }
 
@@ -127,6 +132,7 @@ function favoriteShops(){
 		$shops[$k]['num']=$db->getCount('shop_users',array('shop_id'=>$v['shop_id']));
 		$shops[$k]['distance']=(!empty($v['lat'])&&!empty($v['lng'])&&!empty($lng)&&!empty($lat))?getDistance($lat,$lng,$v['lat'],$v['lng']):lang_UNlOCATE;
 	}
+	//echo json_result(array('shops'=>$shops));
 	echo json_result($shops);
 }
 

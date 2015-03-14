@@ -222,19 +222,13 @@ function joinEvent(){
 function cancelJoinEvent(){
 	global $db;
 	$userid=filter($_REQUEST['userid']);
-	$public_event_id=filter($_REQUEST['public_event_id']);
-	$user_event_id=filter($_REQUEST['user_event_id']);
+	$event_id=filter($_REQUEST['eventid']);
 	$flag=false;
-	if(!empty($user_event_id)){
-		$flag=$db->delete('userevent_relation', array('user_event_id'=>$user_event_id,'user_id'=>$userid));
-	}
-	if(!empty($public_event_id)){
-		$flag=$db->delete('public_users', array('public_event_id'=>$user_event_id,'user_id'=>$userid));
-	}
+	$flag=$db->delete('userevent_relation', array('user_event_id'=>$event_id,'user_id'=>$userid));
 	if($flag){
-		echo json_result(array('userid'=>$userid));
+		echo json_result(array('success'=>'TRUE'));
 	}else{
-		echo json_result(null,'30','报名已取消失败,请联系管理员');
+		echo json_result(null,'30','参与取消失败,请联系管理员');
 	}
 }
 
@@ -246,7 +240,7 @@ function cancelEvent(){
 	$eventid=filter($_REQUEST['eventid']);
 	$flag=$db->update('user_event', array('status'=>2),array('user_id'=>$userid,'id'=>$eventid));
 	if($flag){
-		echo json_result(array('userid'=>$userid));
+		echo json_result(array('success'=>'TRUE'));
 	}else{
 		echo json_result(null,'30','活动取消失败,请联系管理员');
 	}

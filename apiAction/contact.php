@@ -2,6 +2,12 @@
 require_once APP_DIR.DS.'apiLib'.DS.'ext'.DS.'Huanxin.php';
 $act=filter($_REQUEST['act']);
 switch ($act){
+	case 'nearUsers'://附近想喝咖啡的人
+		nearUsers();
+		break;
+	case 'getUsersByConditions'://筛选附近的人
+		getUsersByConditions();
+		break;
 	case 'getFriends':
 		getFriends();//好友/所有联系人(互相关注)
 		break;
@@ -31,12 +37,6 @@ switch ($act){
 		break;
 	case 'recommend':
 		recommend();//推荐联系人
-		break;
-	case 'nearUsers'://附近想喝咖啡的人
-		nearUsers();
-		break;
-	case 'getUsersByConditions'://筛选附近的人
-		getUsersByConditions();
 		break;
 	case 'createGroup':
 		createGroup();//添加分组
@@ -95,16 +95,19 @@ function getFriends(){//好友/所有联系人(互相关注)
 		return;
 	}
 	$data=array();
-	$sql="select u.id as user_id,u.nick_name,u.user_name,u.signature,u.sex,u.age,u.constellation,upt.path as head_photo,u.lng,u.lat from ".DB_PREFIX."user u left join ".DB_PREFIX."user_relation ur1 on u.id=ur1.relation_id
+	$sql="select u.id as user_id,if((trim(ur1.relation_name)<>'' and ur1.relation_name is not null),ur1.relation_name,u.nick_name) as nick_name,u.user_name,u.signature,u.sex,u.age,u.constellation,upt.path as head_photo,u.lng,u.lat from ".DB_PREFIX."user u left join ".DB_PREFIX."user_relation ur1 on u.id=ur1.relation_id
 			left join ".DB_PREFIX."user_relation ur2 on ur1.relation_id = ur2.user_id 
 			left join ".DB_PREFIX."user_photo upt on u.head_photo_id = upt.id
 			where ur2.relation_id = $userid and ur1.user_id = $userid and ur1.status=1 and ur2.status=1 ";
+	
 	$z='a';
-	for($i=0;$i<26;$i++){
-		$s=$sql." and pinyin='{$z}' ORDER BY convert(nick_name using gbk); ";
+	for($i=1;$i<=26;$i++){
+		$s=$sql." and if ( (ur1.relation_name!='' and ur1.relation_name is not null),if(ur1.relation_pinyin='{$z}',1,0),if(u.pinyin='{$z}',1,0) )  ORDER BY convert(nick_name using gbk); ";
 		$data[$z++]=$db->getAllBySql($s);
 	}
-	$s=$sql." and (pinyin='' or pinyin is null) ORDER BY convert(nick_name using gbk); ";
+	
+	//26字母以外的
+	$s=$sql." and if ( (ur1.relation_name!='' and ur1.relation_name is not null),if(ur1.relation_pinyin='' or ur1.relation_pinyin is null,1,0),if(u.pinyin='' or u.pinyin is null,1,0) )  ORDER BY convert(nick_name using gbk); ";
 	$data['other']=$db->getAllBySql($s);
 	echo json_result($data);
 	
@@ -142,7 +145,7 @@ function searchUsersByKeyword(){
 		echo json_result(null,'3','请重新登录');
 		return;
 	}
-	$sql="select u.id as user_id,upt.path as head_photo,u.nick_name,u.user_name,u.sex,u.age,u.constellation,if(ur1.id !='','added','unadd') isadd from ".DB_PREFIX."user u 
+	$sql="select u.id as user_id,upt.path as head_photo,if((trim(ur1.relation_name)<>'' and ur1.relation_name is not null),ur1.relation_name,u.nick_name) as nick_name,u.user_name,u.sex,u.age,u.constellation,if(ur1.id !='','added','unadd') isadd from ".DB_PREFIX."user u 
 		left join ".DB_PREFIX."user_photo upt on u.head_photo_id = upt.id 
 		left join ".DB_PREFIX."user_relation ur1 on u.id=ur1.relation_id and ur1.user_id=$loginid
 		where user_name ='$keyword' or mobile = '$keyword' or nick_name = '$keyword' ";
@@ -171,7 +174,7 @@ function searchUsersByNear(){
 		echo json_result(null,'40','获取不到经纬度,请设置允许获取位置');
 		return;
 	}
-	$sql="select u.id as user_id,u.nick_name,u.user_name,upt.path as head_photo,u.sex,u.age,u.constellation,u.lng,u.lat,if(ur1.id !='','added','unadd') isadd from ".DB_PREFIX."user u
+	$sql="select u.id as user_id,if((trim(ur1.relation_name)<>'' and ur1.relation_name is not null),ur1.relation_name,u.nick_name) as nick_name,u.user_name,upt.path as head_photo,u.sex,u.age,u.constellation,u.lng,u.lat,if(ur1.id !='','added','unadd') isadd from ".DB_PREFIX."user u
 		left join ".DB_PREFIX."user_photo upt on u.head_photo_id = upt.id
 		left join ".DB_PREFIX."user_relation ur1 on u.id=ur1.relation_id and ur1.user_id=$loginid
 			where u.allow_add = 1 and allow_find=1 and round(6378.138*2*asin(sqrt(pow(sin( ($lat*pi()/180-lat*pi()/180)/2),2)+cos($lat*pi()/180)*cos(lat*pi()/180)* pow(sin( ($lng*pi()/180-lng*pi()/180)/2),2)))*1000) <= ".RANGE_KILO;
@@ -214,7 +217,7 @@ function searchUsersByMobiles(){
 			return;
 		}
 		
-		$sql="select u.id as user_id,upt.path as head_photo,u.nick_name,u.user_name,u.sex,u.age,u.constellation, if(ur1.id !='','added','unadd') isadd from ".DB_PREFIX."user u 
+		$sql="select u.id as user_id,upt.path as head_photo,if((trim(ur1.relation_name)<>'' and ur1.relation_name is not null),ur1.relation_name,u.nick_name) as nick_name,u.user_name,u.sex,u.age,u.constellation, if(ur1.id !='','added','unadd') isadd from ".DB_PREFIX."user u 
 			left join ".DB_PREFIX."user_photo upt on u.head_photo_id = upt.id 
 			left join ".DB_PREFIX."user_relation ur1 on u.id=ur1.relation_id and ur1.user_id=$loginid	
 			where $cons ";
@@ -226,23 +229,23 @@ function searchUsersByMobiles(){
 	echo json_result($res);
 }
 
-function recentContacts(){//根据user_relation的updated时间判断最近更新的联系人
-	global $db;
-	$userid=filter(!empty($_REQUEST['loginid'])?$_REQUEST['loginid']:'');
-	$lng=filter(!empty($_REQUEST['lng'])?$_REQUEST['lng']:'');
-	$lat=filter(!empty($_REQUEST['lat'])?$_REQUEST['lat']:'');
-	$sql="select u.id as user_id,u.nick_name,u.user_name,u.signature as talk,u.sex,u.head_photo_id,upt.path as head_photo,u.lng,u.lat from ".DB_PREFIX."user u left join ".DB_PREFIX."user_relation ur1 on u.id=ur1.relation_id
-			left join ".DB_PREFIX."user_relation ur2 on ur1.relation_id = ur2.user_id 
-			left join ".DB_PREFIX."user_photo upt on u.head_photo_id = upt.id
-			where ur2.relation_id = $userid and ur1.user_id = $userid and ur1.status=1  order by ur1.updated desc ";
-	$data=$db->getAllBySql($sql);
-	foreach ($data as $k=>$d){
-		$data[$k]['distance']=(!empty($d['lat'])&&!empty($d['lng'])&&!empty($lng)&&!empty($lat))?getDistance($lat,$lng,$d['lat'],$d['lng']):lang_UNlOCATE;
+// function recentContacts(){//根据user_relation的updated时间判断最近更新的联系人
+// 	global $db;
+// 	$userid=filter(!empty($_REQUEST['loginid'])?$_REQUEST['loginid']:'');
+// 	$lng=filter(!empty($_REQUEST['lng'])?$_REQUEST['lng']:'');
+// 	$lat=filter(!empty($_REQUEST['lat'])?$_REQUEST['lat']:'');
+// 	$sql="select u.id as user_id,u.nick_name,u.user_name,u.signature as talk,u.sex,u.head_photo_id,upt.path as head_photo,u.lng,u.lat from ".DB_PREFIX."user u left join ".DB_PREFIX."user_relation ur1 on u.id=ur1.relation_id
+// 			left join ".DB_PREFIX."user_relation ur2 on ur1.relation_id = ur2.user_id 
+// 			left join ".DB_PREFIX."user_photo upt on u.head_photo_id = upt.id
+// 			where ur2.relation_id = $userid and ur1.user_id = $userid and ur1.status=1  order by ur1.updated desc ";
+// 	$data=$db->getAllBySql($sql);
+// 	foreach ($data as $k=>$d){
+// 		$data[$k]['distance']=(!empty($d['lat'])&&!empty($d['lng'])&&!empty($lng)&&!empty($lat))?getDistance($lat,$lng,$d['lat'],$d['lng']):lang_UNlOCATE;
 		
-	}
+// 	}
 	
-	echo json_result($data);
-}
+// 	echo json_result($data);
+// }
 
 function myFavri(){//我关注的
 	global $db;
@@ -373,7 +376,8 @@ function nearUsers(){//附近想喝咖啡的人
 	if(!empty($userid)){
 		$selfcondition=" and u.id <> $userid ";
 	}
-	$sql="select u.id,u.nick_name,u.user_name,u.nick_name,u.head_photo_id,upt.user_id,upt.path as head_photo,u.sex,u.age,u.constellation,u.lng,u.lat from ".DB_PREFIX."user u 
+	$sql="select u.id,u.nick_name,u.user_name,if((trim(ur1.relation_name)<>'' and ur1.relation_name is not null),ur1.relation_name,u.nick_name) as nick_name,u.head_photo_id,upt.user_id,upt.path as head_photo,u.sex,u.age,u.constellation,u.lng,u.lat from ".DB_PREFIX."user u 
+			left join ".DB_PREFIX."user_relation ur1 on u.id=ur1.relation_id and ur1.user_id='$userid'
 		left join ".DB_PREFIX."user_photo upt on u.head_photo_id = upt.id
 		where u.allow_add = 1 and allow_find=1 $selfcondition and round(6378.138*2*asin(sqrt(pow(sin( ($lat*pi()/180-lat*pi()/180)/2),2)+cos($lat*pi()/180)*cos(lat*pi()/180)* pow(sin( ($lng*pi()/180-lng*pi()/180)/2),2)))*1000) <= ".RANGE_KILO;
 	$data=$db->getAllBySql($sql." order by  sqrt(power(lng-{$lng},2)+power(lat-{$lat},2)) limit $start,$page_size");
@@ -710,7 +714,8 @@ function relationName(){
 		return;
 	}
 	$conditions=array('user_id'=>$loginid,'relation_id'=>$userid);
-	$db->update('user_relation',array('relation_name'=>$name),$conditions);
+	$pinyin=!empty($name)?getFirstCharter($name):'';
+	$db->update('user_relation',array('relation_name'=>$name,'relation_pinyin'=>$pinyin),$conditions);
 	echo json_result(array('success'=>'TRUE'));
 }
 
