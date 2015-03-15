@@ -277,7 +277,11 @@ function infoEdit(){
 	$data=filter($_REQUEST);
 	$user_id=$data['userid'];
 	if(empty($user_id)){
-		echo json_result(null,'14','获取不到当前用户id');
+		echo json_result(null,'13','获取不到当前用户id');
+		return;
+	}
+	if($db->getCount('user',array('id'=>$user_id))<=0){
+		echo json_result(null,'14','找不到当前用户id,请重新登录');
 		return;
 	}
 	$info=array();
@@ -426,7 +430,11 @@ function uploadOnceImg(){
 	global $db;
 	$user_id=filter($_REQUEST['userid']);
 	if(empty($user_id)){
-		echo json_result(null,'14','获取不到当前用户id');
+		echo json_result(null,'13','获取不到当前用户id');
+		return;
+	}
+	if($db->getCount('user',array('id'=>$user_id))<=0){
+		echo json_result(null,'14','找不到当前用户id,请重新登录');
 		return;
 	}
 	//上传相册图片

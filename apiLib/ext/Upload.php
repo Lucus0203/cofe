@@ -180,6 +180,13 @@ class UpLoad {
 		list($o_w, $o_h) = getimagesize ( $filename );
 		$s_height=$this->SWidth / $o_w * $o_h ;
 		$l_height=$this->LHeight / $o_w * $o_h ;
+		if($o_h/$o_w > 1.7786){ //1334/750
+			$s_height=$this->SWidth * 1.7786 ;
+			$l_height=$this->LHeight * 1.7786 ;
+		}elseif($o_h/$o_w < 0.625){ //320/200
+			$s_height=$this->SWidth * 0.625 ;
+			$l_height=$this->LHeight * 0.625 ;
+		}
 		$this->setSHeight($s_height);
 		$this->setLHeight($l_height);
 		$pinfo = pathinfo ( $file ["name"] );
