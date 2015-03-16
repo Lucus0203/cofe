@@ -26,10 +26,10 @@ function getCityArea($return=false){
 		$sql="select p.id,p.name from ".DB_PREFIX."address_province p ";
 		$province=$db->getAllBySql($sql);
 		foreach ($province as $pk=>$p){
-			$sql="select c.id,c.name from ".DB_PREFIX."address_city c where c.province_id = {$p['id']} ";
+			$sql="select c.id,c.name from ".DB_PREFIX."address_city c where c.province_id = {$p['id']} order by code asc ";
 			$city=$db->getAllBySql($sql);
 			foreach ($city as $ck=>$c){
-				$sql="select t.id,t.name from ".DB_PREFIX."address_town t where t.city_id = {$c['id']} ";
+				$sql="select t.id,t.name from ".DB_PREFIX."address_town t where t.city_id = {$c['id']} order by code asc ";
 				$town=$db->getAllBySql($sql);
 				$city[$ck]['town']=$town;
 			}
