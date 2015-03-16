@@ -54,7 +54,7 @@ class Controller_Shop extends FLEA_Controller_Action {
 
 		$conditions=array();
 		if(!empty($title)){
-			$conditions[]=" INSTR(title,'".addslashes($title)."') or INSTR(address,'".addslashes($title)."') ";
+			$conditions[]=" (INSTR(title,'".addslashes($title)."') or INSTR(subtitle,'".addslashes($title)."') or INSTR(address,'".addslashes($title)."') )";
 			$pageparm['title']=$title;
 		}
 		if(!empty($province_id)){
