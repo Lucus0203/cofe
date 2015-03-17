@@ -211,7 +211,12 @@ function joinEvent(){
 			$up=array('user_id'=>$userid,'user_event_id'=>$eventid,'created'=>date("Y-m-d H:i:s"));
 			$db->create('userevent_relation', $up);
 		}
-		echo json_result(array('eventid'=>$eventid));
+		//活动用户及头像地址
+		$sql="select u.id as user_id,u.nick_name,u.user_name,up.path from ".DB_PREFIX."userevent_relation uer left join ".DB_PREFIX."user u on uer.user_id = u.id left join ".DB_PREFIX."user_photo up on u.head_photo_id = up.id where uer.user_event_id=".$eventid;
+		$user_event['user_count']=$db->getCountBySql($sql);//参与人数
+		$user_event['users_photo']=$db->getAllBySql($sql);
+		echo json_result($user_event);
+		//echo json_result(array('eventid'=>$eventid));
 	}else{
 		echo json_result(null,'30','用户未登录或该活动已删除');
 	}

@@ -76,6 +76,7 @@ function getShopByConditions(){
 	if(!empty($keyword)){
 		//$conditions.=" and (INSTR(title,'".addslashes($keyword)."') or INSTR(subtitle,'".addslashes($keyword)."') or INSTR(address,'".addslashes($keyword)."') ) ";
 		$conditions.=" and ( INSTR(title,'".addslashes($keyword)."') or INSTR(subtitle,'".addslashes($keyword)."') ) ";
+		$conditions.=" and round(6378.138*2*asin(sqrt(pow(sin( ($lat*pi()/180-lat*pi()/180)/2),2)+cos($lat*pi()/180)*cos(lat*pi()/180)* pow(sin( ($lng*pi()/180-lng*pi()/180)/2),2)))*1000) <= ".RANGE_KILO;
 	}
 	if(!empty($provinceid)){
 		$conditions.=" and province_id=$provinceid ";
@@ -94,7 +95,6 @@ function getShopByConditions(){
 		$circle_lat=$locat['lat'];
 		$circlerOrder=" sqrt(power(lng-{$circle_lng},2)+power(lat-{$circle_lat},2)) , ";
 	}
-	$conditions.=" and round(6378.138*2*asin(sqrt(pow(sin( ($lat*pi()/180-lat*pi()/180)/2),2)+cos($lat*pi()/180)*cos(lat*pi()/180)* pow(sin( ($lng*pi()/180-lng*pi()/180)/2),2)))*1000) <= ".RANGE_KILO;
 	
 	$sql="select * from ".DB_PREFIX."shop where status=2 $conditions ";
 	$count=$db->getCountBySql($sql);
