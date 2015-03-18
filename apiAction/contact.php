@@ -380,7 +380,7 @@ function nearUsers(){//附近想喝咖啡的人
 			left join ".DB_PREFIX."user_relation ur1 on u.id=ur1.relation_id and ur1.user_id='$userid'
 		left join ".DB_PREFIX."user_photo upt on u.head_photo_id = upt.id
 		where u.user_name is not null and u.allow_add = 1 and allow_find=1 $selfcondition and round(6378.138*2*asin(sqrt(pow(sin( ($lat*pi()/180-lat*pi()/180)/2),2)+cos($lat*pi()/180)*cos(lat*pi()/180)* pow(sin( ($lng*pi()/180-lng*pi()/180)/2),2)))*1000) <= ".RANGE_KILO;
-	$data=$db->getAllBySql($sql." order by  sqrt(power(lng-{$lng},2)+power(lat-{$lat},2)) limit $start,$page_size");
+	$data=$db->getAllBySql($sql." order by  sqrt(power(lng-{$lng},2)+power(lat-{$lat},2)) , u.updated desc limit $start,$page_size");
 	foreach ($data as $k=>$d){
 		$data[$k]['distance']=(!empty($d['lat'])&&!empty($d['lng'])&&!empty($lng)&&!empty($lat))?getDistance($lat,$lng,$d['lat'],$d['lng']):lang_UNlOCATE;
 	}
