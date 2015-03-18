@@ -220,7 +220,7 @@ function searchUsersByMobiles(){
 		$sql="select u.id as user_id,upt.path as head_photo,if((trim(ur1.relation_name)<>'' and ur1.relation_name is not null),ur1.relation_name,u.nick_name) as nick_name,u.user_name,u.sex,u.age,u.constellation, if(ur1.id !='','added','unadd') isadd from ".DB_PREFIX."user u 
 			left join ".DB_PREFIX."user_photo upt on u.head_photo_id = upt.id 
 			left join ".DB_PREFIX."user_relation ur1 on u.id=ur1.relation_id and ur1.user_id=$loginid	
-			where $cons ";
+			where u.user_name is not null and u.id <> $loginid and ( $cons ) ";
 		$res['count']=$db->getCountBySql($sql);
 		$sql .= " limit $start,$page_size";
 		$data = $db->getAllBySql($sql);
