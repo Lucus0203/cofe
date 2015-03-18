@@ -168,8 +168,9 @@ function eventInfo(){
 	}
 	$event=$db->getRow('user_event',array('id'=>$eventid));
 	//店铺图片
-	$shopimg=$db->getRow('shop',array('id'=>$event['shop_id']),array('img'));
+	$shopimg=$db->getRow('shop',array('id'=>$event['shop_id']),array('img','title'));
 	$event['shopimg']=$shopimg['img'];
+	$event['shoptitle']=$shopimg['title'];
 	//活动距离
 	$event['distance']=(!empty($event['lat'])&&!empty($event['lng'])&&!empty($lng)&&!empty($lat))?getDistance($lat,$lng,$event['lat'],$event['lng']):lang_UNlOCATE;
 	$user=$db->getRow('user',array('id'=>$event['user_id']),array('id,head_photo_id,nick_name,lng,lat,constellation,age,sex'));
@@ -212,9 +213,9 @@ function joinEvent(){
 			$db->create('userevent_relation', $up);
 		}
 		//活动用户及头像地址
-		$sql="select u.id as user_id,u.nick_name,u.user_name,up.path from ".DB_PREFIX."userevent_relation uer left join ".DB_PREFIX."user u on uer.user_id = u.id left join ".DB_PREFIX."user_photo up on u.head_photo_id = up.id where uer.user_event_id=".$eventid;
-		$user_event['user_count']=$db->getCountBySql($sql);//参与人数
-		$user_event['users_photo']=$db->getAllBySql($sql);
+		$sql="select u.id as user_id,u.nick_name,u.user_name,up.path as head_path from ".DB_PREFIX."userevent_relation uer left join ".DB_PREFIX."user u on uer.user_id = u.id left join ".DB_PREFIX."user_photo up on u.head_photo_id = up.id where uer.user_event_id=".$eventid;
+		$user_event['jioncount']=$db->getCountBySql($sql);//参与人数
+		$user_event['joins']=$db->getAllBySql($sql);
 		echo json_result($user_event);
 		//echo json_result(array('eventid'=>$eventid));
 	}else{

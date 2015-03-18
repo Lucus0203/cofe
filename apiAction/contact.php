@@ -364,8 +364,8 @@ function nearUsers(){//附近想喝咖啡的人
 	global $db;
 	$lng=filter($_REQUEST['lng']);
 	$lat=filter($_REQUEST['lat']);
-	$userid=empty($_REQUEST['userid'])?'':filter($_REQUEST['userid']);
 	$page_no = isset ( $_GET ['page'] ) ? $_GET ['page'] : 1;
+	$userid=empty($_REQUEST['userid'])?'':filter($_REQUEST['userid']);
 	$page_size = PAGE_SIZE;
 	$start = ($page_no - 1) * $page_size;
 	if(empty($lng)||empty($lat)){
