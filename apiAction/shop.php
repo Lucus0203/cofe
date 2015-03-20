@@ -210,7 +210,7 @@ function leaveMsg(){
 	global $db;
 	$shopid=filter($_REQUEST['shopid']);
 	$userid=filter($_REQUEST['userid']);
-	$content=filter($_REQUEST['content']);
+	$content=filterIlegalWord($_REQUEST['content']);
 	if(empty($shopid)){
 		echo json_result(null,'24','该店铺已删除');
 		return;

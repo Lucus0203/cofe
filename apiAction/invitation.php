@@ -36,7 +36,8 @@ switch ($act){
 function getNewInvitationCounts(){//获取未读邀请函
 	global $db;
 	$userid=filter($_REQUEST['userid']);
-	$count=$db->getRowBySql("select count(*) as num from ".DB_PREFIX."invitation where ( (user_id=$userid && isread_user=2) or (to_user_id=$userid && isread_to_user=2) ) limit 1");
+	$sql="select count(*) as num from ".DB_PREFIX."invitation where ((user_id=$userid && isreaded_user=2 && del_user=2) or (to_user_id=$userid && isreaded_to_user=2 && del_to_user=2))  limit 1";
+	$count=$db->getRowBySql($sql);
 	echo json_result(array('count'=>$count['num']));
 	
 }
@@ -47,7 +48,7 @@ function sendInvitation(){
 	
 	$userid=filter(!empty($_REQUEST['userid'])?$_REQUEST['userid']:'');
 	$to_userid=filter(!empty($_REQUEST['touserid'])?$_REQUEST['touserid']:'');
-	$title=filter(!empty($_REQUEST['title'])?$_REQUEST['title']:'');
+	$title=filterIlegalWord(!empty($_REQUEST['title'])?$_REQUEST['title']:'');
 	$datetime=filter(!empty($_REQUEST['datetime'])?$_REQUEST['datetime']:'');
 	//$address=filter(!empty($_REQUEST['address'])?$_REQUEST['address']:'');
 	$shopid=filter(!empty($_REQUEST['shopid'])?$_REQUEST['shopid']:'');
@@ -254,12 +255,13 @@ function delInvitation(){
 		echo json_result(null,'2','请重新登录');
 		return;
 	}
+	$inv=$db->getRow('invitation',array('id'=>$invitationid),array('status','user_id','to_user_id'));
+	$touser=$db->getRow('user',array('id'=>$inv['to_user_id']),array('nick_name'));
 	//发起者删除
 	$condition=array('id'=>$invitationid,'user_id'=>$userid);
 	$count=$db->getCount('invitation',$condition);
 	if($count>0){
 		$data=array('del_user'=>'1');
-		$inv=$db->getRow('invitation',array('id'=>$invitationid),array('status'));
 		if($inv['status']==1&&$inv['isreaded_to_user']==2){
 			echo json_result(null,'3','请等待对方回应或取消');
 			return;
@@ -273,8 +275,15 @@ function delInvitation(){
 	$condition=array('id'=>$invitationid,'to_user_id'=>$userid);
 	$count=$db->getCount('invitation',$condition);
 	if($count>0){
+		$data=array('del_to_user'=>'1');
+		if($inv['status']==1){
+			$data['status']=3;
+			$IOSumeng=new Umeng('IOS');
+			$IOSumeng->sendIOSCustomizedcast("invitation", $inv['user_id'], '"'.$touser['nick_name'].'"拒绝了您的邀请函',array('notify'=>'invitation'));
+			
+		}
 		$condition=array('id'=>$invitationid,'to_user_id'=>$userid);
-		$db->update('invitation', array('del_to_user'=>'1'),$condition);
+		$db->update('invitation', $data , $condition);
 	}
 	echo json_result(array('success'=>'TRUE'));
 }

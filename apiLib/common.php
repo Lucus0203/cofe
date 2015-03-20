@@ -1,5 +1,6 @@
 <?php
 require_once APP_DIR.DS.'apiLib'. DS . 'db.php';
+require_once APP_DIR.DS.'apiLib'. DS . 'constant_config.php';
 $db = db::getInstance ();
 /**
  *
@@ -29,6 +30,36 @@ function filter($value) {
 	}
 	return $value;
 }
+
+//过滤非法字符
+function filterIlegalWord($value){
+	$words=explode(',', ILLEGAL_WORD);
+	if (is_array ( $value )) {
+		foreach ( $value as $k => $v ) {
+			if (is_array ( $v )) {
+				foreach ( $v as $kk => $vv ) {
+					foreach ($words as $w){
+						$vv=str_replace($w, '*', $vv);
+					}
+					$v [$kk] = htmlspecialchars ( $vv );
+				}
+				$value [$k] = $v;
+			} else {
+				foreach ($words as $w){
+					$v=str_replace($w, '*', $v);
+				}
+				$value [$k] = htmlspecialchars ( $v );
+			}
+		}
+	} else {
+		foreach ($words as $w){
+			$value=str_replace($w, '*', $value);
+		}
+		$value = htmlspecialchars ( $value );
+	}
+	return $value;
+}
+
 function checkEmail($value) {
 	if (! preg_match ( "/([\w\-]+\@[\w\-]+\.[\w\-]+)/", $value )) {
 		return false;

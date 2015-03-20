@@ -274,7 +274,7 @@ function info(){
 //个人信息修改
 function infoEdit(){
 	global $db;
-	$data=filter($_REQUEST);
+	$data=filterIlegalWord($_REQUEST);
 	$user_id=$data['userid'];
 	if(empty($user_id)){
 		echo json_result(null,'13','获取不到当前用户id');
