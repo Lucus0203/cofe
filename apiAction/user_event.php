@@ -256,7 +256,7 @@ function cancelEvent(){
 function eventPublic(){
 	global $db;
 	$userid=filter($_REQUEST['userid']);
-	$title=filter($_REQUEST['title']);
+	$title=filterIlegalWord($_REQUEST['title']);
 	$dating=filter($_REQUEST['dating']);
 	$datetime=filter($_REQUEST['datetime']);
 	$shopid=filter($_REQUEST['shopid']);
