@@ -1,4 +1,5 @@
 <script type="text/javascript" src="{$smarty.const.SITE}resource/js/shop_add.js"></script>
+<script type="text/javascript" src="http://api.map.baidu.com/api?v=2.0&ak=ho6LXkYw6eWBzWFlPvcMpLhR"></script>
 <td valign="top" align="center">
  	<div class="main_ta_box">
          <input type="hidden" id="provinceApiURL" value="{url controller=Api action=GetCityByProvince}" />
@@ -73,15 +74,17 @@
              </tr>
              <tr>
                  <td style="text-align:center;">地址</td>
-                 <td><input name="address" type="text" value="{$data.address}" style="width:240px;"></td>
+                 <td><input id="address" name="address" type="text" value="{$data.address}" style="width:600px;">
+                 	<div id="allmap"></div>
+                 </td>
              </tr>
              <tr>
                  <td style="text-align:center;">经度</td>
-                 <td><input name="lng" type="text" value="{$data.lng}" style="width:240px;"></td>
+                 <td><input id="lng" name="lng" type="text" value="{$data.lng}" style="width:240px;"></td>
              </tr>
              <tr>
                  <td style="text-align:center;">纬度</td>
-                 <td><input name="lat" type="text" value="{$data.lat}" style="width:240px;"></td>
+                 <td><input id="lat" name="lat" type="text" value="{$data.lat}" style="width:240px;"></td>
              </tr>
              <tr>
                  <td style="text-align:center;">特色</td>

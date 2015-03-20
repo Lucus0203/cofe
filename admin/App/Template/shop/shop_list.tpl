@@ -33,11 +33,11 @@
 			<colgroup>
 				<col width="10%">
 				<col width="15%">
-				<col width="15%">
-				<col width="25%">
+				<col width="9%">
+				<col width="20%">
 				<col width="7%">
 				<col width="7%">
-				<col width="7%">
+				<col width="17%">
 				<col width="7%">
 				<col width="7%">
 			</colgroup>
@@ -48,7 +48,7 @@
                  <th>地点</th>
                  <th>留言</th>
                  <th>坐标</th>
-                 <th>地图</th>
+                 <th>简介</th>
                  <th>状态</th>
                  <th>操作</th>
              </tr>
@@ -60,7 +60,7 @@
                  <td>{$list[sec].address}</td>
                  <td><a href="{url controller=Bbs action=Shop shopid=$list[sec].id}">查看</a></td>
                  <td>{$list[sec].lng},<br/>{$list[sec].lat}</td>
-                 <td><a href="http://api.map.baidu.com/lbsapi/getpoint/index.html" target="_blank">查看</a></td>
+                 <td>{$list[sec].introduction|substr:0:40}</td>
                  <td>
                  	{if $list[sec].status eq '1'}准备中{else}发布中{/if}<br/>
                  	{if $list[sec].recommend eq '1'}推荐{else}未推荐{/if}

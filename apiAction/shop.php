@@ -167,6 +167,7 @@ function shopInfo(){
 	$start = ($page_no - 1) * $page_size;
 	if(!empty($shopid)){
 		$shop=$db->getRow('shop',array('id'=>$shopid));
+		$shop['tel']=trim($shop['tel']);
 		$shop['distance']=(!empty($shop['lat'])&&!empty($shop['lng'])&&!empty($lng)&&!empty($lat))?getDistance($lat,$lng,$shop['lat'],$shop['lng']):lang_UNlOCATE;
 		$shop['menus']=$db->getAll('shop_menu',array('shop_id'=>$shopid),null," limit 4 ");
 		$bbs_sql="select up.path,u.nick_name,u.user_name,bbs.* from ".DB_PREFIX."shop_bbs bbs left join ".DB_PREFIX."user u on u.id=bbs.user_id left join ".DB_PREFIX."user_photo up on up.id=u.head_photo_id where bbs.allow=1 and bbs.shop_id=$shopid";

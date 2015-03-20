@@ -61,3 +61,5 @@ ul{list-style:none;}
 .hd_del_ta td select{font-size:15px;}
 
 .main_ta_box p.btn input{font-size:15px;margin:10px 0 20px 30px;text-align:left;}
+
+#allmap {width: 500px;height: 400px;overflow: hidden;margin:0;font-family:"微软雅黑";}
