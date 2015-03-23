@@ -9,7 +9,7 @@ return array(
 
 		'login' => 'root',
 
-		'password' =>'root',
+		'password' =>'',
 
 		'database' => 'coffee',
 
