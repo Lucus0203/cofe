@@ -85,14 +85,14 @@ function getEvents(){
 	$start = ($page_no - 1) * $page_size;
 	$list=array();
 	//用户活动
-	$beforeday=date("Y-m-d",strtotime("-2day",time()));
+	$beforeday=date("Y-m-d",strtotime("-1day",time()));
 	$uercount="select count(id) as num,user_event_id from ".DB_PREFIX."userevent_relation uer group by uer.user_event_id ";
 	$sql="select ue.id as user_event_id,ue.user_id,photo.path as photo,shop.img as shop_img,ue.title,ue.address,ue.lng,ue.lat,uercount.num,ue.created from ".DB_PREFIX."user_event ue
 	left join ($uercount) uercount on uercount.user_event_id = ue.id
 	left join ".DB_PREFIX."user user on user.id=ue.user_id
 	left join ".DB_PREFIX."user_photo photo on photo.id=user.head_photo_id
 	left join ".DB_PREFIX."shop shop on shop.id=ue.shop_id 
-	where ue.allow = 1 and ue.status = 1 and round(6378.138*2*asin(sqrt(pow(sin( ($lat*pi()/180-ue.lat*pi()/180)/2),2)+cos($lat*pi()/180)*cos(ue.lat*pi()/180)* pow(sin( ($lng*pi()/180-ue.lng*pi()/180)/2),2)))*1000) <= ".RANGE_KILO;//and ue.datetime >= '$beforeday 00:00' 
+	where ue.allow = 1 and ue.status = 1 and ue.datetime >= '$beforeday 00:00' and round(6378.138*2*asin(sqrt(pow(sin( ($lat*pi()/180-ue.lat*pi()/180)/2),2)+cos($lat*pi()/180)*cos(ue.lat*pi()/180)* pow(sin( ($lng*pi()/180-ue.lng*pi()/180)/2),2)))*1000) <= ".RANGE_KILO;//and ue.datetime >= '$beforeday 00:00' 
 	$sql.=(!empty($lng)&&!empty($lat))?" order by sqrt(power(ue.lng-{$lng},2)+power(ue.lat-{$lat},2)),created desc,num desc":' order by created desc,num desc';
 	$sql="select * from ( $sql ) s limit $start,$page_size";
 	$events=$db->getAllBySql($sql);
@@ -262,6 +262,12 @@ function eventPublic(){
 	$shopid=filter($_REQUEST['shopid']);
 	$address=filter($_REQUEST['address']);
 	$paytype=filter($_REQUEST['paytype']);
+	$now=date("Y-m-d H:i");
+	$count=$db->getCountBySql("select * from ".DB_PREFIX."user_event ue where ue.datetime > '$now' and user_id=$userid ");
+	if($count>=3){
+		echo json_result(null,'21','您正在进行的活动已达到上限');
+		return;
+	}
 	if(empty($userid)){
 		echo json_result(null,'31','用户未登录');
 		return;

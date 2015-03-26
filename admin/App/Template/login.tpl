@@ -4,6 +4,7 @@
 <meta charset="utf-8">
 <title>{$smarty.const.DEFAUT_TITLE}</title>
 <link href="{$smarty.const.SITE}resource/css/style.css" rel="stylesheet" type="text/css">
+<script type="text/javascript" src="{$smarty.const.SITE}resource/js/common.js"></script>
 </head>
 <body style="background:#977342;">
 <div class="login_box">
