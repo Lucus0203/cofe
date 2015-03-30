@@ -126,7 +126,7 @@ function getFriendsByUsernames(){
 		}else{
 			$sql="select u.id as user_id,upt.path as head_photo,if((trim(ur1.relation_name)<>'' and ur1.relation_name is not null),ur1.relation_name,u.nick_name) as nick_name,u.user_name,u.age,u.sex,u.constellation from ".DB_PREFIX."user u 
 				left join ".DB_PREFIX."user_photo upt on u.head_photo_id = upt.id 
-				left join ".DB_PREFIX."user_relation ur1 on u.id=ur1.relation_id and ur1.user_id=$loginid
+				left join ".DB_PREFIX."user_relation ur1 on u.id=ur1.relation_id and ur1.user_id='$loginid'
 				where mobile ='$u' ";
 		}
 		$obj=$db->getRowBySql($sql);
