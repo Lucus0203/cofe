@@ -43,7 +43,7 @@
              </tr>
              <tr>
                  <td style="text-align:center;">活动内容</td>
-                 <td><textarea name="content" style="width:540px;height:80px;">{$data.content}</textarea></td>
+                 <td><textarea name="content" style="width:540px;height:800px;">{$data.content}</textarea></td>
              </tr>
              <tr>
                  <td style="text-align:center;">(宽高640:310)<br/>首页图片</td>
@@ -54,7 +54,7 @@
              </tr>
              {section name=sec loop=$photo}
              <tr>
-                 <td style="text-align:center;word-break:keep-all;">(宽高160:220)<br/>海报图片</td>
+                 <td style="text-align:center;word-break:keep-all;">(宽高640:310)<br/>海报图片</td>
                  <td>
                  	<img src="{$photo[sec].img}"><a class="delImg" rel="{$photo[sec].id}" href="{url controller=PublicEvent action=DelPhoto}">删 除</a>
                  	<input name="public_photos[]" type="hidden" value="{$photo[sec].img}" />
@@ -62,7 +62,7 @@
              </tr>
              {/section}
              <tr>
-                 <td style="text-align:center;word-break:keep-all;">(宽高160:220)<br/>海报图片</td>
+                 <td style="text-align:center;word-break:keep-all;">(宽高640:310)<br/>海报图片</td>
                  <td><input name="photos[]" type="file" style="width:240px;"></td>
              </tr>
              <tr id="photo_add"><td colspan="2" ><a style="margin-left:30px;color:#f00;" href="javascript:void(0)">添加海报</a></td></tr>

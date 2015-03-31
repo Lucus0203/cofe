@@ -41,14 +41,14 @@
              </tr>
              <tr>
                  <td style="text-align:center;">活动内容</td>
-                 <td><textarea name="content" style="width:540px;height:80px;"></textarea></td>
+                 <td><textarea name="content" style="width:540px;height:800px;"></textarea></td>
              </tr>
              <tr>
                  <td style="text-align:center;">(宽高640:310)<br/>首页图片</td>
                  <td><input name="img" type="file" style="width:240px;"></td>
              </tr>
              <tr>
-                 <td style="text-align:center;word-break:keep-all;">(宽高160:220)<br/>海报图片</td>
+                 <td style="text-align:center;word-break:keep-all;">(宽高640:310)<br/>海报图片</td>
                  <td><input name="photos[]" type="file" style="width:240px;"></td>
              </tr>
              <tr>
