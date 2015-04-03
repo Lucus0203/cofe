@@ -117,10 +117,18 @@ function getFriends(){//好友/所有联系人(互相关注)
 function getFriendsByUsernames(){
 	global $db;
 	$usernames=filter($_REQUEST['usernames']);
-	$users=split(",", $usernames);
+	$loginid=filter($_REQUEST['loginid']);
+	$users=explode(",", $usernames);
 	$data=array();
 	foreach ($users as $u){
-		$sql="select u.id as user_id,upt.path as head_photo,u.nick_name,u.user_name,u.age,u.sex,u.constellation from ".DB_PREFIX."user u left join ".DB_PREFIX."user_photo upt on u.head_photo_id = upt.id where mobile ='$u' ";
+		if(empty($loginid)){
+			$sql="select u.id as user_id,upt.path as head_photo,u.nick_name,u.user_name,u.age,u.sex,u.constellation from ".DB_PREFIX."user u left join ".DB_PREFIX."user_photo upt on u.head_photo_id = upt.id where mobile ='$u' ";
+		}else{
+			$sql="select u.id as user_id,upt.path as head_photo,if((trim(ur1.relation_name)<>'' and ur1.relation_name is not null),ur1.relation_name,u.nick_name) as nick_name,u.user_name,u.age,u.sex,u.constellation from ".DB_PREFIX."user u 
+				left join ".DB_PREFIX."user_photo upt on u.head_photo_id = upt.id 
+				left join ".DB_PREFIX."user_relation ur1 on u.id=ur1.relation_id and ur1.user_id='$loginid'
+				where mobile ='$u' ";
+		}
 		$obj=$db->getRowBySql($sql);
 		if(isset($obj['user_name'])){
 			$data[$u]=$obj;
@@ -569,8 +577,11 @@ function follow(){//关注
 		return;
 	}
 	if(!is_array($relation)||count($relation)==0){//没关注
+		$nickname=$db->getRow('user',array('id'=>$userid),array('nick_name','pinyin'));
 		$rinfo['group_id']=$gid;
 		$rinfo['created']=date("Y-m-d H:i:s");
+		$rinfo['relation_name']=$nickname['nick_name'];
+		$rinfo['relation_pinyin']=$nickname['pinyin'];
 		$db->create('user_relation', $rinfo);//关注
 	}elseif ($relation['status']==2){//拉黑者
 		$relation['status']=1;
@@ -634,9 +645,12 @@ function black(){//拉黑
 	$rinfo=array('user_id'=>$loginid,'relation_id'=>$userid);
 	$relation=$db->getRow('user_relation',array('user_id'=>$loginid,'relation_id'=>$userid));
 	if(!is_array($relation)||count($relation)==0){//没关注
+		$nickname=$db->getRow('user',array('id'=>$userid),array('nick_name','pinyin'));
 		$rinfo['group_id']=$gid;
 		$rinfo['status']=2;
 		$rinfo['created']=date("Y-m-d H:i:s");
+		$rinfo['relation_name']=$nickname['nick_name'];
+		$rinfo['relation_pinyin']=$nickname['pinyin'];
 		$db->create('user_relation', $rinfo);//关注
 	}else{//拉黑者
 		$relation['status']=2;

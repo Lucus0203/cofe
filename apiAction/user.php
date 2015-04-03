@@ -238,20 +238,27 @@ function info(){
 	global $db;
 	$data=filter($_REQUEST);
 	$user_id=$data['userid'];
-	$myself_id=$data['loginid'];//登陆者id
+	$loginid=$data['loginid'];//登陆者id
 	$info=$db->getRow('user',array('id'=>$user_id));
+	$info['nick_name_real']=$info['nick_name'];
 	unset($info['user_password']);
-	//查询人物关系 当myself_id不为空的时候
-	if(!empty($myself_id)){
-		$relation_status=getRelationStatus($myself_id,$user_id);
+	//查询人物关系 当loginid不为空的时候
+	if(!empty($loginid)){
+		//好友关系
+		$relation_status=getRelationStatus($loginid,$user_id);
 		$info['relation']=$relation_status['relation'];//陌生人
 		$info['relation_status']=$relation_status['relation_status'];
-		$me=$db->getRow('user',array('id'=>$myself_id));
+		//备注
+		$relation=$db->getRow('user_relation',array('user_id'=>$loginid,'relation_id'=>$user_id),array('relation_name'));
+		if(!empty($relation['relation_name'])){
+			$info['nick_name']=$relation['relation_name'];
+		}
+		$me=$db->getRow('user',array('id'=>$loginid));
 		$info['distance']=(!empty($me['lat'])&&!empty($me['lng'])&&!empty($info['lat'])&&!empty($info['lng']))?getDistance($info['lat'],$info['lng'],$me['lat'],$me['lng']):lang_UNlOCATE;
 		$info['lasttime']=time2Units(time()-strtotime($info['logintime']));
 		$info['address']=($info['allow_find']==1)&&!empty($info['lat'])&&!empty($info['lng'])?getAddressFromBaidu($info['lng'],$info['lat']):"未获取到位置";
 	}
-	if(empty($myself_id)){
+	if(empty($loginid)){
 		$info['address']=!empty($info['lat'])&&!empty($info['lng'])?getAddressFromBaidu($info['lng'],$info['lat']):"未获取到位置";
 	}
 	//头像
