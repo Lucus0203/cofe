@@ -9,6 +9,6 @@
 </head>
 <body>
 <div class="top">
-	<div class="fl"><img src="resource/images/login_01.jpg"></div>
+	<div class="fl"><img src="resource/images/weblogo.png" height="66" style="margin-top:5px;"></div>
     <div class="fr top_fr">欢迎您 admin 管理员<a href="{url controller=Default action=LoginOut}">[ 退出系统 ]</a></div>
 </div>

@@ -13,7 +13,8 @@
 				<col width="5%">
 				<col width="15%">
 				<col width="">
-				<col width="15%">
+				<col width="7%">
+				<col width="7%">
 				<col width="20%">
 				<col width="7%">
 				<col width="7%">
@@ -22,6 +23,7 @@
                  <th>排序</th>
                  <th>缩略图</th>
                  <th>官方活动标题</th>
+                 <th>开始时间</th>
                  <th>时间</th>
                  <th>地点</th>
                  <th>发布状态</th>
@@ -32,6 +34,7 @@
                  <td><input class="num" type="text" value="{$list[sec].num}" style="width:40px;"><input type="hidden" value="{$list[sec].id}" /></td>
                  <td>{if $list[sec].img neq ''}<img src="{$list[sec].img}">{else}<img src="{$smarty.const.SITE}resource/images/no_img.gif">{/if}</td>
                  <td class="hd_td_l">{$list[sec].title}</td>
+                 <td>{$list[sec].created|date_format:"%Y-%m-%d"}</td>
                  <td>{$list[sec].datetime}</td>
                  <td>{$list[sec].address}</td>
                  <td>{if $list[sec].ispublic eq '2'}未发布{else}发布中{/if}</td>

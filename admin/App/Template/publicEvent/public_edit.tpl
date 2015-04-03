@@ -1,4 +1,5 @@
 <script type="text/javascript" src="{$smarty.const.SITE}resource/js/public_add.js"></script>
+<script type="text/javascript" src="http://api.map.baidu.com/api?v=2.0&ak=ho6LXkYw6eWBzWFlPvcMpLhR"></script>
 <td valign="top" align="center">
  	<div class="main_ta_box">
          <div class="hd_t">活动编辑</div>
@@ -23,19 +24,25 @@
              </tr>
              <tr>
                  <td style="text-align:center;">活动地址</td>
-                 <td><input name="address" type="text" value="{$data.address}" style="width:240px;"></td>
+                 <td><input id="address" name="address" type="text" value="{$data.address}" style="width:600px;">
+                 	<div id="allmap"></div>
+                 </td>
              </tr>
              <tr>
                  <td style="text-align:center;">经度</td>
-                 <td><input name="lng" type="text" value="{$data.lng}" style="width:240px;"></td>
+                 <td><input id="lng" name="lng" type="text" value="{$data.lng}" style="width:240px;"></td>
              </tr>
              <tr>
                  <td style="text-align:center;">纬度</td>
-                 <td><input name="lat" type="text" value="{$data.lat}" style="width:240px;"></td>
+                 <td><input id="lat" name="lat" type="text" value="{$data.lat}" style="width:240px;"></td>
              </tr>
              <tr>
                  <td style="text-align:center;">价格费用</td>
                  <td><input name="price" type="text" value="{$data.price}" style="width:240px;"></td>
+             </tr>
+             <tr>
+                 <td style="text-align:center;">开始时间</td>
+                 <td><input name="created" type="text" value="{$data.created|date_format:'%Y-%m-%d'}" style="width:140px;">(格式：2015-04-02)</td>
              </tr>
              <tr>
                  <td style="text-align:center;">活动时间</td>
