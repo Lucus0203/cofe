@@ -30,14 +30,14 @@ class Controller_PublicEvent extends FLEA_Controller_Action {
 	 *
 	 */
 	function actionIndex() {
-		$pageparm = array ('isdelete'=>0);
+		$pageparm = array ();
 		$page_no = isset ( $_GET ['page_no'] ) ? $_GET ['page_no'] : 1;
 		$page_size = 20;
 		$title = isset ( $_GET ['title'] ) ? $this->_common->filter($_GET ['title']) : '';
 		
-		$conditions=array('isdelete'=>0);
+		$conditions=array('isdelete'=>'0');
 		if(!empty($title)){
-			$conditions[]="INSTR(title,'".addslashes($title)."') or INSTR(address,'".addslashes($title)."') ";
+			$conditions[]=" (INSTR(title,'".addslashes($title)."') or INSTR(address,'".addslashes($title)."')  or INSTR(datetime,'".addslashes($title)."') ) ";
 			$pageparm['title']=$title;
 		}
 		

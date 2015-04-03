@@ -1,4 +1,5 @@
 <script type="text/javascript" src="{$smarty.const.SITE}resource/js/public_add.js"></script>
+<script type="text/javascript" src="http://api.map.baidu.com/api?v=2.0&ak=ho6LXkYw6eWBzWFlPvcMpLhR"></script>
 <td valign="top" align="center">
  	<div class="main_ta_box">
          <div class="hd_t">发起官方活动</div>
@@ -21,19 +22,25 @@
              </tr>
              <tr>
                  <td style="text-align:center;">活动地址</td>
-                 <td><input name="address" type="text" value="" style="width:240px;"></td>
+                 <td><input id="address" name="address" type="text" value="" style="width:600px;">
+                 	<div id="allmap"></div>
+                 </td>
              </tr>
              <tr>
                  <td style="text-align:center;">经度</td>
-                 <td><input name="lng" type="text" value="" style="width:240px;"></td>
+                 <td><input id="lng" name="lng" type="text" value="" style="width:240px;"></td>
              </tr>
              <tr>
                  <td style="text-align:center;">纬度</td>
-                 <td><input name="lat" type="text" value="" style="width:240px;"></td>
+                 <td><input id="lat" name="lat" type="text" value="" style="width:240px;"></td>
              </tr>
              <tr>
                  <td style="text-align:center;">价格费用</td>
                  <td><input name="price" type="text" value="" style="width:240px;"></td>
+             </tr>
+             <tr>
+                 <td style="text-align:center;">开始时间</td>
+                 <td><input name="created" type="text" value="" style="width:140px;">(格式：2015-04-02)</td>
              </tr>
              <tr>
                  <td style="text-align:center;">活动时间</td>
@@ -41,14 +48,14 @@
              </tr>
              <tr>
                  <td style="text-align:center;">活动内容</td>
-                 <td><textarea name="content" style="width:540px;height:80px;"></textarea></td>
+                 <td><textarea name="content" style="width:540px;height:800px;"></textarea></td>
              </tr>
              <tr>
                  <td style="text-align:center;">(宽高640:310)<br/>首页图片</td>
                  <td><input name="img" type="file" style="width:240px;"></td>
              </tr>
              <tr>
-                 <td style="text-align:center;word-break:keep-all;">(宽高160:220)<br/>海报图片</td>
+                 <td style="text-align:center;word-break:keep-all;">(宽高640:310)<br/>海报图片</td>
                  <td><input name="photos[]" type="file" style="width:240px;"></td>
              </tr>
              <tr>

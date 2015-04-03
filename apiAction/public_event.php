@@ -27,7 +27,7 @@ function getEvents(){
 	$sql="select pe.*,pu.num from ".DB_PREFIX."public_event pe left join ($pucount) pu on pu.public_event_id = pe.id where pe.isdelete = 0 and pe.ispublic=1 ";
 	$sql.=(!empty($lng)&&!empty($lat))?" order by pe.num asc,sqrt(power(lng-{$lng},2)+power(lat-{$lat},2)),":' order by pe.num asc,';
 	
-	$sql .= " pe.datetime,pe.id desc limit $start,$page_size";
+	$sql .= " pe.created,pe.id desc limit $start,$page_size";
 	$list=$db->getAllBySql($sql);
 	foreach ($list as $k=>$v){
 		//$list[$k]['datetime']=strtotime($v['datetime']);
