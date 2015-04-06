@@ -6,6 +6,11 @@ class Index extends CI_Controller {
 		parent::__construct();
 		$this->load->library('session');
 		$this->load->helper(array('form','url'));
+		
+		$loginInfo=$this->session->userdata('loginInfo');
+		if(empty($loginInfo)){
+			redirect('login','index');
+		}
 	}
 	
 	

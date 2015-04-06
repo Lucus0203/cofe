@@ -16,10 +16,11 @@
      <?php } ?>
     	<ul>
         	<li>账号：<input id="admname" name="username" type="text"></li>
+        	<li>手机号：<input id="tel" name="tel" type="text"> <input type="button" value="获取验证码" /></li>
             <li>密码：<input id="pass" name="password" type="password"></li>
         </ul>
     </div>
-    <div class="login_btn"><input type="image" src="<?php echo base_url() ?>images/login_btn_03.jpg" /><input onclick="document.getElementById('admname').value='';document.getElementById('pass').value='';return false;" type="image" src="<?php echo base_url() ?>images/login_btn_05.jpg" /></div>
+    <div class="login_btn"><input type="submit" value="注册" /></div>
     </form>
 </div>
 

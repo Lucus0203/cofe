@@ -1,4 +1,4 @@
-<script type="text/javascript" src="{$smarty.const.SITE}resource/js/shop_add.js"></script>
+<script type="text/javascript" src="<?php echo base_url();?>js/shop_add.js"></script>
 <script type="text/javascript" src="http://api.map.baidu.com/api?v=2.0&ak=ho6LXkYw6eWBzWFlPvcMpLhR"></script>
 <td valign="top" align="center">
  	<div class="main_ta_box">

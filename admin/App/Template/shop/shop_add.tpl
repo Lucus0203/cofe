@@ -24,7 +24,7 @@
                  <td><input name="subtitle" type="text" value="" style="width:240px;"></td>
              </tr>
              <tr>
-                 <td style="text-align:center;">(宽高640:310)<br/>店面图片</td>
+                 <td style="text-align:center;">(宽高640:345)<br/>店面图片</td>
                  <td><input name="img" type="file" style="width:240px;"></td>
              </tr>
              <tr>
@@ -88,7 +88,7 @@
                  <td><textarea name="introduction" style="width:540px;height:80px;"></textarea></td>
              </tr>
              <tr>
-                 <td style="text-align:center;word-break:keep-all;">(宽高200:280)<br/>菜品</td>
+                 <td style="text-align:center;word-break:keep-all;">(宽高292:233)<br/>菜品</td>
                  <td><input name="menu_title[]" type="text" value="" /><input name="menu_img[]" type="file" style="width:240px;"></td>
              </tr>
              <tr>
