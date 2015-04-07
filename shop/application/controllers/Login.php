@@ -4,9 +4,9 @@ class Login extends CI_Controller {
 	
 	function __construct(){
 		parent::__construct();
-		$this->load->library('session');
+		$this->load->library(array('session','sms'));
 		$this->load->helper(array('url'));
-		$this->load->model('user_model');
+		$this->load->model(array('user_model'));
 		
 	}
 	
@@ -18,6 +18,7 @@ class Login extends CI_Controller {
 		$data=array();
 		if ($user != "" && $pass != "") {
 			$userinfo = $this->user_model->get_user($user);
+			print_r($userinfo);
 			if (count ( $userinfo ) > 0 && is_array ( $userinfo )) {
 				$pwd = $userinfo ['user_password'];
 				if ($pwd == md5($pass)) {
@@ -37,4 +38,11 @@ class Login extends CI_Controller {
 	public function register(){
 		$this->load->view ( 'register' );
 	}
+	
+	public function getcode($mobile){
+		$code=rand(100000, 999999);
+		$msg="验证码：$code";
+		//$this->sms->sendMsg($msg,$mobile);
+	}
+	
 }

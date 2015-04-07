@@ -63,3 +63,16 @@ ul{list-style:none;}
 .main_ta_box p.btn input{font-size:15px;margin:10px 0 20px 30px;text-align:left;}
 
 #allmap {width: 500px;height: 400px;overflow: hidden;margin:0;font-family:"微软雅黑";}
+.register_box{
+	height:320px;
+}
+.register_box .login_t{
+	font-size:18px;
+	color:#fff;
+}
+.register_box .register_btn{
+	font-size:18px;
+}
+.register_box .login_btn{
+	margin-left:200px;
+}
