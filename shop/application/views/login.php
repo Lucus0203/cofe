@@ -20,6 +20,7 @@
         </ul>
     </div>
     <div class="login_btn"><input type="image" src="<?php echo base_url() ?>images/login_btn_03.jpg" /><input onclick="document.getElementById('admname').value='';document.getElementById('pass').value='';return false;" type="image" src="<?php echo base_url() ?>images/login_btn_05.jpg" /></div>
+    <p class="register_link"><a href="<?php echo base_url() ?>login/register">点击这里注册</a></p>
     </form>
 </div>
 
