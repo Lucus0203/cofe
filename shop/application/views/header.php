@@ -8,6 +8,7 @@
 <script type="text/javascript" src="<?php echo base_url();?>js/common.js"></script>
 </head>
 <body>
+   <input type="hidden" id="baseUrl" value="<?php echo base_url() ?>" />
 <div class="top">
 	<div class="fl"><img src="<?php echo base_url();?>images/weblogo.png" height="66" style="margin-top:5px;"></div>
     <div class="fr top_fr">欢迎您 admin 管理员<a href="<?php echo base_url();?>login/loginout.html">[ 退出系统 ]</a></div>

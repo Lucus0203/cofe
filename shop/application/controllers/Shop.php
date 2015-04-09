@@ -6,7 +6,7 @@ class Shop extends CI_Controller {
 		parent::__construct();
 		$this->load->library('session');
 		$this->load->helper(array('form','url'));
-		$this->load->model(array('addressprovince_model','addresscity_model','addresstown_model'));
+		$this->load->model(array('addressprovince_model','addresscity_model','addresstown_model','shop_model'));
 		
 		$loginInfo=$this->session->userdata('loginInfo');
 		if(empty($loginInfo)){
@@ -16,8 +16,9 @@ class Shop extends CI_Controller {
 	
 	
 	public function info() {
-		$id=isset ( $this->input->get('id') ) ? $this->input->get('id') : '';
-		$act=isset ( $this->input->post('act') ) ? $this->input->post('act') : '';
+		$loginInfo=$this->session->userdata('loginInfo');
+		$id=!empty ( $this->input->get('id') ) ? $this->input->get('id') : '';
+		$act=!empty ( $this->input->post('act') ) ? $this->input->post('act') : '';
 		$msg='';
 // 		if($act=='edit'){
 // 			$data=$_POST;
@@ -89,29 +90,29 @@ class Shop extends CI_Controller {
 // 			}
 // 			$msg="更新成功!";
 // 		}
-// 		$data=$this->_shop->findByField('id',$id);
-// 		$menu=$this->_shop_menu->findAll(array('shop_id'=>$id));
-// 		$shopimg=$this->_shop_img->findAll(array('shop_id'=>$id));
-// 		//特色标签
-// 		$feats=explode(',', $data['feature']);
-// 		$feats=array_flip($feats);
-// 		$tags=$this->_tags;
-// 		foreach ($tags as $k=>$t){
-// 			$tag=array('tag'=>$t,'checked'=>'');
-// 			if(array_key_exists($t, $feats)){
-// 				$tag['checked']='checked';
-// 			}
-// 			$tags[$k]=$tag;
-// 		}
-// 		$data['province_id']=empty($data['province_id'])?19:$data['province_id'];
-// 		$data['city_id']=empty($data['city_id'])?200:$data['city_id'];
-// 		$provinces=$this->addressprovince_model->get_provinces();
-// 		$prov=$this->_address_province->findByField('id',$data['province_id']);//广州
-// 		$cities=$this->addresscity_model->get_cities($data['province_id']);
-// 		$ctow=$this->addresstown_model->get_town('id',$data['city_id']);//广州
-// 		$towns=$this->addresstown_model->get_towns($data['city_id']);
+		$shop=$this->shop_model->get_shop(array('user_id'=>$loginInfo['id']));
+		$menu=$this->_shop_menu->findAll(array('shop_id'=>$id));
+		$shopimg=$this->_shop_img->findAll(array('shop_id'=>$id));
+		//特色标签
+		$feats=explode(',', $data['feature']);
+		$feats=array_flip($feats);
+		$tags=$this->_tags;
+		foreach ($tags as $k=>$t){
+			$tag=array('tag'=>$t,'checked'=>'');
+			if(array_key_exists($t, $feats)){
+				$tag['checked']='checked';
+			}
+			$tags[$k]=$tag;
+		}
+		$data['province_id']=empty($data['province_id'])?19:$data['province_id'];
+		$data['city_id']=empty($data['city_id'])?200:$data['city_id'];
+		$provinces=$this->addressprovince_model->get_provinces();
+		$prov=$this->_address_province->findByField('id',$data['province_id']);//广州
+		$cities=$this->addresscity_model->get_cities($data['province_id']);
+		$ctow=$this->addresstown_model->get_town('id',$data['city_id']);//广州
+		$towns=$this->addresstown_model->get_towns($data['city_id']);
 		
-// 		$res = array ('data'=>$data,'menu'=>$menu,'shopimg'=>$shopimg,'msg'=>$msg,'tags'=>$tags,'provinces'=>$provinces,'city'=>$city,'towns'=>$towns );
+		$res = array ('data'=>$data,'menu'=>$menu,'shopimg'=>$shopimg,'msg'=>$msg,'tags'=>$tags,'provinces'=>$provinces,'city'=>$city,'towns'=>$towns );
 		
 		$this->load->view ( 'header' );
 		$this->load->view ( 'left' );

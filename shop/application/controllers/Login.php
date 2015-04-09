@@ -5,7 +5,7 @@ class Login extends CI_Controller {
 	function __construct(){
 		parent::__construct();
 		$this->load->library(array('session','sms'));
-		$this->load->helper(array('url'));
+		$this->load->helper(array('form','url'));
 		$this->load->model(array('user_model'));
 		
 	}
@@ -29,7 +29,7 @@ class Login extends CI_Controller {
 				$data=array('error_msg'=>"账号或密码错误");
 			}
 		}
-		$this->load->view ( 'login' ,$data );
+		$this->load->view ( 'login/login' ,$data );
 		
 	}
 	
@@ -42,22 +42,27 @@ class Login extends CI_Controller {
 		$code = $this->input->post('captcha_code');
 		$act = $this->input->post('act');
 		if(!empty($act)){
-			$userinfo = $this->user_model->get_user(array('user_name'=>$user));
+			$userinfo = $this->user_model->get_user(array('user_name'=>$user,"mobile != '$mobile'"));
 			if(!empty($userinfo)){
 				$res['msg']='账号已被使用';
 			}else{
 				$userinfo = $this->user_model->get_user(array('mobile'=>$mobile));
 				if(!empty($userinfo)&&$userinfo['captcha_code']==$code){
 					$code=rand(100000, 999999);
-					$this->user_model->update_user(array('user_name'=>$user,'user_password'=>md5($pass),'captcha_code'=>$code),$userinfo['id']);
-					redirect(base_url('login'));
+					$this->user_model->update_user(array('user_name'=>$user,'user_password'=>md5($pass),'captcha_code'=>$code,'status'=>2),$userinfo['id']);
+					redirect(base_url('login/register_success'));
 				}else{
 					$res['msg']='验证码错误';
 				}
 			}
 		}
 		
-		$this->load->view ( 'register',$res );
+		$this->load->view ( 'login/register',$res );
+	}
+	
+	//注册成功
+	public function register_success(){
+		$this->load->view ( 'login/register_success' );
 	}
 	
 	//获取验证码
@@ -65,18 +70,22 @@ class Login extends CI_Controller {
 		$user = $this->input->post('username');
 		$mobile = $this->input->post('mobile');
 		$code=rand(100000, 999999);
-		$userinfo = $this->user_model->get_user(array('user_name'=>$user));
-		if(!empty($userinfo)){
-			echo '账号已被使用';
-		}else{
-			$userinfo = $this->user_model->get_user(array('mobile'=>$mobile));
-			if(!empty($userinfo['id'])){
-				$this->user_model->update_user(array('captcha_code'=>$code),$userinfo['id']);
-			}else{
-				$this->user_model->create_user(array('mobile'=>$mobile,'captcha_code'=>$code,'created'=>date("Y-m-d H:i:s")));
-			}
-			echo '验证码已发送，请注意查收';
+		$userinfo = $this->user_model->get_user(array('mobile'=>$mobile));
+		if($userinfo['status']==2){
+			echo '此手机号已注册';
+			return false;
 		}
+		$repeatname = $this->user_model->get_user(array('user_name'=>$user,"mobile != '$mobile'"));
+		if(!empty($repeatname)){
+			echo '账号已被使用';
+			return false;
+		}
+		if(!empty($userinfo['id'])){
+			$this->user_model->update_user(array('captcha_code'=>$code),$userinfo['id']);
+		}else{
+			$this->user_model->create_user(array('mobile'=>$mobile,'captcha_code'=>$code,'created'=>date("Y-m-d H:i:s"),'status'=>1));
+		}
+		echo '1';
 		//$this->sms->sendMsg($msg,$mobile);
 	}
 	

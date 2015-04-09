@@ -2,13 +2,11 @@
 <script type="text/javascript" src="http://api.map.baidu.com/api?v=2.0&ak=ho6LXkYw6eWBzWFlPvcMpLhR"></script>
 <td valign="top" align="center">
  	<div class="main_ta_box">
-         <input type="hidden" id="provinceApiURL" value="{url controller=Api action=GetCityByProvince}" />
-         <input type="hidden" id="cityApiURL" value="{url controller=Api action=GetTownByCity}" />
          <div class="hd_t">店铺编辑</div>
          <p style="color:red;font-size:14px;text-align:left;padding-left:20px;">{$msg}</p>
          <form action="" method="post" enctype="multipart/form-data" onsubmit="return checkFrom();">
          <input type="hidden" name="act" value="edit" />
-         <input type="hidden" name="id" value="{$data.id}" />
+         <input type="hidden" name="id" value="<?php echo $data['id'] ?>" />
          <table class="hd_del_ta" border="0" cellpadding="0" cellspacing="1" width="97%" align="center">
              <colgroup>
 				<col width="10%">
@@ -18,15 +16,15 @@
              </tr>
              <tr>
                  <td style="text-align:center;">店铺名称</td>
-                 <td><input name="title" type="text" value="{$data.title}" style="width:240px;"></td>
+                 <td><input name="title" type="text" value="<?php echo $data['title'] ?>" style="width:240px;"></td>
              </tr>
              <tr>
                  <td style="text-align:center;">别名</td>
-                 <td><input name="subtitle" type="text" value="{$data.subtitle}" style="width:240px;"></td>
+                 <td><input name="subtitle" type="text" value="<?php echo $data['subtitle']?>" style="width:240px;"></td>
              </tr>
              <tr>
                  <td style="text-align:center;">(宽高640:345)<br/>店面图片</td>
-                 <td><input name="file" type="file" style="width:240px;">{if $data.img neq ''}<br><img src="{$data.img}" />{/if}
+                 <td><input name="file" type="file" style="width:240px;"><?php if ($data.img != ''){ ?> <br><img src="{$data.img}" /><?php } ?>
                  	<input name="img" type="hidden" value="{$data.img}" /></td>
              </tr>
              {section name=spi loop=$shopimg}

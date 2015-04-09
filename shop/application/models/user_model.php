@@ -2,12 +2,14 @@
 /**
  * 
  * @author lucus
- * 店家
+ * 店家用户
  *
  */
 class User_model extends CI_Model {
+	
 	public function __construct() {
 		$this->load->database ();
+		$this->db->set_dbprefix('shop_');
 	}
 	
 	// 查
@@ -32,4 +34,5 @@ class User_model extends CI_Model {
 		$this->db->where ( 'id', $id );
 		$this->db->delete ( 'user' );
 	}
+	
 }

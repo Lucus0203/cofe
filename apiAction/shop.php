@@ -174,6 +174,7 @@ function shopInfo(){
 		$shop['bbsCount']=$db->getCountBySql($bbs_sql);
 		$bbs_sql.=" order by bbs.id desc limit $start,$page_size";
 		$shop['bbs']=$db->getAllBySql($bbs_sql);
+		$shop['introduction']=empty($shop['introduction'])?'        信息正在更新中...':$shop['introduction'];
 		//特色
 		$shop['features']=explode(',', $shop['feature']);
 		//店铺图片
