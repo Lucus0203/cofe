@@ -147,14 +147,14 @@ class Controller_Shop extends FLEA_Controller_Action {
 					$this->_shop_menu->create($mu);
 				}
 			}
-			$url=url('Shop','Index');
+			$url=url('Shop','Edit',array('id'=>$id));
 			redirect($url);
 		}
 		
 		$provinces=$this->_address_province->findAll();
-		$prov=$this->_address_province->findByField('id',1);//广州
+		$prov=$this->_address_province->findByField('id',11);//广州
 		$city=$this->_address_city->findAll(array('provinceCode'=>$prov['code']));
-		$ctow=$this->_address_city->findByField('id',1);//广州
+		$ctow=$this->_address_city->findByField('id',91);//广州
 		$towns=$this->_address_town->findAll(array('cityCode'=>$ctow['code']));
 		
 		$this->_common->show ( array ('main' => 'shop/shop_add.tpl','tags'=>$this->_tags,'provinces'=>$provinces,'city'=>$city,'towns'=>$towns) );

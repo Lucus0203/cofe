@@ -48,7 +48,7 @@ $(function(){
 	
 	$('.province_id').change(function(){
 		var index=$('.province_id').index($(this));
-		var provinceURL=$('#provinceApiURL').val();
+		var provinceURL=$('#baseUrl').val()+'api/getCityByProvince';
 		var pro_id=$(this).val();
 		$.ajax({
 			type:'get',
@@ -62,7 +62,7 @@ $(function(){
 	});
 	$('.city_id').change(function(){
 		var index=$('.city_id').index($(this));
-		var cityApiURL=$('#cityApiURL').val();
+		var cityApiURL=$('#baseUrl').val()+'api/getTownByCity';
 		var city_id=$(this).val();
 		$.ajax({
 			type:'get',
@@ -128,24 +128,6 @@ function checkFrom(){
 	if($.trim(title)==''){
 		msg+='请填写店铺名称\n';
 		flag=false;
-	}
-	if($('#checkShopRepeat').val()){
-		var checkShopRepeat=$('#checkShopRepeat').val();
-		$.ajax({
-			type:'get',
-			url:checkShopRepeat,
-			data:{'address':encodeURIComponent($.trim(address))},
-			async: false,
-			success:function(res){
-				if(res>0){
-					flag=false;
-					msg+='这个地址的咖啡店发布过了\n';
-				}
-			}
-		})
-	}
-	if(!flag){
-		alert(msg);
 	}
 	return flag;
 }

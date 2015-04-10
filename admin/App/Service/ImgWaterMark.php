@@ -233,7 +233,7 @@ class Service_ImgWaterMark{
 			
 			case 9 : // 9为底端居右
 				
-				$posX = $ground_w - $w - 20; // -10 是距离右侧10px 可以自己调节
+				$posX = $ground_w - $w - 10; // -10 是距离右侧10px 可以自己调节
 				
 				$posY = $ground_h - $h - 10; // -10 是距离底部10px 可以自己调节
 				

@@ -45,13 +45,13 @@
                  <td>
 	                <select name="province_id" class="province_id">
 		                {section name=sec loop=$provinces}
-							<option value="{$provinces[sec].id}" {if 1 eq $provinces[sec].id}selected{/if}>{$provinces[sec].name}</option>
+							<option value="{$provinces[sec].id}" {if 11 eq $provinces[sec].id}selected{/if}>{$provinces[sec].name}</option>
 						{/section}
 					</select>
 	                <select name="city_id" class="city_id">
 					<option value="">不限</option>
 						{section name=sec loop=$city}
-							<option value="{$city[sec].id}" {if 1 eq $city[sec].id}selected{/if}>{$city[sec].name}</option>
+							<option value="{$city[sec].id}" {if 91 eq $city[sec].id}selected{/if}>{$city[sec].name}</option>
 						{/section}
 					</select>
 					<select name="town_id" class="town_id">
