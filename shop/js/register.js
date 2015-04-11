@@ -11,6 +11,7 @@ $(function(){
 				data:{'mobile':mobile,'username':username},
 				success:function(res){
 					if(res==1){
+						alert('验证码已发送,请注意查收')
 						$('#getCode').text('重新获取验证码60').attr('rel','60');
 						remainsecondes=60;
 						timing()

@@ -123,11 +123,33 @@ function checkFrom(){
 	var flag=true;
 	var title=$('input[name=title]').val();
 	var address=$('input[name=address]').val();
+	var province_id=$('select[name=province_id]').val();
+	var city_id=$('select[name=city_id]').val();
+	var town_id=$('select[name=town_id]').val();
 	
 	var msg='';
 	if($.trim(title)==''){
 		msg+='请填写店铺名称\n';
 		flag=false;
+	}
+	if($.trim(address)==''){
+		msg+='请填写店铺地址\n';
+		flag=false;
+	}
+	if($.trim(province_id)==''){
+		msg+='请选择省份\n';
+		flag=false;
+	}
+	if($.trim(city_id)==''){
+		msg+='请选择城市\n';
+		flag=false;
+	}
+	if($.trim(town_id)==''){
+		msg+='请选择区域/县\n';
+		flag=false;
+	}
+	if(!flag){
+		alert(msg);
 	}
 	return flag;
 }

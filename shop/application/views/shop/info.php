@@ -26,8 +26,8 @@
              </tr>
              <tr>
                  <td style="text-align:center;">(宽高640:345)<br/>店面图片</td>
-                 <td><input name="file" type="file" style="width:240px;"><?php if ($data['img'] != ''){ ?> <br><img src="<?php echo $data['img'] ?> /><?php } ?>
-                 	<input name="img" type="hidden" value="{$data.img}" /></td>
+                 <td><input name="file" type="file" style="width:240px;"><?php if ($data['img'] != ''){ ?> <br><img src="<?php echo base_url().$data['img'] ?>" /><?php } ?>
+                 	<input name="img" type="hidden" value="<?php echo $data['img'] ?>" /></td>
              </tr>
              <?php foreach ($shopimg as $img){ ?>
              <tr>
@@ -120,12 +120,6 @@
                  <td>
                  	<label><input name="status" type="radio" value="1" checked="checked">准备中</label>
                  	<label><input name="status" type="radio" value="2" <?php if ($data['status']==2){ ?>checked="checked" <?php } ?> >发布中</label>
-                 </td>
-             </tr>
-             <tr>
-                 <td style="text-align:center;">是否要水印</td>
-                 <td>
-                 	<label><input name="iswatermark" type="checkbox" value="1" checked="checked">有水印</label>
                  </td>
              </tr>
          </table>

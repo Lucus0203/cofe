@@ -6,7 +6,7 @@ class Login extends CI_Controller {
 		parent::__construct();
 		$this->load->library(array('session','sms'));
 		$this->load->helper(array('form','url'));
-		$this->load->model(array('user_model'));
+		$this->load->model('user_model');
 		
 	}
 	
@@ -86,7 +86,7 @@ class Login extends CI_Controller {
 			$this->user_model->create(array('mobile'=>$mobile,'captcha_code'=>$code,'created'=>date("Y-m-d H:i:s"),'status'=>1));
 		}
 		echo '1';
-		//$this->sms->sendMsg($msg,$mobile);
+		$this->sms->sendMsg('验证码:'.$code,$mobile);
 	}
 	
 	public function loginout(){
