@@ -43,5 +43,10 @@ class Shopimg_model extends CI_Model {
 		$this->db->where ( 'id', $id );
 		$this->db->delete ( 'img' );
 	}
+	//移除所有相关图片
+	public function delByCond($where){
+		$this->db->where ( $where );
+		$this->db->delete ( 'img' );
+	}
 	
 }

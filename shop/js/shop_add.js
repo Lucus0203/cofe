@@ -100,6 +100,8 @@ $(function(){
 		changeMap(map,point,marker,11);
 	});
 	
+	//裁剪
+	$('.image-editor').cropit();
 });
 
 //根据地址变化变更地图
@@ -120,6 +122,10 @@ function changeMap(map,point,marker,zoom){
 }
 
 function checkFrom(){
+	// Move cropped image data to hidden input
+    var imageData = $('.image-editor').cropit('export');
+    $('.hidden-image-data').val(imageData);
+    
 	var flag=true;
 	var title=$('input[name=title]').val();
 	var address=$('input[name=address]').val();

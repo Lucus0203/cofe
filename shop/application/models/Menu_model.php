@@ -43,5 +43,12 @@ class Menu_model extends CI_Model {
 		$this->db->where ( 'id', $id );
 		$this->db->delete ( 'menu' );
 	}
+
+	//移除所有相关菜单
+	public function delByCond($where){
+		$this->db->where ( $where );
+		$this->db->delete ( 'menu' );
+	}
+	
 	
 }

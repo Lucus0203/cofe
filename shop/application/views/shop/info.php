@@ -1,3 +1,5 @@
+<script src="http://libs.baidu.com/jquery/2.0.0/jquery.min.js"></script>
+<script type="text/javascript" src="<?php echo base_url();?>js/jquery.cropit.js"></script>
 <script type="text/javascript" src="<?php echo base_url();?>js/shop_add.js"></script>
 <script type="text/javascript" src="http://api.map.baidu.com/api?v=2.0&ak=ho6LXkYw6eWBzWFlPvcMpLhR"></script>
 <td valign="top" align="center">
@@ -8,7 +10,6 @@
          <?php } ?>
          <form action="" method="post" enctype="multipart/form-data" onsubmit="return checkFrom();">
          <input type="hidden" name="act" value="edit" />
-         <input type="hidden" name="id" value="<?php echo $data['id'] ?>" />
          <table class="hd_del_ta" border="0" cellpadding="0" cellspacing="1" width="97%" align="center">
              <colgroup>
 				<col width="10%">
@@ -25,15 +26,26 @@
                  <td><input name="subtitle" type="text" value="<?php echo $data['subtitle']?>" style="width:240px;"></td>
              </tr>
              <tr>
-                 <td style="text-align:center;">(宽高640:345)<br/>店面图片</td>
-                 <td><input name="file" type="file" style="width:240px;"><?php if ($data['img'] != ''){ ?> <br><img src="<?php echo base_url().$data['img'] ?>" /><?php } ?>
-                 	<input name="img" type="hidden" value="<?php echo $data['img'] ?>" /></td>
+                 <td style="text-align:center;">(图片大小640x480)<br/>店面图片</td>
+                 <td>
+                 	<div class="image-editor">
+	                    <input name="file" type="file" style="width:240px;" class="cropit-image-input" />
+	                 	<div class="cropit-image-preview"></div>
+				        <div class="image-size-label">
+				          Resize image
+				        </div>
+				        <input type="range" class="cropit-image-zoom-input">
+				        <input type="hidden" name="image-data" class="hidden-image-data" />
+                 	</div>
+                 	<?php if ($data['img'] != ''){ ?> <br><img src="<?php echo base_url().$data['img'] ?>" /><?php } ?>
+                 	<input name="img" type="hidden" value="<?php echo $data['img'] ?>" />
+                 </td>
              </tr>
              <?php foreach ($shopimg as $img){ ?>
              <tr>
                  <td style="text-align:center;word-break:keep-all;">更多店铺图片</td>
                  <td>
-                 	<img src="<?php echo $img['img']?>"><a class="delShopImg" rel="<?php echo $img['id']?>" href="<?php echo base_url()?>shop/delshopimg">删 除</a>
+                 	<img src="<?php echo base_url().$img['img']?>"><a class="delShopImg" rel="<?php echo $img['id']?>" href="<?php echo base_url()?>shop/delshopimg">删 除</a>
                  	<input name="shop_oldimg[]" type="hidden" value="<?php echo $img['img']?>" />
                  </td>
              </tr>
@@ -103,9 +115,9 @@
              </tr>
              <?php foreach ($menu as $m){ ?>
              <tr>
-                 <td style="text-align:center;word-break:keep-all;">(宽高292:233)<br/>菜品</td>
+                 <td style="text-align:center;word-break:keep-all;">(图片大小292x233)<br/>菜品</td>
                  <td><input style="margin-bottom:10px" type="text" name="menu_oldtitle[]" value="<?php echo $m['title']?>" ><br/>
-                 	<img src="<?php echo $m['img'] ?>"><a class="delImg" rel="<?php echo $m['id'] ?>" href="<?php echo base_url()?>shop/delmenu">删 除</a>
+                 	<img src="<?php echo base_url().$m['img'] ?>"><a class="delImg" rel="<?php echo $m['id'] ?>" href="<?php echo base_url()?>shop/delmenu">删 除</a>
                  	<input name="menu_oldimg[]" type="hidden" value="<?php echo $m['img'] ?>" />
                  </td>
              </tr>

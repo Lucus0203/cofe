@@ -8,9 +8,11 @@ class Addresstown_model extends CI_Model {
 	
 	public function get_towns($cityid = FALSE){
 		if($cityid===FALSE){
-			$query = $this->db->get('address_town');
+			return array();
 		}else{
-			$query = $this->db->get_where('address_town',array('city_id'=>$cityid));
+			$this->db->where('city_id',$cityid);
+			$this->db->order_by('code','asc');
+			$query = $this->db->get('address_town');
 		}
 		return $query->result_array();
 	}
