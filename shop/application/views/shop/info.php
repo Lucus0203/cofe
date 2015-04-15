@@ -30,11 +30,8 @@
                  <td>
                  	<div class="image-editor">
 	                    <input name="file" type="file" style="width:240px;" class="cropit-image-input" />
-	                 	<div class="cropit-image-preview"></div>
-				        <div class="image-size-label">
-				          Resize image
-				        </div>
-				        <input type="range" class="cropit-image-zoom-input">
+	                    <div class="slider-wrapper"><span class="icon icon-image small-image"></span><input type="range" class="cropit-image-zoom-input" min="0" max="1" step="0.01"><span class="icon icon-image large-image"></span></div>
+				        <div class="cropit-image-preview"></div>
 				        <input type="hidden" name="image-data" class="hidden-image-data" />
                  	</div>
                  	<?php if ($data['img'] != ''){ ?> <br><img src="<?php echo base_url().$data['img'] ?>" /><?php } ?>

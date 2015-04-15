@@ -45,9 +45,11 @@ class Shop extends CI_Controller {
 			redirect ( 'login', 'index' );
 		}
 	}
+	
 	public function index() {
 		redirect ( 'index.php/index.html' );
 	}
+	
 	public function info() {
 		$this->db->set_dbprefix ( 'shop_' );
 		$loginInfo = $this->session->userdata ( 'loginInfo' );
@@ -59,7 +61,8 @@ class Shop extends CI_Controller {
 		if ($act == 'edit') {
 			$data = $this->input->post ();
 			// 上传
-			$img = $this->uploadShopImg ( 'file' );
+			//$img = $this->uploadShopImg ( 'file' );//image-data,file
+			$img = $this->uploadBase64Img('image-data');//
 			if (! empty ( $img )) {
 				$data ['img'] = $img;
 			}
@@ -329,5 +332,43 @@ class Shop extends CI_Controller {
 		}
 		
 		return $files;
+	}
+	
+	//上传base64图片文件
+	function uploadBase64Img($file,$type='shop'){
+		$img=$this->input->post($file);
+		if($type=='shop'){
+			$dir = 'uploads/shop/' . date ( "Ymd" ) . '/';
+			if (! file_exists ( $dir )) {
+				mkdir ( $dir, 0777 );
+			}
+			// 获取图片
+			list($type, $data) = explode(',', $img);
+			// 判断类型
+			if(strstr($type,'image/jpeg')!==''){
+				$ext = '.jpg';
+			}elseif(strstr($type,'image/gif')!==''){
+				$ext = '.gif';
+			}elseif(strstr($type,'image/png')!==''){
+				$ext = '.png';
+			}
+			// 生成的文件名
+			$filepath = $dir.time().$ext;
+			// 生成文件
+			if (file_put_contents($filepath, base64_decode($data), true)) {
+				// 水印
+				$confmk ['source_image'] = $filepath;
+				$confmk ['wm_type'] = 'overlay';
+				$confmk ['wm_overlay_path'] = './images/watermark.png';
+				$confmk ['wm_vrt_alignment'] = 'bottom';
+				$confmk ['wm_hor_alignment'] = 'right';
+				$confmk ['wm_opacity'] = '50';
+				//$this->load->library ( 'image_lib', $confmk );
+				$this->image_lib->initialize($confmk);
+				$this->image_lib->watermark ();
+				return $filepath;
+			}
+		}
+		return '';
 	}
 }
