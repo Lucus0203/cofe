@@ -47,7 +47,7 @@ function nearbyShops(){
 	$page_size = PAGE_SIZE;
 	$start = ($page_no - 1) * $page_size;
 	$sql="select * from ".DB_PREFIX."shop where status=2 ";
-	$sql.=(!empty($lng)&&!empty($lat))?" order by sqrt(power(lng-{$lng},2)+power(lat-{$lat},2)),id ":' order by id ';
+	$sql.=(!empty($lng)&&!empty($lat))?" order by recommend, sqrt(power(lng-{$lng},2)+power(lat-{$lat},2)),id ":' order by recommend,id ';
 	
 	$sql .= " limit $start,$page_size";
 	$shops=$db->getAllBySql($sql);
@@ -170,7 +170,7 @@ function shopInfo(){
 		$shop['tel']=trim($shop['tel']);
 		$shop['distance']=(!empty($shop['lat'])&&!empty($shop['lng'])&&!empty($lng)&&!empty($lat))?getDistance($lat,$lng,$shop['lat'],$shop['lng']):lang_UNlOCATE;
 		$shop['menus']=$db->getAll('shop_menu',array('shop_id'=>$shopid),null," limit 4 ");
-		$bbs_sql="select up.path,u.nick_name,u.user_name,bbs.* from ".DB_PREFIX."shop_bbs bbs left join ".DB_PREFIX."user u on u.id=bbs.user_id left join ".DB_PREFIX."user_photo up on up.id=u.head_photo_id where bbs.allow=1 and bbs.shop_id=$shopid";
+		$bbs_sql="select up.path,u.nick_name,u.user_name,bbs.user_id,bbs.shop_id,CONCAT(bbs.num,'楼:',bbs.content) as content,bbs.created from ".DB_PREFIX."shop_bbs bbs left join ".DB_PREFIX."user u on u.id=bbs.user_id left join ".DB_PREFIX."user_photo up on up.id=u.head_photo_id where bbs.allow=1 and bbs.shop_id=$shopid";
 		$shop['bbsCount']=$db->getCountBySql($bbs_sql);
 		$bbs_sql.=" order by bbs.id desc limit $start,$page_size";
 		$shop['bbs']=$db->getAllBySql($bbs_sql);
@@ -225,7 +225,12 @@ function leaveMsg(){
 		echo json_result(null,'26','留言内容为空');
 		return;
 	}
-	$bbs=array('user_id'=>$userid,'shop_id'=>$shopid,'content'=>$content,'created'=>date("Y-m-d H:i:s"));
+	if($db->getCount('shop_bbs',array('user_id'=>$userid,'shop_id'=>$shopid))>0){
+		echo json_result(null,'27','您已经评论过,非常感谢!');
+		return;
+	}
+	$num=$db->getCount('shop_bbs',array('shop_id'=>$shopid))+1;
+	$bbs=array('user_id'=>$userid,'shop_id'=>$shopid,'num'=>$num,'content'=>$content,'created'=>date("Y-m-d H:i:s"));
 	$db->create('shop_bbs', $bbs);
 	echo json_result(array('shopid'=>$shopid));
 }

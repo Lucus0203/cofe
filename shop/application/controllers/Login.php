@@ -6,7 +6,7 @@ class Login extends CI_Controller {
 		parent::__construct();
 		$this->load->library(array('session','sms'));
 		$this->load->helper(array('form','url'));
-		$this->load->model('user_model');
+		$this->load->model(array('user_model','shop_model'));
 		
 	}
 	
@@ -50,6 +50,7 @@ class Login extends CI_Controller {
 				if(!empty($userinfo)&&$userinfo['captcha_code']==$code){
 					$code=rand(100000, 999999);
 					$this->user_model->update(array('user_name'=>$user,'user_password'=>md5($pass),'captcha_code'=>$code,'status'=>2),$userinfo['id']);
+					$this->shop_model->create(array('user_id'=>$userinfo['id']));
 					redirect(base_url('login/register_success'));
 				}else{
 					$res['msg']='验证码错误';
@@ -86,7 +87,7 @@ class Login extends CI_Controller {
 			$this->user_model->create(array('mobile'=>$mobile,'captcha_code'=>$code,'created'=>date("Y-m-d H:i:s"),'status'=>1));
 		}
 		echo '1';
-		$this->sms->sendMsg('验证码:'.$code,$mobile);
+		//$this->sms->sendMsg('验证码:'.$code,$mobile);
 	}
 	
 	public function loginout(){

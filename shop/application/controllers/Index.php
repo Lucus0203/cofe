@@ -1,15 +1,17 @@
 <?php
 defined ( 'BASEPATH' ) or exit ( 'No direct script access allowed' );
 class Index extends CI_Controller {
-	
+	var $_logininfo;
 	function __construct(){
 		parent::__construct();
 		$this->load->library('session');
 		$this->load->helper(array('form','url'));
 		
-		$loginInfo=$this->session->userdata('loginInfo');
-		if(empty($loginInfo)){
+		$this->_logininfo=$this->session->userdata('loginInfo');
+		if(empty($this->_logininfo)){
 			redirect('login','index');
+		}else{
+			$this->load->vars(array('loginInfo'=>$this->_logininfo));
 		}
 	}
 	

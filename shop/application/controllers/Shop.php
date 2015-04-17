@@ -2,6 +2,7 @@
 defined ( 'BASEPATH' ) or exit ( 'No direct script access allowed' );
 class Shop extends CI_Controller {
 	var $_tags;
+	var $_logininfo;
 	function __construct() {
 		parent::__construct ();
 		$this->load->library ( array('session', 'common' , 'upload' , 'image_lib'));
@@ -39,10 +40,12 @@ class Shop extends CI_Controller {
 				'生日聚会',
 				'节目表演' 
 		);
-		
-		$loginInfo = $this->session->userdata ( 'loginInfo' );
-		if (empty ( $loginInfo )) {
+
+		$this->_logininfo=$this->session->userdata('loginInfo');
+		if (empty ( $this->_logininfo )) {
 			redirect ( 'login', 'index' );
+		}else{
+			$this->load->vars(array('loginInfo'=>$this->_logininfo));
 		}
 	}
 	
@@ -89,73 +92,60 @@ class Shop extends CI_Controller {
 			unset ( $shopinfo ['menu_img'] );
 			unset ( $shopinfo ['menu_title'] );
 			unset ( $shopinfo ['iswatermark'] );
-			$tmp = $this->shop_model->getRow ( array (
-					'user_id' => $loginInfo ['id'] 
-			) );
-			if (empty ( $tmp )) {
-				$shopid = $this->shop_model->create ( $shopinfo );
-			} else {
-				$shopid = $shopinfo ['id'] = $tmp ['id'];
-				$this->shop_model->update ( $shopinfo, $shopinfo ['id'] );
-			}
 			
-			$this->shopimg_model->delByCond ( array (
-					'shop_id' => $shopid 
-			) );
-			$this->menu_model->delByCond ( array (
-					'shop_id' => $shopid 
-			) );
+			//更新数据
+			$this->shop_model->update ( $shopinfo, $shopinfo ['id'] );
 			// 创建新更多店铺图
-			if (isset ( $data ['shop_oldimg'] )) {
-				foreach ( $data ['shop_oldimg'] as $mk => $pub ) {
-					$pp = array (
-							'shop_id' => $shopid,
-							'img' => $pub 
-					);
-					$this->shopimg_model->create ( $pp );
-				}
-			}
-			// 创建更多菜单
-			if (isset ( $data ['menu_oldimg'] )) {
-				foreach ( $data ['menu_oldimg'] as $mk => $pub ) {
-					$pp = array (
-							'shop_id' => $shopid,
-							'title' => $data ['menu_oldtitle'] [$mk],
-							'img' => $pub,
-							'created' => date ( "Y-m-d H:i:s" ) 
-					);
-					$this->menu_model->create ( $pp );
-				}
-			}
-			//更新图片
-			$shop_img_files=$this->multifile_array ( 'shop_img' ); // 多图结构化$_FILES
-			$menu_img_files=$this->multifile_array ( 'menu_img' ); // 多图结构化$_FILES
-			$_FILES=$shop_img_files;
-			foreach ( $_FILES as $file => $file_data ) {
-				$path = $this->uploadShopImg ( $file );
-				if(!empty($path)){
-					$pp = array (
-							'shop_id' => $shopid,
-							'img' => $path,
-							'created' => date ( "Y-m-d H:i:s" ) 
-					);
-					$this->shopimg_model->create ( $pp );
-				}
-			}
-			$_FILES=$menu_img_files;
-			$k = 0;
-			foreach ( $_FILES as $file => $file_data ) {
-				$path = $this->uploadMenuImg ( $file );
-				if(!empty($path)){
-					$pp = array (
-							'shop_id' => $shopid,
-							'title' => $data ['menu_title'] [$k ++],
-							'img' => $path,
-							'created' => date ( "Y-m-d H:i:s" ) 
-					);
-					$this->menu_model->create ( $pp );
-				}
-			}
+// 			if (isset ( $data ['shop_oldimg'] )) {
+// 				foreach ( $data ['shop_oldimg'] as $mk => $pub ) {
+// 					$pp = array (
+// 							'shop_id' => $shopid,
+// 							'img' => $pub 
+// 					);
+// 					$this->shopimg_model->create ( $pp );
+// 				}
+// 			}
+// 			// 创建更多菜单
+// 			if (isset ( $data ['menu_oldimg'] )) {
+// 				foreach ( $data ['menu_oldimg'] as $mk => $pub ) {
+// 					$pp = array (
+// 							'shop_id' => $shopid,
+// 							'title' => $data ['menu_oldtitle'] [$mk],
+// 							'img' => $pub,
+// 							'created' => date ( "Y-m-d H:i:s" ) 
+// 					);
+// 					$this->menu_model->create ( $pp );
+// 				}
+// 			}
+// 			//更新图片
+// 			$shop_img_files=$this->multifile_array ( 'shop_img' ); // 多图结构化$_FILES
+// 			$menu_img_files=$this->multifile_array ( 'menu_img' ); // 多图结构化$_FILES
+// 			$_FILES=$shop_img_files;
+// 			foreach ( $_FILES as $file => $file_data ) {
+// 				$path = $this->uploadShopImg ( $file );
+// 				if(!empty($path)){
+// 					$pp = array (
+// 							'shop_id' => $shopid,
+// 							'img' => $path,
+// 							'created' => date ( "Y-m-d H:i:s" ) 
+// 					);
+// 					$this->shopimg_model->create ( $pp );
+// 				}
+// 			}
+// 			$_FILES=$menu_img_files;
+// 			$k = 0;
+// 			foreach ( $_FILES as $file => $file_data ) {
+// 				$path = $this->uploadMenuImg ( $file );
+// 				if(!empty($path)){
+// 					$pp = array (
+// 							'shop_id' => $shopid,
+// 							'title' => $data ['menu_title'] [$k ++],
+// 							'img' => $path,
+// 							'created' => date ( "Y-m-d H:i:s" ) 
+// 					);
+// 					$this->menu_model->create ( $pp );
+// 				}
+// 			}
 			$msg = "更新成功!";
 		}
 		
@@ -173,33 +163,32 @@ class Shop extends CI_Controller {
 		}
 		
 		// 读取店铺信息
-		if (! empty ( $data )) {
-			$menu = $this->menu_model->getAll ( array (
-					'shop_id' => $data ['id'] 
-			) );
-			$shopimg = $this->shopimg_model->getAll ( array (
-					'shop_id' => $data ['id'] 
-			) );
-			// 特色标签
-			$feats = explode ( ',', $data ['feature'] );
-			$feats = array_flip ( $feats );
-			$tags = $this->_tags;
-			foreach ( $tags as $k => $t ) {
-				$tag = array (
-						'tag' => $t,
-						'checked' => '' 
-				);
-				if (array_key_exists ( $t, $feats )) {
-					$tag ['checked'] = 'checked';
-				}
-				$tags [$k] = $tag;
+		$menu = $this->menu_model->getAll ( array (
+				'user_id' => $loginInfo ['id'] 
+		) );
+		$shopimg = $this->shopimg_model->getAll ( array (
+				'user_id' => $loginInfo ['id'] 
+		) );
+		// 特色标签
+		$feats = explode ( ',', $data ['feature'] );
+		$feats = array_flip ( $feats );
+		$tags = $this->_tags;
+		foreach ( $tags as $k => $t ) {
+			$tag = array (
+					'tag' => $t,
+					'checked' => '' 
+			);
+			if (array_key_exists ( $t, $feats )) {
+				$tag ['checked'] = 'checked';
 			}
-			$data ['province_id'] = empty ( $data ['province_id'] ) ? 19 : $data ['province_id'];
-			$data ['city_id'] = empty ( $data ['city_id'] ) ? 200 : $data ['city_id'];
-			$this->db->set_dbprefix ( 'cofe_' );
-			$cities = $this->addresscity_model->get_cities ( $data ['province_id'] );
-			$towns = $this->addresstown_model->get_towns ( $data ['city_id'] );
+			$tags [$k] = $tag;
 		}
+		$data ['province_id'] = empty ( $data ['province_id'] ) ? 19 : $data ['province_id'];
+		$data ['city_id'] = empty ( $data ['city_id'] ) ? 200 : $data ['city_id'];
+		$this->db->set_dbprefix ( 'cofe_' );
+		$cities = $this->addresscity_model->get_cities ( $data ['province_id'] );
+		$towns = $this->addresstown_model->get_towns ( $data ['city_id'] );
+			
 		$this->db->set_dbprefix ( 'cofe_' );
 		$provinces = $this->addressprovince_model->get_provinces ();
 		
@@ -214,10 +203,46 @@ class Shop extends CI_Controller {
 				'towns' => $towns 
 		);
 		
-		$this->load->view ( 'header' );
+		$this->load->view ( 'header');
 		$this->load->view ( 'left' );
 		$this->load->view ( 'shop/info', $res );
 		$this->load->view ( 'footer' );
+	}
+	
+	//ajax上传店铺图片
+	public function ajaxUploadShopImg(){
+		$logininfo=$this->_logininfo;
+		$file=$this->input->post('image-data');
+		$img = $this->uploadBase64Img($file,'shop');
+		if(!empty($img)){
+			$pp = array (
+					'user_id' => $logininfo['id'],
+					'img' => $img,
+					'created' => date ( "Y-m-d H:i:s" ) 
+			);
+			$id=$this->shopimg_model->create ( $pp );
+		}
+		$data=array('src'=>$img,'id'=>$id);
+		echo json_encode($data);
+	}
+	
+	//ajax上传菜品图片
+	public function ajaxUploadShopMenu(){
+		$logininfo=$this->_logininfo;
+		$file=$this->input->post('image-data');
+		$title=$this->input->post('title');
+		$img = $this->uploadBase64Img($file,'menu');
+		if(!empty($img)){
+			$pp = array (
+					'user_id' => $logininfo['id'],
+					'title' => $title,
+					'img' => $img,
+					'created' => date ( "Y-m-d H:i:s" ) 
+			);
+			$id=$this->menu_model->create ( $pp );
+		}
+		$data=array('src'=>$img,'id'=>$id,'title'=>$title);
+		echo json_encode($data);
 	}
 	
 	// 删除店铺图片
@@ -242,6 +267,66 @@ class Shop extends CI_Controller {
 			unlink ( $img ['img'] );
 		$this->menu_model->del ( $pid );
 		echo 1;
+	}
+	
+	
+	
+	//上传base64图片文件
+	function uploadBase64Img($img,$type='shop'){
+		$logininfo=$this->_logininfo;
+		// 获取图片
+		list($imgtype, $data) = explode(',', $img);
+		// 判断类型
+		if(strstr($imgtype,'image/jpeg')!==''){
+			$ext = '.jpg';
+		}elseif(strstr($imgtype,'image/gif')!==''){
+			$ext = '.gif';
+		}elseif(strstr($imgtype,'image/png')!==''){
+			$ext = '.png';
+		}
+		if($type=='shop'){
+			$dir = 'uploads/shop/' . date ( "Ymd" ) . '/';
+			if (! file_exists ( $dir )) {
+				mkdir ( $dir, 0777 );
+			}
+			// 生成的文件名
+			$filepath = $dir.$logininfo['id'].time().$ext;
+			// 生成文件
+			if (file_put_contents($filepath, base64_decode($data), true)) {
+				// 水印
+				$confmk ['source_image'] = $filepath;
+				$confmk ['wm_type'] = 'overlay';
+				$confmk ['wm_overlay_path'] = './images/watermark.png';
+				$confmk ['wm_vrt_alignment'] = 'bottom';
+				$confmk ['wm_hor_alignment'] = 'right';
+				$confmk ['wm_opacity'] = '50';
+				//$this->load->library ( 'image_lib', $confmk );
+				$this->image_lib->initialize($confmk);
+				$this->image_lib->watermark ();
+				return $filepath;
+			}
+		}elseif($type=='menu'){
+			$dir = 'uploads/shopMenu/' . date ( "Ymd" ) . '/';
+			if (! file_exists ( $dir )) {
+				mkdir ( $dir, 0777 );
+			}
+			// 生成的文件名
+			$filepath = $dir.$logininfo['id'].time().$ext;
+			// 生成文件
+			if (file_put_contents($filepath, base64_decode($data), true)) {
+				$confmk ['source_image'] = $filepath;
+				$confmk ['wm_type'] = 'overlay';
+				$confmk ['wm_overlay_path'] = './images/watermark_menu.png';
+				$confmk ['wm_vrt_alignment'] = 'bottom';
+				$confmk ['wm_hor_alignment'] = 'right';
+				$confmk ['wm_opacity'] = '50';
+				//$this->load->library ( 'image_lib', $confmk );
+				$this->image_lib->initialize($confmk);
+				$this->image_lib->watermark ();
+				return $filepath;
+			}
+		}
+		return '';
 	}
 	
 	// 上传店铺图片
@@ -270,7 +355,7 @@ class Shop extends CI_Controller {
 			//$this->load->library ( 'image_lib', $confmk );
 			$this->image_lib->initialize($confmk);
 			$this->image_lib->watermark ();
-			
+				
 			return $filepath;
 		}
 		return '';
@@ -303,7 +388,7 @@ class Shop extends CI_Controller {
 			//$this->load->library ( 'image_lib', $confmk );
 			$this->image_lib->initialize($confmk);
 			$this->image_lib->watermark ();
-			
+				
 			return $filepath;
 		}
 		return '';
@@ -314,11 +399,11 @@ class Shop extends CI_Controller {
 	function multifile_array($fname) {
 		if (count ( $_FILES ) == 0)
 			return;
-		
+	
 		$files = array ();
 		$all_files = $_FILES [$fname] ['name'];
 		$i = 0;
-		
+	
 		foreach ( $all_files as $filename ) {
 			$files [++ $i] ['name'] = $filename;
 			$files [$i] ['type'] = current ( $_FILES [$fname] ['type'] );
@@ -330,45 +415,8 @@ class Shop extends CI_Controller {
 			$files [$i] ['size'] = current ( $_FILES [$fname] ['size'] );
 			next ( $_FILES [$fname] ['size'] );
 		}
-		
+	
 		return $files;
 	}
 	
-	//上传base64图片文件
-	function uploadBase64Img($file,$type='shop'){
-		$img=$this->input->post($file);
-		if($type=='shop'){
-			$dir = 'uploads/shop/' . date ( "Ymd" ) . '/';
-			if (! file_exists ( $dir )) {
-				mkdir ( $dir, 0777 );
-			}
-			// 获取图片
-			list($type, $data) = explode(',', $img);
-			// 判断类型
-			if(strstr($type,'image/jpeg')!==''){
-				$ext = '.jpg';
-			}elseif(strstr($type,'image/gif')!==''){
-				$ext = '.gif';
-			}elseif(strstr($type,'image/png')!==''){
-				$ext = '.png';
-			}
-			// 生成的文件名
-			$filepath = $dir.time().$ext;
-			// 生成文件
-			if (file_put_contents($filepath, base64_decode($data), true)) {
-				// 水印
-				$confmk ['source_image'] = $filepath;
-				$confmk ['wm_type'] = 'overlay';
-				$confmk ['wm_overlay_path'] = './images/watermark.png';
-				$confmk ['wm_vrt_alignment'] = 'bottom';
-				$confmk ['wm_hor_alignment'] = 'right';
-				$confmk ['wm_opacity'] = '50';
-				//$this->load->library ( 'image_lib', $confmk );
-				$this->image_lib->initialize($confmk);
-				$this->image_lib->watermark ();
-				return $filepath;
-			}
-		}
-		return '';
-	}
 }

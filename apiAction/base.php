@@ -10,6 +10,9 @@ switch ($act){
 	case 'getBusinessCircle':
 		getBusinessCircle();//获取商圈
 		break;
+	case 'getBusinessShopCircle':
+		getBusinessShopCircle();//获取商圈1.1
+		break;
 	case 'getInvitationTitle':
 		getInvitationTitle();//邀请函主题数据
 	default:
@@ -94,6 +97,35 @@ function getBusinessCircle($return=false){
 				$city[$ck]['circle']=$circle;
 			//}
 			//$city[$ck]['town']=$town;
+		}
+		$province[$pk]['city']=$city;
+	}
+	$res['province']=$province;
+	if(!$return){
+		echo json_result($res);
+	}else{
+		return $res;
+	}
+}
+
+//获取商圈1.1
+function getBusinessShopCircle($return=false){
+	global $db;
+	$sql="select p.id,p.name from ".DB_PREFIX."address_province p inner join ".DB_PREFIX."business_circle circle on circle.province_id = p.id group by circle.province_id ";
+	$province=$db->getAllBySql($sql);
+	foreach ($province as $pk=>$p){
+		$sql="select c.id,c.name from ".DB_PREFIX."address_city c inner join ".DB_PREFIX."business_circle circle on circle.city_id = c.id where c.province_id = ".$p['id']." group by circle.city_id ";
+		$city=$db->getAllBySql($sql);
+		foreach ($city as $ck=>$c){
+			$sql="select t.id,t.name from ".DB_PREFIX."address_town t inner join ".DB_PREFIX."business_circle circle on circle.town_id = t.id where t.city_id = ".$c['id']." group by circle.town_id";
+			$town=$db->getAllBySql($sql);
+			foreach ($town as $tk=>$t){
+				$sql="select id,name,lng,lat from ".DB_PREFIX."business_circle circle where circle.city_id = {$t['city_id']}";
+				$circle=$db->getAllBySql($sql);
+				$town[$tk]['circle']=$circle;
+				//$city[$ck]['circle']=$circle;
+			}
+			$city[$ck]['town']=$town;
 		}
 		$province[$pk]['city']=$city;
 	}

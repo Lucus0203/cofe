@@ -304,6 +304,11 @@ function infoEdit(){
 			echo json_result(null,'15','约我账号已被使用');
 			return;
 		}
+		$headimg=$db->getRow('user',array('id'=>$user_id));
+		if(empty($headimg['head_photo_id'])){
+			echo json_result(null,'16','请上传您的照片');
+			return;
+		}
 	}
 	if(!empty($data['talk'])){
 		$info['talk']=$data['talk'];
