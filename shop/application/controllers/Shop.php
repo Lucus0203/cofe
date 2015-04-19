@@ -62,39 +62,37 @@ class Shop extends CI_Controller {
 		$tags = $this->_tags;
 		
 		if ($act == 'edit') {
-			$data = $this->input->post ();
-			// 上传
-			//$img = $this->uploadShopImg ( 'file' );//image-data,file
-			$img = $this->uploadBase64Img('image-data');//
-			if (! empty ( $img )) {
-				$data ['img'] = $img;
-			}
+			// 构造shop数据
+			$shopinfo = array();
+			$lng=$this->input->post ('lng');
+			$lat=$this->input->post ('lat');
 			// 判断经纬度
-			if (empty ( $data ['lng'] ) || empty ( $data ['lat'] )) {
-				$lng = $this->common->getLngFromBaidu ( $data ['address'] );
-				$data ['lng'] = $lng ['lng'];
-				$data ['lat'] = $lng ['lat'];
+			if (empty ( $lng ) || empty ( $lat )) {
+				$lng = $this->common->getLngFromBaidu ( $this->input->post ('address') );
+				$shopinfo ['lng'] = $lng ['lng'];
+				$shopinfo ['lat'] = $lng ['lat'];
 			}
 			// 特色
-			if (! empty ( $data ['features'] )) {
-				$feats = implode ( ",", $data ['features'] );
-				$data ['feature'] = $feats;
+			$features=$this->input->post ('features');
+			if (! empty ( $features )) {
+				$feats = implode ( ",", $features );
+				$shopinfo ['feature'] = $feats;
 			}
-			// 构造shop数据
-			$shopinfo = $data;
 			$shopinfo ['user_id'] = $loginInfo ['id'];
-			unset ( $shopinfo ['act'] );
-			unset ( $shopinfo ['shop_img'] );
-			unset ( $shopinfo ['shop_oldimg'] );
-			unset ( $shopinfo ['features'] );
-			unset ( $shopinfo ['menu_oldimg'] );
-			unset ( $shopinfo ['menu_oldtitle'] );
-			unset ( $shopinfo ['menu_img'] );
-			unset ( $shopinfo ['menu_title'] );
-			unset ( $shopinfo ['iswatermark'] );
+			$shopinfo ['title'] = $this->input->post ('title');
+			$shopinfo ['subtitle'] = $this->input->post ('subtitle');
+			$shopinfo ['img'] = $this->input->post ('img');
+			$shopinfo ['tel'] = $this->input->post ('tel');
+			$shopinfo ['hours'] = $this->input->post ('hours');
+			$shopinfo ['province_id'] = $this->input->post ('province_id');
+			$shopinfo ['city_id'] = $this->input->post ('city_id');
+			$shopinfo ['town_id'] = $this->input->post ('town_id');
+			$shopinfo ['address'] = $this->input->post ('address');
+			$shopinfo ['introduction'] = $this->input->post ('introduction');
+			$shopinfo ['created'] = date("Y-m-d H:i:s");
 			
 			//更新数据
-			$this->shop_model->update ( $shopinfo, $shopinfo ['id'] );
+			$this->shop_model->update ( $shopinfo, $shopinfo ['user_id'] );
 			// 创建新更多店铺图
 // 			if (isset ( $data ['shop_oldimg'] )) {
 // 				foreach ( $data ['shop_oldimg'] as $mk => $pub ) {
@@ -304,6 +302,8 @@ class Shop extends CI_Controller {
 				$this->image_lib->initialize($confmk);
 				$this->image_lib->watermark ();
 				return $filepath;
+			}else{
+				return '';
 			}
 		}elseif($type=='menu'){
 			$dir = 'uploads/shopMenu/' . date ( "Ymd" ) . '/';
@@ -324,6 +324,8 @@ class Shop extends CI_Controller {
 				$this->image_lib->initialize($confmk);
 				$this->image_lib->watermark ();
 				return $filepath;
+			}else{
+				return '';
 			}
 		}
 		return '';

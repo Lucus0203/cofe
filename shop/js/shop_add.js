@@ -1,9 +1,15 @@
 $(function(){
-	$('#photo_add').click(function(){
-		$(this).before('<tr><td style="text-align:center;">菜品</td>'+
-                '<td><input name="menu_title[]" type="text" ><input name="menu_img[]" type="file" style="width:240px;"></td></tr>');
+	//裁剪工具
+	$('.image-shoper').cropit({ imageBackground: true ,imageBackgroundBorderWidth: 25 });// Width of background border
+	$('.image-menuer').cropit({ imageBackground: true ,imageBackgroundBorderWidth: 25 });// Width of background border
+	$('#shopimgtool').click(function(){
+		$(this).text($("#shopimgBox").is(":hidden") ? "收起上传工具" : "显示上传工具");
+		$("#shopimgBox").slideToggle();
 	});
-	
+	$('#menuimgtool').click(function(){
+		$(this).text($("#menuimgBox").is(":hidden") ? "收起上传工具" : "显示上传工具");
+		$("#menuimgBox").slideToggle();
+	});
 	//上传店铺图片
 	$('#shopImg_add').click(function(){
 		var baseUrl=$('#baseUrl').val();
@@ -16,8 +22,12 @@ $(function(){
 				data:{'image-data':imageData},
 				dataType:'json',
 				success:function(res){
-					$('#shopimgs').append('<li><a href="'+baseUrl+res.src+'" data-lightbox="roadtrip"><img src="'+baseUrl+res.src+'"></a><a class="delShopImg" rel="'+res.id+'" href="javascript:void(0);">删 除</a>'+
+					if(res.src!=''){
+						$('#shopimgs').append('<li><a href="'+baseUrl+res.src+'" data-lightbox="roadtrip"><img src="'+baseUrl+res.src+'"></a><a class="delShopImg" rel="'+res.id+'" href="javascript:void(0);">删 除</a>'+
 	             			'<label><input type="radio" name="img" value="'+res.src+'" />作为主图</label></li>');
+					}else{
+						alert('图片上传失败,请联系管理员');
+					}
 				}
 			});
 		}
@@ -40,21 +50,26 @@ $(function(){
 				data:{'image-data':imageData,'title':title},
 				dataType:'json',
 				success:function(res){
-					$('#menuimgs').append('<li><a href="'+baseUrl+res.src+'" data-lightbox="menu-group"><img src="'+baseUrl+res.src+'"></a><a class="delMenuImg" rel="'+res.id+'" href="javascript:void(0);">删 除</a>'+
-	             			'<label>'+res.title+'</li>');
+					if(res.src!=''){
+						$('#menuimgs').append('<li><a href="'+baseUrl+res.src+'" data-lightbox="menu-group"><img src="'+baseUrl+res.src+'"></a><a class="delMenuImg" rel="'+res.id+'" href="javascript:void(0);">删 除</a>'+
+		             			'<label>'+res.title+'</li>');
+					}else{
+						alert('图片上传失败,请联系管理员');
+					}
+					
 				}
 			});
 		}
 	});
 	
-	$('a.delMenuImg').on('click',function(){
+	$('a.delShopImg').on('click',function(){
 		var baseUrl=$('#baseUrl').val();
 		var thisimg=$(this).parent();
 		if(confirm('确定删除吗?')){
 			var pid=$(this).attr('rel');
 			$.ajax({
 				type:'get',
-				url:baseUrl+'shop/delmenu',
+				url:baseUrl+'shop/delshopimg',
 				data:{'pid':pid},
 				success:function(res){
 					if(res==1){
@@ -66,14 +81,14 @@ $(function(){
 		return false;
 	});
 	
-	$('a.delShopImg').on('click',function(){
+	$('a.delMenuImg').on('click',function(){
 		var baseUrl=$('#baseUrl').val();
 		var thisimg=$(this).parent();
 		if(confirm('确定删除吗?')){
 			var pid=$(this).attr('rel');
 			$.ajax({
 				type:'get',
-				url:baseUrl+'shop/delshopimg',
+				url:baseUrl+'shop/delmenu',
 				data:{'pid':pid},
 				success:function(res){
 					if(res==1){
@@ -139,9 +154,7 @@ $(function(){
 		changeMap(map,point,marker,11);
 	});
 	
-	//裁剪
-	$('.image-shoper').cropit({ imageBackground: true ,imageBackgroundBorderWidth: 25 });// Width of background border
-	$('.image-menuer').cropit({ imageBackground: true ,imageBackgroundBorderWidth: 25 });// Width of background border
+	
 });
 
 //根据地址变化变更地图
@@ -196,6 +209,10 @@ function checkFrom(){
 	}
 	if(!flag){
 		alert(msg);
+	}
+	
+	if(flag){
+		return confirm('确认修改信息吗?')
 	}
 	return flag;
 }

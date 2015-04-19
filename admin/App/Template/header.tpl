@@ -3,8 +3,10 @@
 <head>
 <meta charset="utf-8">
 <title>{$smarty.const.DEFAUT_TITLE}</title>
+<link href="{$smarty.const.SITE}resource/css/lightbox.css" rel="stylesheet" type="text/css">
 <link href="{$smarty.const.SITE}resource/css/style.css" rel="stylesheet" type="text/css">
 <script type="text/javascript" src="{$smarty.const.SITE}resource/js/jQuery.js"></script>
+<script src="http://libs.baidu.com/jquery/2.0.0/jquery.min.js"></script>
 <script type="text/javascript" src="{$smarty.const.SITE}resource/js/common.js"></script>
 </head>
 <body>

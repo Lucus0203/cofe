@@ -2,10 +2,10 @@
 /**
  * 
  * @author lucus
- * 店铺
+ * 店主认证
  *
  */
-class Shop_model extends CI_Model {
+class Certification_model extends CI_Model {
 	
 	public function __construct() {
 		$this->load->database ();
@@ -17,22 +17,22 @@ class Shop_model extends CI_Model {
 		if ($where === FALSE) {
 			return array ();
 		}
-		$query = $this->db->get_where ( 'info', $where );
+		$query = $this->db->get_where ( 'certification', $where );
 		return $query->row_array ();
 	}
 	// 增
 	public function create($obj) {
-		return $this->db->insert ( 'info', $obj );
+		return $this->db->insert ( 'certification', $obj );
 	}
 	// 改
 	public function update($obj, $userid) {
 		$this->db->where ( 'user_id', $userid );
-		$this->db->update ( 'info', $obj );
+		$this->db->update ( 'certification', $obj );
 	}
 	// 删
 	public function del($id) {
 		$this->db->where ( 'id', $id );
-		$this->db->delete ( 'info' );
+		$this->db->delete ( 'certification' );
 	}
 	
 	

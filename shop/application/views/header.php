@@ -3,8 +3,10 @@
 <head>
 <meta charset="utf-8">
 <title>咖啡约我店家后台</title>
+<link href="<?php echo base_url();?>css/lightbox.css" rel="stylesheet" type="text/css">
 <link href="<?php echo base_url();?>css/style.css" rel="stylesheet" type="text/css">
 <script type="text/javascript" src="<?php echo base_url();?>js/jQuery.js"></script>
+<script src="http://libs.baidu.com/jquery/2.0.0/jquery.min.js"></script>
 <script type="text/javascript" src="<?php echo base_url();?>js/common.js"></script>
 </head>
 <body>

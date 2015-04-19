@@ -232,5 +232,5 @@ function leaveMsg(){
 	$num=$db->getCount('shop_bbs',array('shop_id'=>$shopid))+1;
 	$bbs=array('user_id'=>$userid,'shop_id'=>$shopid,'num'=>$num,'content'=>$content,'created'=>date("Y-m-d H:i:s"));
 	$db->create('shop_bbs', $bbs);
-	echo json_result(array('shopid'=>$shopid));
+	echo json_result($bbs);
 }

@@ -1,5 +1,3 @@
-<link href="<?php echo base_url();?>css/lightbox.css" rel="stylesheet" type="text/css">
-<script src="http://libs.baidu.com/jquery/2.0.0/jquery.min.js"></script>
 <script type="text/javascript" src="<?php echo base_url();?>js/jquery.cropit.js"></script>
 <script type="text/javascript" src="<?php echo base_url();?>js/lightbox.min.js"></script>
 <script type="text/javascript" src="<?php echo base_url();?>js/shop_add.js"></script>
@@ -25,20 +23,23 @@
                  <td><input name="title" type="text" value="<?php echo $data['title'] ?>" style="width:240px;"></td>
              </tr>
              <tr>
-                 <td style="text-align:center;">别名</td>
-                 <td><input name="subtitle" type="text" value="<?php echo $data['subtitle']?>" style="width:240px;"></td>
+                 <td style="text-align:center;">店铺别名(用户可以搜索到名称)</td>
+                 <td><input name="subtitle" type="text" value="<?php echo $data['subtitle'] ?>" style="width:240px;"></td>
              </tr>
              <tr>
                  <td style="text-align:center;word-break:keep-all;">上传店面图片<br/>(图片大小640x480)</td>
                  <td style="padding-left:30px;">
-                 	<div class="image-shoper">
-	                    <input name="file" type="file" style="width:240px;" class="cropit-image-input" />
-	                    <div class="cropit-image-preview-container">
-						    <div class="cropit-image-preview"></div>
-						  </div>
-						<div class="slider-wrapper"><span class="icon icon-image small-image"></span><input type="range" class="cropit-image-zoom-input" min="0" max="1" step="0.01"><span class="icon icon-image large-image"></span></div>
-				    </div>
-                 	<input type="button" value="上传图片" id="shopImg_add" />
+                 	<a id="shopimgtool" href="javascript:void(0);">显示上传工具</a>
+                 	<div id="shopimgBox" style="display: none;">
+	                 	<div class="image-shoper">
+		                    <input name="file" type="file" style="width:240px;" class="cropit-image-input" />
+		                    <div class="cropit-image-preview-container">
+							    <div class="cropit-image-preview"></div>
+							  </div>
+							<div class="slider-wrapper"><span class="icon icon-image small-image"></span><input type="range" class="cropit-image-zoom-input" min="0" max="1" step="0.01"><span class="icon icon-image large-image"></span></div>
+					    </div>
+	                 	<input type="button" value="上传图片" id="shopImg_add" />
+                 	</div>
                  </td>
              </tr>
              <tr>
@@ -47,8 +48,8 @@
 	                 <ul  id="shopimgs">
 	             		<?php foreach ($shopimg as $img){ ?>
 	                 		<li>
-	                 			<a href="<?php echo base_url().$img['img']?>" data-lightbox="roadtrip"><img src="<?php echo base_url().$img['img']?>"></a><a class="delShopImg" rel="<?php echo $img['id']?>" href="javascript:void(0)">删 除</a>
-	                 			<label><input type="radio" name="img" value="<?php echo $img['img']?>" />作为主图</label>
+	                 			<a href="<?php echo base_url().$img['img']?>" data-lightbox="roadtrip"><img src="<?php echo base_url().$img['img']?>"></a><a class="delMenuImg" rel="<?php echo $img['id']?>" href="javascript:void(0)">删 除</a>
+	                 			<label><input type="radio" name="img" value="<?php echo $img['img']?>" <?php if($data['img']==$img['img']){ echo 'checked';} ?> />作为主图</label>
 	                 		</li>
 	             		<?php } ?>
 	             	</ul>
@@ -110,19 +111,22 @@
              </tr>
              <tr>
                  <td style="text-align:center;">简介</td>
-                 <td><textarea name="introduction" style="width:540px;height:80px;"><?php echo $data['introduction']?></textarea></td>
+                 <td><textarea name="introduction" style="width:640px;height:250px;"><?php echo $data['introduction']?></textarea></td>
              </tr>
              <tr>
                  <td style="text-align:center;word-break:keep-all;">上传菜品<br>(图片大小292x233)</td>
                  <td style="padding-left:30px;">
-                 	<div class="image-menuer">
-	                    <input name="file" type="file" style="width:240px;" class="cropit-image-input" />
-	                    <div class="cropit-image-preview-container">
-						    <div class="cropit-image-preview"></div>
-						  </div>
-						<div class="slider-wrapper"><span class="icon icon-image small-image"></span><input type="range" class="cropit-image-zoom-input" min="0" max="1" step="0.01"><span class="icon icon-image large-image"></span></div>
-				    </div>
-                 	菜品名称：<input type="text" id="menuTitle" style="margin-right: 20px;"/><input type="button" value="上传图片" id="menuImg_add" />
+                 	<a id="menuimgtool" href="javascript:void(0);">显示上传工具</a>
+                 	<div id="menuimgBox" style="display: none;">
+	                 	<div class="image-menuer">
+		                    <input name="file" type="file" style="width:240px;" class="cropit-image-input" />
+		                    <div class="cropit-image-preview-container">
+							    <div class="cropit-image-preview"></div>
+							  </div>
+							<div class="slider-wrapper"><span class="icon icon-image small-image"></span><input type="range" class="cropit-image-zoom-input" min="0" max="1" step="0.01"><span class="icon icon-image large-image"></span></div>
+					    </div>
+	                 	菜品名称：<input type="text" id="menuTitle" style="margin-right: 20px;"/><input type="button" value="上传图片" id="menuImg_add" />
+                 	</div>
                  </td>
              </tr>
              <tr>
@@ -141,7 +145,7 @@
              <tr>
                  <td style="text-align:center;">审核状态</td>
                  <td>
-                 	<?php if ($data['status']==2){ ?>审核通过 <?php }else{ ?>待审核<?php } ?>
+                 	<?php if ($data['status']==2){ ?>审核通过 <?php }else{ ?>请认证店主身份,等待审核<?php } ?>
                  </td>
              </tr>
          </table>
