@@ -22,7 +22,8 @@ class User_model extends CI_Model {
 	}
 	// 增
 	public function create($user) {
-		return $this->db->insert ( 'user', $user );
+		$this->db->insert ( 'user', $user );
+		return $this->db->insert_id();
 	}
 	// 改
 	public function update($user, $id) {

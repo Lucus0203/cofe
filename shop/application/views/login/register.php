@@ -19,8 +19,8 @@
     	<p style="color:red;margin-left:61px;"><?php echo $msg ?></p>
      <?php } ?>
     	<ul>
-        	<li>账&nbsp;&nbsp;&nbsp;号：<input id="username" name="username" type="text"></li>
-        	<li>密&nbsp;&nbsp;&nbsp;码：<input id="pass" name="password" type="password"></li>
+        	<li>账&nbsp;&nbsp;&nbsp;号：<input id="username" name="username" type="text"><span class="notify">不能小于6位</span></li>
+        	<li>密&nbsp;&nbsp;&nbsp;码：<input id="pass" name="password" type="password"><span class="notify">不能小于6位</span></li>
         	<li>确认密码：<input id="pass_confirm" type="password" style="width:186px;"></li>
         	<li>手机号：<input id="mobile" name="mobile" type="text"> <a id="getCode" href="javascript:void(0)" rel="0" >获取验证码</a></li>
             <li>验证码：<input id="captcha_code" name="captcha_code" type="text"></li>

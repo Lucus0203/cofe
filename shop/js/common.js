@@ -29,7 +29,7 @@ function ismobile(mobile) {
 		return false;
 	}
 
-	var myreg = /^(((13[0-9]{1})|159|153)+\d{8})$/;
+	var myreg = /^0?1[3|4|5|8][0-9]\d{8}$/;
 	if (!myreg.test(mobile)) {
 		alert('请输入有效的手机号码！');
 		$('input [name=mobile]').focus();
