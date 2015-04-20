@@ -64,7 +64,7 @@ class Master extends CI_Controller {
 			}
 			
 			$this->db->set_dbprefix('shop_');
-			if(!empty($this->input->post('id'))){
+			if($this->input->post('id')!=''){
 				$this->certification_model->update($certification,$loginInfo['id']);
 			}else{
 				$this->certification_model->create($certification);
