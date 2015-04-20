@@ -31,7 +31,8 @@ class Shopimg_model extends CI_Model {
 	}
 	// 增
 	public function create($obj) {
-		return $this->db->insert ( 'img', $obj );
+		$this->db->insert ( 'img', $obj );
+		return $this->db->insert_id();
 	}
 	// 改
 	public function update($obj, $id) {

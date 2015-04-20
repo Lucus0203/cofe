@@ -3,10 +3,18 @@ $(function(){
 	$('.image-shoper').cropit({ imageBackground: true ,imageBackgroundBorderWidth: 25 });// Width of background border
 	$('.image-menuer').cropit({ imageBackground: true ,imageBackgroundBorderWidth: 25 });// Width of background border
 	$('#shopimgtool').click(function(){
+		if ((navigator.userAgent.indexOf('MSIE') >= 0) 
+			    && (navigator.userAgent.indexOf('Opera') < 0)){
+            alert("不推荐使用ie浏览器,可能造成图片无法正常上传");
+		}
 		$(this).text($("#shopimgBox").is(":hidden") ? "收起上传工具" : "显示上传工具");
 		$("#shopimgBox").slideToggle();
 	});
 	$('#menuimgtool').click(function(){
+		if ((navigator.userAgent.indexOf('MSIE') >= 0) 
+			    && (navigator.userAgent.indexOf('Opera') < 0)){
+            alert("不推荐使用ie浏览器,可能造成图片无法正常上传");
+		}
 		$(this).text($("#menuimgBox").is(":hidden") ? "收起上传工具" : "显示上传工具");
 		$("#menuimgBox").slideToggle();
 	});
@@ -62,7 +70,7 @@ $(function(){
 		}
 	});
 	
-	$('a.delShopImg').on('click',function(){
+	$('#shopimgs').on('click','a.delShopImg',function(){
 		var baseUrl=$('#baseUrl').val();
 		var thisimg=$(this).parent();
 		if(confirm('确定删除吗?')){
@@ -80,8 +88,8 @@ $(function(){
 		}
 		return false;
 	});
-	
-	$('a.delMenuImg').on('click',function(){
+
+	$('#menuimgs').on('click','a.delMenuImg',function(){
 		var baseUrl=$('#baseUrl').val();
 		var thisimg=$(this).parent();
 		if(confirm('确定删除吗?')){
@@ -206,6 +214,15 @@ function checkFrom(){
 	if($.trim(town_id)==''){
 		msg+='请选择区域/县\n';
 		flag=false;
+	}
+	if($('input[name=img]').length<=0){
+		msg+='请上传至少一张店铺图片\n';
+		flag=false;
+	}else{
+		if($('input[name=img]:checked').length<=0){
+			msg+='请选择一张图片作为[店铺主图]\n';
+			flag=false;
+		}
 	}
 	if(!flag){
 		alert(msg);

@@ -31,7 +31,8 @@ class Menu_model extends CI_Model {
 	}
 	// 增
 	public function create($obj) {
-		return $this->db->insert ( 'menu', $obj );
+		$this->db->insert ( 'menu', $obj );
+		return $this->db->insert_id();
 	}
 	// 改
 	public function update($obj, $id) {

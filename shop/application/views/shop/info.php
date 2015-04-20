@@ -8,6 +8,9 @@
          <?php if($msg!=''){?>
          <p style="color:red;font-size:14px;text-align:left;padding-left:20px;"><?php echo $msg; ?></p>
          <?php } ?>
+         <?php if(empty($data['shop_id'])){?>
+         <p style="font-size:14px;text-align:left;padding-left:20px;"><a href="<?php echo base_url();?>shop/claim.html">平台上已经有我的店,我要认领>></a></p>
+         <?php } ?>
          <form action="" method="post" enctype="multipart/form-data" onsubmit="return checkFrom();">
          <input type="hidden" name="act" value="edit" />
          <input type="hidden" name="id" value="<?php echo $data['id'] ?>" />
@@ -27,7 +30,7 @@
                  <td><input name="subtitle" type="text" value="<?php echo $data['subtitle'] ?>" style="width:240px;"></td>
              </tr>
              <tr>
-                 <td style="text-align:center;word-break:keep-all;">上传店面图片<br/>(图片大小640x480)</td>
+                 <td style="text-align:center;word-break:keep-all;">上传店铺图片<br/>(图片大小640x480)</td>
                  <td style="padding-left:30px;">
                  	<a id="shopimgtool" href="javascript:void(0);">显示上传工具</a>
                  	<div id="shopimgBox" style="display: none;">
@@ -48,7 +51,7 @@
 	                 <ul  id="shopimgs">
 	             		<?php foreach ($shopimg as $img){ ?>
 	                 		<li>
-	                 			<a href="<?php echo base_url().$img['img']?>" data-lightbox="roadtrip"><img src="<?php echo base_url().$img['img']?>"></a><a class="delMenuImg" rel="<?php echo $img['id']?>" href="javascript:void(0)">删 除</a>
+	                 			<a href="<?php echo base_url().$img['img']?>" data-lightbox="roadtrip"><img src="<?php echo base_url().$img['img']?>"></a><a class="delShopImg" rel="<?php echo $img['id']?>" href="javascript:void(0)">删 除</a>
 	                 			<label><input type="radio" name="img" value="<?php echo $img['img']?>" <?php if($data['img']==$img['img']){ echo 'checked';} ?> />作为主图</label>
 	                 		</li>
 	             		<?php } ?>

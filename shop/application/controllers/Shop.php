@@ -88,6 +88,8 @@ class Shop extends CI_Controller {
 			$shopinfo ['city_id'] = $this->input->post ('city_id');
 			$shopinfo ['town_id'] = $this->input->post ('town_id');
 			$shopinfo ['address'] = $this->input->post ('address');
+			$shopinfo ['lng'] = $this->input->post ('lng');
+			$shopinfo ['lat'] = $this->input->post ('lat');
 			$shopinfo ['introduction'] = $this->input->post ('introduction');
 			$shopinfo ['created'] = date("Y-m-d H:i:s");
 			
@@ -420,5 +422,67 @@ class Shop extends CI_Controller {
 	
 		return $files;
 	}
+	
+
+	//店铺认领
+	public function claim(){
+		$this->db->set_dbprefix ( 'shop_' );
+		$loginInfo = $this->session->userdata ( 'loginInfo' );
+		
+		$pageparm = array ();
+		$page_no = isset ( $_GET ['page_no'] ) ? $_GET ['page_no'] : 1;
+		$page_size = 20;
+		$title = isset ( $_GET ['title'] ) ? trim($_GET ['title']) : '';
+		$province_id = isset ( $_GET ['province_id'] ) ? $this->_common->filter($_GET ['province_id']) : '';
+		$city_id = isset ( $_GET ['city_id'] ) ? $this->_common->filter($_GET ['city_id']) : '';
+		$town_id = isset ( $_GET ['town_id'] ) ? $this->_common->filter($_GET ['town_id']) : '';
+
+		$conditions=array();
+		if(!empty($title)){
+			$conditions[]=" (INSTR(title,'".addslashes($title)."') or INSTR(subtitle,'".addslashes($title)."') or INSTR(address,'".addslashes($title)."') )";
+			$pageparm['title']=$title;
+		}
+		if(!empty($province_id)){
+			$conditions['province_id']=$province_id;
+			$pageparm['province_id']=$province_id;
+		}
+		if(!empty($city_id)){
+			$conditions['city_id']=$city_id;
+			$pageparm['city_id']=$city_id;
+		}
+		if(!empty($town_id)){
+			$conditions['town_id']=$town_id;
+			$pageparm['town_id']=$town_id;
+		}
+
+		$total=$this->_shop->findCount($conditions);
+
+		$pages = & get_singleton ( "Service_Page" );
+		$pages->_page_no = $page_no;
+		$pages->_page_num = $page_size;
+		$pages->_total = $total;
+		$pages->_url = url ( "Shop", "Index" );
+		$pages->_parm = $pageparm;
+		$page = $pages->page ();
+		$start = ($page_no - 1) * $page_size;
+
+		$list=$this->_shop->findAll($conditions," recommend,id desc limit $start,$page_size");
+
+		
+		$provinces=$this->_address_province->findAll();
+		$prov=$this->_address_province->findByField('id',$province_id);
+		$city=$this->_address_city->findAll(array('provinceCode'=>$prov['code']));
+		$ctow=$this->_address_city->findByField('id',$city_id);
+		$towns=$this->_address_town->findAll(array('cityCode'=>$ctow['code']));
+		
+		$res = array ('data'=>$data,'msg'=>$msg);
+	
+		$this->load->view ( 'header');
+		$this->load->view ( 'left' );
+		$this->load->view ( 'shop/claim', $res );
+		$this->load->view ( 'footer' );
+	}
+	
+	
 	
 }

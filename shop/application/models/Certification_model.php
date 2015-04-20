@@ -22,7 +22,8 @@ class Certification_model extends CI_Model {
 	}
 	// 增
 	public function create($obj) {
-		return $this->db->insert ( 'certification', $obj );
+		$this->db->insert ( 'certification', $obj );
+		return $this->db->insert_id();
 	}
 	// 改
 	public function update($obj, $userid) {

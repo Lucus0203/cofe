@@ -87,7 +87,7 @@ class Login extends CI_Controller {
 			$this->user_model->create(array('mobile'=>$mobile,'captcha_code'=>$code,'created'=>date("Y-m-d H:i:s"),'status'=>1));
 		}
 		echo '1';
-		//$this->sms->sendMsg('验证码:'.$code,$mobile);
+		$this->sms->sendMsg('验证码:'.$code,$mobile);
 	}
 	
 	public function loginout(){

@@ -22,7 +22,8 @@ class Shop_model extends CI_Model {
 	}
 	// 增
 	public function create($obj) {
-		return $this->db->insert ( 'info', $obj );
+		$this->db->insert ( 'info', $obj );
+		return $this->db->insert_id();
 	}
 	// 改
 	public function update($obj, $userid) {
