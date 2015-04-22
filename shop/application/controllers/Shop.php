@@ -21,24 +21,28 @@ class Shop extends CI_Controller {
 		) );
 		
 		$this->_tags = array (
-				'休闲小憩',
-				'情侣约会',
-				'随便吃吃',
-				'朋友聚餐',
-				'可以刷卡',
-				'有下午茶',
-				'家庭聚会',
-				'无线上网',
-				'供应早餐',
+				'古典风格',
+				'时尚风格',
+				'运动主题',
+				'萌喵主题',
+				'女仆主题',
+				'执事主题',
+				'嘉宾驻唱',
 				'有露天位',
-				'免费停车',
-				'有无烟区',
-				'可送外卖',
+				'购物中心',
+				'大屏电影',
+				'典雅古镇',
+				'特色街道',
 				'有景观位',
-				'是老字号',
-				'商务宴请',
-				'生日聚会',
-				'节目表演' 
+				'可送外卖',
+				'可以刷卡',
+				'供应早餐',
+				'免费停车',
+				'临时办公',
+				'桌游',
+				'书吧',
+				'影吧',
+				'简餐'
 		);
 
 		$this->_logininfo=$this->session->userdata('loginInfo');
@@ -217,12 +221,12 @@ class Shop extends CI_Controller {
 		if(!empty($img)){
 			$pp = array (
 					'user_id' => $logininfo['id'],
-					'img' => $img,
+					'img' => base_url().$img,
 					'created' => date ( "Y-m-d H:i:s" ) 
 			);
 			$id=$this->shopimg_model->create ( $pp );
 		}
-		$data=array('src'=>$img,'id'=>$id);
+		$data=array('src'=>base_url().$img,'id'=>$id);
 		echo json_encode($data);
 	}
 	
@@ -236,12 +240,12 @@ class Shop extends CI_Controller {
 			$pp = array (
 					'user_id' => $logininfo['id'],
 					'title' => $title,
-					'img' => $img,
+					'img' => base_url().$img,
 					'created' => date ( "Y-m-d H:i:s" ) 
 			);
 			$id=$this->menu_model->create ( $pp );
 		}
-		$data=array('src'=>$img,'id'=>$id,'title'=>$title);
+		$data=array('src'=>base_url().$img,'id'=>$id,'title'=>$title);
 		echo json_encode($data);
 	}
 	
@@ -251,8 +255,9 @@ class Shop extends CI_Controller {
 		$img = $this->shopimg_model->getRow ( array (
 				'id' => $pid 
 		) );
-		if (file_exists ( $img ['img'] ))
-			unlink ( $img ['img'] );
+		$fileurl=str_replace(base_url(), '', $img ['img']);
+		if (file_exists ( $fileurl ))
+			unlink ( $fileurl );
 		$this->shopimg_model->del ( $pid );
 		echo 1;
 	}
@@ -263,8 +268,9 @@ class Shop extends CI_Controller {
 		$img = $this->menu_model->getRow ( array (
 				'id' => $pid 
 		) );
-		if (file_exists ( $img ['img'] ))
-			unlink ( $img ['img'] );
+		$fileurl=str_replace(base_url(), '', $img ['img']);
+		if (file_exists ( $fileurl ))
+			unlink ( $fileurl );
 		$this->menu_model->del ( $pid );
 		echo 1;
 	}

@@ -24,13 +24,20 @@ function getEvents(){
 	$start = ($page_no - 1) * $page_size;
 	
 	$pucount="select count(id) as num,public_event_id from ".DB_PREFIX."public_users pu group by pu.public_event_id ";
-	$sql="select pe.*,pu.num from ".DB_PREFIX."public_event pe left join ($pucount) pu on pu.public_event_id = pe.id where pe.isdelete = 0 and pe.ispublic=1 ";
+	$sql="select pe.*,pu.num from ".DB_PREFIX."public_event pe left join ($pucount) pu on pu.public_event_id = pe.id where pe.isdelete = 0 and pe.ispublic=1 and (pe.end_date > '".date('Y-m-d H:i:s')."' or pe.end_date = '' or pe.end_date is null ) ";
 	$sql.=(!empty($lng)&&!empty($lat))?" order by pe.num asc,sqrt(power(lng-{$lng},2)+power(lat-{$lat},2)),":' order by pe.num asc,';
 	
 	$sql .= " pe.created,pe.id desc limit $start,$page_size";
 	$list=$db->getAllBySql($sql);
 	foreach ($list as $k=>$v){
 		//$list[$k]['datetime']=strtotime($v['datetime']);
+		$created = date("m.d",strtotime($v['created']));
+		if(empty($v['end_date'])){
+			$list[$k]['created'] = date("Y.m.d",strtotime($v['created']));
+		}else{
+			$end_date = date("m.d",strtotime($v['end_date']));
+			$list[$k]['created'] = $created.'~'.$end_date;
+		}
 		$list[$k]['distance']=(!empty($v['lat'])&&!empty($v['lng'])&&!empty($lng)&&!empty($lat))?getDistance($lat,$lng,$v['lat'],$v['lng']):lang_UNlOCATE;
 	}
 	echo json_result($list);

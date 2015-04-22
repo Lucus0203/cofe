@@ -34,7 +34,7 @@
                  <td><input class="num" type="text" value="{$list[sec].num}" style="width:40px;"><input type="hidden" value="{$list[sec].id}" /></td>
                  <td>{if $list[sec].img neq ''}<img src="{$list[sec].img}">{else}<img src="{$smarty.const.SITE}resource/images/no_img.gif">{/if}</td>
                  <td class="hd_td_l">{$list[sec].title}</td>
-                 <td>{$list[sec].created|date_format:"%Y-%m-%d"}</td>
+                 <td>{$list[sec].created|date_format:"%Y-%m-%d"}~{$list[sec].end_date|date_format:"%Y-%m-%d"}</td>
                  <td>{$list[sec].datetime}</td>
                  <td>{$list[sec].address}</td>
                  <td>{if $list[sec].ispublic eq '2'}未发布{else}发布中{/if}</td>
