@@ -8,9 +8,6 @@
          <?php if($msg!=''){?>
          <p style="color:red;font-size:14px;text-align:left;padding-left:20px;"><?php echo $msg; ?></p>
          <?php } ?>
-         <?php if(empty($data['shop_id'])){?>
-         <p style="font-size:14px;text-align:left;padding-left:20px;"><a href="<?php echo base_url();?>shop/claim.html">平台上已经有我的店,我要认领>></a></p>
-         <?php } ?>
          <form action="" method="post" enctype="multipart/form-data" onsubmit="return checkFrom();">
          <input type="hidden" name="act" value="edit" />
          <input type="hidden" name="id" value="<?php echo $data['id'] ?>" />
