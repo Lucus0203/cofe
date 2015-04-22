@@ -2,7 +2,7 @@
  	<div class="main_ta_box">
          <div class="hd_t">用户管理</div>
          <form action="" method="get">
-         <input type="hidden" name="controller" value="PublicEvent" />
+         <input type="hidden" name="controller" value="User" />
          <input type="hidden" name="action" value="Index" />
          <div class="hd_t1">查找用户<input class="cz_input" type="text" name="keyword"><input class="cz_btn" type="submit" value="查找"></div>
          </form>
@@ -26,7 +26,7 @@
                  <th>昵称</th>
                  <th>性别</th>
                  <th>电话</th>
-                 <th>邮箱</th>
+                 <th>地点</th>
                  <th>注册时间</th>
                  <th>获取地址</th>
                  <th>找到我</th>
@@ -40,7 +40,7 @@
                  <td>{$list[sec].nick_name}</td>
                  <td>{if $list[sec].sex eq 1}男{elseif $list[sec].sex eq 2}女{/if}</td>
                  <td>{$list[sec].mobile}</td>
-                 <td>{$list[sec].email}</td>
+                 <td>{$list[sec].address}</td>
                  <td>{$list[sec].created}</td>
                  <td>{if $list[sec].allow_add eq 1}允许{else}不允许{/if}</td>
                  <td>{if $list[sec].allow_find eq 1}允许{else}不允许{/if}</td>

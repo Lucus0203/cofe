@@ -1,4 +1,5 @@
 <script type="text/javascript" src="{$smarty.const.SITE}resource/js/jquery.cropit.js"></script>
+<script type="text/javascript" src="{$smarty.const.SITE}resource/js/lightbox.min.js"></script>
 <script type="text/javascript" src="{$smarty.const.SITE}resource/js/shop_add.js"></script>
 <script type="text/javascript" src="http://api.map.baidu.com/api?v=2.0&ak=ho6LXkYw6eWBzWFlPvcMpLhR"></script>
 <td valign="top" align="center">
@@ -26,24 +27,34 @@
                  <td><input name="subtitle" type="text" value="{$data.subtitle}" style="width:240px;"></td>
              </tr>
              <tr>
-                 <td style="text-align:center;">(宽高640:345)<br/>店面图片</td>
-                 <td><input name="file" type="file" style="width:240px;">{if $data.img neq ''}<br><img src="{$data.img}" />{/if}
-                 	<input name="img" type="hidden" value="{$data.img}" /></td>
-             </tr>
-             {section name=spi loop=$shopimg}
-             <tr>
-                 <td style="text-align:center;word-break:keep-all;">更多店铺图片</td>
-                 <td>
-                 	<img src="{$shopimg[spi].img}"><a class="delShopImg" rel="{$shopimg[spi].id}" href="{url controller=Shop action=DelShopImg}">删 除</a>
-                 	<input name="shop_oldimg[]" type="hidden" value="{$shopimg[spi].img}" />
+                 <td style="text-align:center;word-break:keep-all;">上传店铺图片<br/>(图片大小640x480)</td>
+                 <td style="padding-left:30px;">
+                 	<a id="shopimgtool" href="javascript:void(0);">显示上传工具</a>
+                 	<div id="shopimgBox" style="display: none;">
+	                 	<div class="image-shoper">
+		                    <input name="file" type="file" class="cropit-image-input" />
+		                    <div class="cropit-image-preview-container">
+							    <div class="cropit-image-preview"></div>
+							  </div>
+							<div class="slider-wrapper"><span class="icon icon-image small-image"></span><input type="range" class="cropit-image-zoom-input" min="0" max="1" step="0.01"><span class="icon icon-image large-image"></span></div>
+					    </div>
+	                 	<input type="button" value="上传图片" id="shopImg_add" />
+                 	</div>
                  </td>
              </tr>
-             {/section}
              <tr>
-                 <td style="text-align:center;">更多店铺图片</td>
-                 <td><input name="shop_img[]" type="file" style="width:240px;"></td>
+                 <td style="text-align:center;">店铺图片</td>
+                 <td>
+	                 <ul  id="shopimgs">
+             			{section name=spi loop=$shopimg}
+	                 		<li>
+	                 			<a href="{$shopimg[spi].img}" data-lightbox="roadtrip"><img src="{$shopimg[spi].img}"></a><a class="delShopImg" rel="{$shopimg[spi].id}" href="javascript:void(0)">删 除</a>
+	                 			<label><input type="radio" name="img" value="{$shopimg[spi].id}" {if $data.img eq $shopimg[spi].img} checked {/if} />作为主图</label>
+	                 		</li>
+             			{/section}
+	             	</ul>
+                 </td>
              </tr>
-             <tr id="shopImg_add"><td colspan="2" ><a style="margin-left:30px;" href="javascript:void(0)">添加图片</a></td></tr>
              <tr>
                  <td style="text-align:center;">营业时间</td>
                  <td><input name="hours" type="text" value="{$data.hours}" style="width:240px;"></td>
@@ -99,31 +110,40 @@
                  <td style="text-align:center;">简介</td>
                  <td><textarea name="introduction" style="width:540px;height:80px;">{$data.introduction}</textarea></td>
              </tr>
-             {section name=sec loop=$menu}
              <tr>
-                 <td style="text-align:center;word-break:keep-all;">(宽高292:233)<br/>菜品</td>
-                 <td><input style="margin-bottom:10px" type="text" name="menu_oldtitle[]" value="{$menu[sec].title}" ><br/>
-                 	<img src="{$menu[sec].img}"><a class="delImg" rel="{$menu[sec].id}" href="{url controller=Shop action=DelMenu}">删 除</a>
-                 	<input name="menu_oldimg[]" type="hidden" value="{$menu[sec].img}" />
+                 <td style="text-align:center;word-break:keep-all;">上传菜品<br>(图片大小292x233)</td>
+                 <td style="padding-left:30px;">
+                 	<a id="menuimgtool" href="javascript:void(0);">显示上传工具</a>
+                 	<div id="menuimgBox" style="display: none;">
+	                 	<div class="image-menuer">
+		                    <input name="file" type="file" class="cropit-image-input" />
+		                    <div class="cropit-image-preview-container">
+							    <div class="cropit-image-preview"></div>
+							  </div>
+							<div class="slider-wrapper"><span class="icon icon-image small-image"></span><input type="range" class="cropit-image-zoom-input" min="0" max="1" step="0.01"><span class="icon icon-image large-image"></span></div>
+					    </div>
+	                 	菜品名称：<input type="text" id="menuTitle" style="margin-right: 20px;"/><input type="button" value="上传图片" id="menuImg_add" />
+                 	</div>
                  </td>
              </tr>
-             {/section}
              <tr>
-                 <td style="text-align:center;word-break:keep-all;">(宽高292:233)<br/>菜品</td>
-                 <td><input type="text" name="menu_title[]" ><input name="menu_img[]" type="file" style="width:240px;"></td>
+                 <td style="text-align:center;">菜品</td>
+                 <td>
+	                 <ul  id="menuimgs">
+           				{section name=sec loop=$menu}
+	                 		<li>
+	                 			<a href="{$menu[sec].img}" data-lightbox="menu-group"><img src="{$menu[sec].img}"></a><a class="delMenuImg" rel="{$menu[sec].id}" href="javascript:void(0)">删 除</a>
+	                 			<label>{$menu[sec].title}</label>
+	                 		</li>
+             			{/section}
+	             	</ul>
+                 </td>
              </tr>
-             <tr id="photo_add"><td colspan="2" ><a style="margin-left:30px;color:#f00;" href="javascript:void(0)">添加菜品</a></td></tr>
              <tr>
                  <td style="text-align:center;">是否发布</td>
                  <td>
                  	<label><input name="status" type="radio" value="1" checked="checked">准备中</label>
                  	<label><input name="status" type="radio" value="2" {if $data.status eq 2}checked="checked"{/if} >发布中</label>
-                 </td>
-             </tr>
-             <tr>
-                 <td style="text-align:center;">是否要水印</td>
-                 <td>
-                 	<label><input name="iswatermark" type="checkbox" value="1" checked="checked">有水印</label>
                  </td>
              </tr>
          </table>

@@ -10,6 +10,7 @@
 <script type="text/javascript" src="{$smarty.const.SITE}resource/js/common.js"></script>
 </head>
 <body>
+<input type="hidden" value="{$smarty.const.SITE}" id="baseUrl" />
 <div class="top">
 	<div class="fl"><img src="resource/images/weblogo.png" height="66" style="margin-top:5px;"></div>
     <div class="fr top_fr">欢迎您 admin 管理员<a href="{url controller=Default action=LoginOut}">[ 退出系统 ]</a></div>

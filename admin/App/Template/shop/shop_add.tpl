@@ -25,15 +25,6 @@
                  <td><input name="subtitle" type="text" value="" style="width:240px;"></td>
              </tr>
              <tr>
-                 <td style="text-align:center;">(宽高640:345)<br/>店面图片</td>
-                 <td><input name="img" type="file" style="width:240px;"></td>
-             </tr>
-             <tr>
-                 <td style="text-align:center;">更多店铺图片</td>
-                 <td><input name="shop_img[]" type="file" style="width:240px;"></td>
-             </tr>
-             <tr id="shopImg_add"><td colspan="2" ><a style="margin-left:30px;" href="javascript:void(0)">添加图片</a></td></tr>
-             <tr>
                  <td style="text-align:center;">营业时间</td>
                  <td><input name="hours" type="text" value="" style="width:240px;"></td>
              </tr>
@@ -89,29 +80,10 @@
                  <td><textarea name="introduction" style="width:540px;height:80px;"></textarea></td>
              </tr>
              <tr>
-                 <td style="text-align:center;word-break:keep-all;">(宽高292:233)<br/>菜品</td>
-                 <td><input name="menu_title[]" type="text" value="" /><input name="menu_img[]" type="file" style="width:240px;"></td>
-             </tr>
-             <tr>
-                 <td style="text-align:center;">菜品</td>
-                 <td><input name="menu_title[]" type="text" value="" /><input name="menu_img[]" type="file" style="width:240px;"></td>
-             </tr>
-             <tr>
-                 <td style="text-align:center;">菜品</td>
-                 <td><input name="menu_title[]" type="text" value="" /><input name="menu_img[]" type="file" style="width:240px;"></td>
-             </tr>
-             <tr id="photo_add"><td colspan="2" ><a style="margin-left:30px;" href="javascript:void(0)">添加菜品</a></td></tr>
-             <tr>
                  <td style="text-align:center;">是否发布</td>
                  <td>
                  	<label><input name="status" type="radio" value="1">准备中</label>
                  	<label><input name="status" type="radio" value="2" checked="checked">发布中</label>
-                 </td>
-             </tr>
-             <tr>
-                 <td style="text-align:center;">是否要水印</td>
-                 <td>
-                 	<label><input name="iswatermark" type="checkbox" value="1" checked="checked">有水印</label>
                  </td>
              </tr>
          </table>

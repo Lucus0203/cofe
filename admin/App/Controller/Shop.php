@@ -32,7 +32,29 @@ class Controller_Shop extends FLEA_Controller_Action {
 		$this->_adminid = isset ( $_SESSION ['loginuserid'] ) ? $_SESSION ['loginuserid'] : "";
 		$this->_tags=array('休闲小憩','情侣约会','随便吃吃','朋友聚餐','可以刷卡','有下午茶',
 							'家庭聚会','无线上网','供应早餐','有露天位','免费停车','有无烟区',
-							'可送外卖','有景观位','是老字号','商务宴请','生日聚会','节目表演');
+							'可送外卖','有景观位','是老字号','商务宴请','生日聚会','节目表演',
+							'古典风格',
+							'时尚风格',
+							'运动主题',
+							'萌喵主题',
+							'女仆主题',
+							'执事主题',
+							'嘉宾驻唱',
+							'有露天位',
+							'购物中心',
+							'大屏电影',
+							'典雅古镇',
+							'特色街道',
+							'有景观位',
+							'可送外卖',
+							'可以刷卡',
+							'供应早餐',
+							'免费停车',
+							'临时办公',
+							'桌游',
+							'书吧',
+							'影吧',
+							'简餐');
 		if(empty($_SESSION ['loginuserid'])){
 			$url=url("Default","Login");
 			redirect($url);
@@ -96,20 +118,20 @@ class Controller_Shop extends FLEA_Controller_Action {
 		$act=isset ( $_POST ['act'] ) ? $_POST ['act'] : '';
 		if($act=='add'){
 			$data=$_POST;
-			//水印
-			$ImgWaterMark= & get_singleton ( "Service_ImgWaterMark" );
-			$waterpath=SERVERROOT.'/resource/images/watermark.png';
-			$waterpath_menu=SERVERROOT.'/resource/images/watermark_menu.png';
+// 			//水印
+// 			$ImgWaterMark= & get_singleton ( "Service_ImgWaterMark" );
+// 			$waterpath=SERVERROOT.'/resource/images/watermark.png';
+// 			$waterpath_menu=SERVERROOT.'/resource/images/watermark_menu.png';
 			
-			$Upload=$this->getUploadObj('shop');
-			$img=$Upload->upload('img');
-			if($img['status']==1){
-				if($data['iswatermark']=='1'){
-					$path=str_replace(APP_SITE,'../', $img['file_path']);
-					$ImgWaterMark->imageWaterMark($path,9,$waterpath);
-				}
-				$data['img']=$img['file_path'];
-			}
+// 			$Upload=$this->getUploadObj('shop');
+// 			$img=$Upload->upload('img');
+// 			if($img['status']==1){
+// 				if($data['iswatermark']=='1'){
+// 					$path=str_replace(APP_SITE,'../', $img['file_path']);
+// 					$ImgWaterMark->imageWaterMark($path,9,$waterpath);
+// 				}
+// 				$data['img']=$img['file_path'];
+// 			}
 			//判断经纬度
 			if(empty($data['lng'])||empty($data['lat'])){
 				$lng=$this->_common->getLngFromBaidu($data['address']);
@@ -122,31 +144,31 @@ class Controller_Shop extends FLEA_Controller_Action {
 			$id=$this->_shop->create($data);
 			
 			//更多店铺图片
-			$imgs=$Upload->uploadFiles('shop_img');
-			if($imgs['status']==1){
-				foreach ($imgs['filepaths'] as $k => $p){
-					if($data['iswatermark']=='1'){
-						$path=str_replace(APP_SITE,'../', $p);
-						$ImgWaterMark->imageWaterMark($path,9,$waterpath);
-					}
-					$shopimg=array('shop_id'=>$id,'img'=>$p);
-					$this->_shop_img->create($shopimg);
-				}
-			}
+// 			$imgs=$Upload->uploadFiles('shop_img');
+// 			if($imgs['status']==1){
+// 				foreach ($imgs['filepaths'] as $k => $p){
+// 					if($data['iswatermark']=='1'){
+// 						$path=str_replace(APP_SITE,'../', $p);
+// 						$ImgWaterMark->imageWaterMark($path,9,$waterpath);
+// 					}
+// 					$shopimg=array('shop_id'=>$id,'img'=>$p);
+// 					$this->_shop_img->create($shopimg);
+// 				}
+// 			}
 			
-			//菜单
-			$Upload=$this->getUploadObj('shopMenu');
-			$files=$Upload->uploadFiles('menu_img');
-			if($files['status']==1){
-				foreach ($files['filepaths'] as $k => $p){
-					if($data['iswatermark']=='1'){
-						$path=str_replace(APP_SITE,'../', $p);
-						$ImgWaterMark->imageWaterMark($path,9,$waterpath_menu);
-					}
-					$mu=array('shop_id'=>$id,'title'=>$data['menu_title'][$k],'img'=>$p,'created'=>date("Y-m-d H:i:s"));
-					$this->_shop_menu->create($mu);
-				}
-			}
+// 			//菜单
+// 			$Upload=$this->getUploadObj('shopMenu');
+// 			$files=$Upload->uploadFiles('menu_img');
+// 			if($files['status']==1){
+// 				foreach ($files['filepaths'] as $k => $p){
+// 					if($data['iswatermark']=='1'){
+// 						$path=str_replace(APP_SITE,'../', $p);
+// 						$ImgWaterMark->imageWaterMark($path,9,$waterpath_menu);
+// 					}
+// 					$mu=array('shop_id'=>$id,'title'=>$data['menu_title'][$k],'img'=>$p,'created'=>date("Y-m-d H:i:s"));
+// 					$this->_shop_menu->create($mu);
+// 				}
+// 			}
 			$url=url('Shop','Edit',array('id'=>$id));
 			redirect($url);
 		}
@@ -167,20 +189,20 @@ class Controller_Shop extends FLEA_Controller_Action {
 		if($act=='edit'){
 			$data=$_POST;
 			//水印
-			$ImgWaterMark= & get_singleton ( "Service_ImgWaterMark" );
-			$waterpath=SERVERROOT.'/resource/images/watermark.png';
-			$waterpath_menu=SERVERROOT.'/resource/images/watermark_menu.png';
+// 			$ImgWaterMark= & get_singleton ( "Service_ImgWaterMark" );
+// 			$waterpath=SERVERROOT.'/resource/images/watermark.png';
+// 			$waterpath_menu=SERVERROOT.'/resource/images/watermark_menu.png';
 			
-			$Upload=$this->getUploadObj('shop');
-			$img=$Upload->upload('file');
-			if($img['status']==1){
-				$this->delAppImg($data['img']);
-				if($data['iswatermark']=='1'){
-					$path=str_replace(APP_SITE,'../', $img['file_path']);
-					$ImgWaterMark->imageWaterMark($path,9,$waterpath);
-				}
-				$data['img']=$img['file_path'];
-			}
+// 			$Upload=$this->getUploadObj('shop');
+// 			$img=$Upload->upload('file');
+// 			if($img['status']==1){
+// 				$this->delAppImg($data['img']);
+// 				if($data['iswatermark']=='1'){
+// 					$path=str_replace(APP_SITE,'../', $img['file_path']);
+// 					$ImgWaterMark->imageWaterMark($path,9,$waterpath);
+// 				}
+// 				$data['img']=$img['file_path'];
+// 			}
 			//判断经纬度
 			if(empty($data['lng'])||empty($data['lat'])){
 				$lng=$this->_common->getLngFromBaidu($data['address']);
@@ -191,47 +213,47 @@ class Controller_Shop extends FLEA_Controller_Action {
 			$feats=implode(",", $data['features']);
 			$data['feature']=$feats;
 			$this->_shop->update($data);
-			$this->_shop_img->removeByConditions(array('shop_id'=>$id));
-			$this->_shop_menu->removeByConditions(array('shop_id'=>$id));
+// 			$this->_shop_img->removeByConditions(array('shop_id'=>$id));
+// 			$this->_shop_menu->removeByConditions(array('shop_id'=>$id));
 			//创建新更多店铺图
 
-			if(isset($data['shop_oldimg'] )){
-				foreach ($data['shop_oldimg'] as $mk=>$pub){
-					$pp=array('shop_id'=>$id,'img'=>$pub);
-					$this->_shop_img->create($pp);
-				}
-			}
-			$shimgs=$Upload->uploadFiles('shop_img');
-			if($shimgs['status']==1){
-				foreach ($shimgs['filepaths'] as $k=>$p){
-					if($data['iswatermark']=='1'){
-						$path=str_replace(APP_SITE,'../', $p);
-						$ImgWaterMark->imageWaterMark($path,9,$waterpath);
-					}
-					$pp=array('shop_id'=>$id,'img'=>$p,'created'=>date("Y-m-d H:i:s"));
-					$this->_shop_img->create($pp);
-				}
-			}
-			//创建新的菜品
-			if(isset($data['menu_oldimg'] )){
-				foreach ($data['menu_oldimg'] as $mk=>$pub){
-					$pp=array('shop_id'=>$id,'title'=>$data['menu_oldtitle'][$mk],'img'=>$pub,'created'=>date("Y-m-d H:i:s"));
-					$this->_shop_menu->create($pp);
-				}
-			}
+// 			if(isset($data['shop_oldimg'] )){
+// 				foreach ($data['shop_oldimg'] as $mk=>$pub){
+// 					$pp=array('shop_id'=>$id,'img'=>$pub);
+// 					$this->_shop_img->create($pp);
+// 				}
+// 			}
+// 			$shimgs=$Upload->uploadFiles('shop_img');
+// 			if($shimgs['status']==1){
+// 				foreach ($shimgs['filepaths'] as $k=>$p){
+// 					if($data['iswatermark']=='1'){
+// 						$path=str_replace(APP_SITE,'../', $p);
+// 						$ImgWaterMark->imageWaterMark($path,9,$waterpath);
+// 					}
+// 					$pp=array('shop_id'=>$id,'img'=>$p,'created'=>date("Y-m-d H:i:s"));
+// 					$this->_shop_img->create($pp);
+// 				}
+// 			}
+// 			//创建新的菜品
+// 			if(isset($data['menu_oldimg'] )){
+// 				foreach ($data['menu_oldimg'] as $mk=>$pub){
+// 					$pp=array('shop_id'=>$id,'title'=>$data['menu_oldtitle'][$mk],'img'=>$pub,'created'=>date("Y-m-d H:i:s"));
+// 					$this->_shop_menu->create($pp);
+// 				}
+// 			}
 
-			$Upload=$this->getUploadObj('shopMenu');
-			$files=$Upload->uploadFiles('menu_img');
-			if($files['status']==1){
-				foreach ($files['filepaths'] as $k=>$p){
-					if($data['iswatermark']=='1'){
-						$path=str_replace(APP_SITE,'../', $p);
-						$ImgWaterMark->imageWaterMark($path,9,$waterpath_menu);
-					}
-					$pp=array('shop_id'=>$id,'title'=>$data['menu_title'][$k],'img'=>$p,'created'=>date("Y-m-d H:i:s"));
-					$this->_shop_menu->create($pp);
-				}
-			}
+// 			$Upload=$this->getUploadObj('shopMenu');
+// 			$files=$Upload->uploadFiles('menu_img');
+// 			if($files['status']==1){
+// 				foreach ($files['filepaths'] as $k=>$p){
+// 					if($data['iswatermark']=='1'){
+// 						$path=str_replace(APP_SITE,'../', $p);
+// 						$ImgWaterMark->imageWaterMark($path,9,$waterpath_menu);
+// 					}
+// 					$pp=array('shop_id'=>$id,'title'=>$data['menu_title'][$k],'img'=>$p,'created'=>date("Y-m-d H:i:s"));
+// 					$this->_shop_menu->create($pp);
+// 				}
+// 			}
 			$msg="更新成功!";
 		}
 		$data=$this->_shop->findByField('id',$id);
@@ -257,6 +279,100 @@ class Controller_Shop extends FLEA_Controller_Action {
 		$towns=$this->_address_town->findAll(array('cityCode'=>$ctow['code']));
 		
 		$this->_common->show ( array ('main' => 'shop/shop_edit.tpl','data'=>$data,'menu'=>$menu,'shopimg'=>$shopimg,'msg'=>$msg,'tags'=>$tags,'provinces'=>$provinces,'city'=>$city,'towns'=>$towns) );
+	}
+	
+	//上传店铺图片
+	function actionAjaxUploadShopImg(){
+		$shopid=$_POST['shopid'];
+		$file=$_POST['image-data'];
+
+		$folder='../upload/shop/';
+		if (! file_exists ( $folder )) {
+			mkdir ( $folder, 0777 );
+		}
+		$dir = $folder . date ( "Ymd" ) . '/';
+		if (! file_exists ( $dir )) {
+			mkdir ( $dir, 0777 );
+		}
+		list($imgtype, $data) = explode(',', $file);
+		// 判断类型
+		if(strstr($imgtype,'image/jpeg')!==''){
+			$ext = '.jpg';
+		}elseif(strstr($imgtype,'image/gif')!==''){
+			$ext = '.gif';
+		}elseif(strstr($imgtype,'image/png')!==''){
+			$ext = '.png';
+		}
+		// 生成的文件名
+		$filepath = $dir.time().$ext;
+		// 生成文件
+		if (file_put_contents($filepath, base64_decode($data), true)) {
+			//水印
+			$ImgWaterMark= & get_singleton ( "Service_ImgWaterMark" );
+			$waterpath=SERVERROOT.'/resource/images/watermark.png';
+			$path=str_replace(APP_SITE,'../', $filepath);
+			$ImgWaterMark->imageWaterMark($path,9,$waterpath);
+			
+			$pp = array (
+					'shop_id' => $shopid,
+					'img' => $path,
+					'created' => date ( "Y-m-d H:i:s" ) 
+			);
+			$id=$this->_shop_img->create ( $pp );
+			$img=$path;
+		}else{
+			$img=$id='';
+		}
+		$data=array('src'=>$img,'id'=>$id);
+		echo json_encode($data);
+	}
+
+	//上传菜品
+	function actionAjaxUploadShopMenu(){
+		$shopid=$_POST['shopid'];
+		$title=$_POST['title'];
+		$file=$_POST['image-data'];
+	
+		$folder='../upload/shopMenu/';
+		if (! file_exists ( $folder )) {
+			mkdir ( $folder, 0777 );
+		}
+		$dir = $folder . date ( "Ymd" ) . '/';
+		if (! file_exists ( $dir )) {
+			mkdir ( $dir, 0777 );
+		}
+		list($imgtype, $data) = explode(',', $file);
+		// 判断类型
+		if(strstr($imgtype,'image/jpeg')!==''){
+			$ext = '.jpg';
+		}elseif(strstr($imgtype,'image/gif')!==''){
+			$ext = '.gif';
+		}elseif(strstr($imgtype,'image/png')!==''){
+			$ext = '.png';
+		}
+		// 生成的文件名
+		$filepath = $dir.time().$ext;
+		// 生成文件
+		if (file_put_contents($filepath, base64_decode($data), true)) {
+			//水印
+			$ImgWaterMark= & get_singleton ( "Service_ImgWaterMark" );
+			$waterpath_menu=SERVERROOT.'/resource/images/watermark_menu.png';
+			$path=str_replace(APP_SITE,'../', $filepath);
+			$ImgWaterMark->imageWaterMark($path,9,$waterpath_menu);
+			
+			$pp = array (
+					'shop_id' => $shopid,
+					'title' => $title,
+					'img' => $path,
+					'created' => date ( "Y-m-d H:i:s" )
+			);
+			$id=$this->_shop_menu->create ( $pp );
+			$img=$path;
+		}else{
+			$img=$id='';
+		}
+		$data=array('src'=>$img,'id'=>$id,'title'=>$title);
+		echo json_encode($data);
 	}
 	
 	function actionDelShopImg(){//删除更多店铺图

@@ -45,6 +45,10 @@
                  <td><input name="created" type="text" value="{$data.created|date_format:'%Y-%m-%d'}" style="width:140px;">(格式：2015-04-02)</td>
              </tr>
              <tr>
+                 <td style="text-align:center;">截止时间</td>
+                 <td><input name="end_date" type="text" value="{$data.end_date|date_format:'%Y-%m-%d'}" style="width:140px;">(格式：2015-04-30)</td>
+             </tr>
+             <tr>
                  <td style="text-align:center;">活动时间</td>
                  <td><input name="datetime" type="text" value="{$data.datetime}" style="width:140px;"></td>
              </tr>

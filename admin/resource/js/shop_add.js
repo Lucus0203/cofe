@@ -1,44 +1,108 @@
 $(function(){
-	$('#photo_add').click(function(){
-		$(this).before('<tr><td style="text-align:center;">菜品</td>'+
-                '<td><input name="menu_title[]" type="text" ><input name="menu_img[]" type="file" style="width:240px;"></td></tr>');
+	//裁剪工具
+	$('.image-shoper').cropit({ imageBackground: true ,imageBackgroundBorderWidth: 25 });// Width of background border
+	$('.image-menuer').cropit({ imageBackground: true ,imageBackgroundBorderWidth: 25 });// Width of background border
+	$('#shopimgtool').click(function(){
+		if ((navigator.userAgent.indexOf('MSIE') >= 0) 
+			    && (navigator.userAgent.indexOf('Opera') < 0)){
+            alert("不推荐使用ie浏览器,可能造成图片无法正常上传");
+		}
+		$(this).text($("#shopimgBox").is(":hidden") ? "收起上传工具" : "显示上传工具");
+		$("#shopimgBox").slideToggle();
 	});
+	$('#menuimgtool').click(function(){
+		if ((navigator.userAgent.indexOf('MSIE') >= 0) 
+			    && (navigator.userAgent.indexOf('Opera') < 0)){
+            alert("不推荐使用ie浏览器,可能造成图片无法正常上传");
+		}
+		$(this).text($("#menuimgBox").is(":hidden") ? "收起上传工具" : "显示上传工具");
+		$("#menuimgBox").slideToggle();
+	});
+	//上传店铺图片
 	$('#shopImg_add').click(function(){
-		$(this).before('<tr><td style="text-align:center;">更多店铺图片</td>'+
-                 '<td><input name="shop_img[]" type="file" style="width:240px;"></td></tr>');
+		var baseUrl=$('#baseUrl').val();
+		var shopAddUrl=baseUrl+'index.php?controller=Shop&action=AjaxUploadShopImg';
+	    var imageData = $('.image-shoper').cropit('export');
+	    var shopid=$('input[name=id]').val();
+		if(imageData){
+			$.ajax({
+				type:'post',
+				url:shopAddUrl,
+				data:{'shopid':shopid,'image-data':imageData},
+				dataType:'json',
+				success:function(res){
+					if(res.src!=''){
+						$('#shopimgs').append('<li><a href="'+baseUrl+res.src+'" data-lightbox="roadtrip"><img src="'+baseUrl+res.src+'"></a><a class="delShopImg" rel="'+res.id+'" href="javascript:void(0);">删 除</a>'+
+	             			'<label><input type="radio" name="img" value="'+res.src+'" />作为主图</label></li>');
+					}else{
+						alert('图片上传失败,请联系管理员');
+					}
+				}
+			});
+		}
 	});
 	
-	$('a.delImg').click(function(){
-		var url=$(this).attr('href');
-		var thistr=$(this).parent().parent();
+	//上传菜单
+	$('#menuImg_add').click(function(){
+		var title=$('#menuTitle').val();
+		if($.trim(title)==''){
+			alert('请填写菜品名称');
+			return;
+		}
+	    var shopid=$('input[name=id]').val();
+		var baseUrl=$('#baseUrl').val();
+		var shopAddUrl=baseUrl+'index.php?controller=Shop&action=AjaxUploadShopMenu'
+	    var imageData = $('.image-menuer').cropit('export');
+		if(imageData){
+			$.ajax({
+				type:'post',
+				url:shopAddUrl,
+				data:{'shopid':shopid,'image-data':imageData,'title':title},
+				dataType:'json',
+				success:function(res){
+					if(res.src!=''){
+						$('#menuimgs').append('<li><a href="'+baseUrl+res.src+'" data-lightbox="menu-group"><img src="'+baseUrl+res.src+'"></a><a class="delMenuImg" rel="'+res.id+'" href="javascript:void(0);">删 除</a>'+
+		             			'<label>'+res.title+'</li>');
+					}else{
+						alert('图片上传失败,请联系管理员');
+					}
+					
+				}
+			});
+		}
+	});
+	
+	$('#shopimgs').on('click','a.delShopImg',function(){
+		var baseUrl=$('#baseUrl').val();
+		var thisimg=$(this).parent();
 		if(confirm('确定删除吗?')){
 			var pid=$(this).attr('rel');
 			$.ajax({
 				type:'get',
-				url:url,
+				url:baseUrl+'index.php?controller=Shop&action=DelShopImg',
 				data:{'pid':pid},
 				success:function(res){
 					if(res==1){
-						thistr.remove();
+						thisimg.remove();
 					}
 				}
 			})
 		}
 		return false;
 	});
-	
-	$('a.delShopImg').click(function(){
-		var url=$(this).attr('href');
-		var thistr=$(this).parent().parent();
+
+	$('#menuimgs').on('click','a.delMenuImg',function(){
+		var baseUrl=$('#baseUrl').val();
+		var thisimg=$(this).parent();
 		if(confirm('确定删除吗?')){
 			var pid=$(this).attr('rel');
 			$.ajax({
 				type:'get',
-				url:url,
+				url:baseUrl+'index.php?controller=Shop&action=DelMenu',
 				data:{'pid':pid},
 				success:function(res){
 					if(res==1){
-						thistr.remove();
+						thisimg.remove();
 					}
 				}
 			})

@@ -63,3 +63,112 @@ ul{list-style:none;}
 .main_ta_box p.btn input{font-size:15px;margin:10px 0 20px 30px;text-align:left;}
 
 #allmap {width: 500px;height: 400px;overflow: hidden;margin:0;font-family:"微软雅黑";}
+
+/*裁剪css*/
+@font-face {
+	font-family: 'icomoon';
+	src:url('../fonts/icomoon.eot');
+	src:url('../fonts/icomoon.eot?#iefix') format('embedded-opentype'),
+		url('../fonts/icomoon.ttf') format('truetype'),
+		url('../fonts/icomoon.woff') format('woff'),
+		url('../fonts/icomoon.svg#icomoon') format('svg');
+	font-weight: normal;
+	font-style: normal;
+}
+
+[class^="icon-"], [class*=" icon-"] {
+	font-family: 'icomoon';
+	speak: none;
+	font-style: normal;
+	font-weight: normal;
+	font-variant: normal;
+	text-transform: none;
+	line-height: 1;
+
+	/* Better Font Rendering =========== */
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
+}
+
+.slider-wrapper {
+  width:250px;
+  text-align: center;
+}
+.slider-wrapper * {
+  vertical-align: middle;
+}
+.icon-image:before {
+	content:"\e90d";
+}
+.slider-wrapper .small-image {
+    font-size: 16px;
+}
+.slider-wrapper .large-image {
+    font-size: 24px;
+}
+.slider-wrapper .cropit-image-zoom-input {
+  width: 130px;
+  margin: 0 20px;
+  position: relative;
+}
+
+.cropit-image-preview {
+  background-color: #f8f8f8;
+  background-size: cover;
+  border: 1px solid #ccc;
+  border-radius: 3px;
+  margin: 30px 0;
+  width: 640px;
+  height: 480px;
+  cursor: move;
+}
+
+.cropit-image-background {
+  opacity: .2;
+  cursor: auto;
+}
+
+.image-size-label {
+  margin-top: 10px;
+}
+
+/*
+ * If the slider or anything else is covered by the background image,
+ * use relative or absolute position on it
+ */
+input.cropit-image-zoom-input {
+  position: relative;
+}
+
+/* Limit the background image by adding overflow: hidden */
+#image-cropper {
+  overflow: hidden;
+}
+
+/*店铺图片列表css*/
+#shopimgs li,#menuimgs li{
+	width:240px;
+	float:left;
+	margin-right:10px;
+}
+#shopimgs li img,#menuimgs li img{
+	border:solid 1px #000;
+	width:200px;
+	margin-bottom:10px;
+}
+#shopimgs li label,#menuimgs li label{
+	display:block;
+	clear:both;
+	text-align:center;
+	width:200px;
+}
+.image-menuer .cropit-image-preview{
+  width: 292px;
+  height: 233px;
+}
+
+#shopimgtool,#menuimgtool{
+	width:100px;
+	display:block;
+	margin-bottom:10px;
+}

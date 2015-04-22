@@ -360,7 +360,16 @@ class Class_Common extends FLEA_Controller_Action {
 		}
 		return $value;
 	}
-
+	
+	//根据经纬度获取地址
+	function getAddressFromBaidu($lng,$lat){
+		$add_json=file_get_contents("http://api.map.baidu.com/geocoder/v2/?callbakc=renderReverse&location=".$lat.",".$lng."&output=json&ak=".BAIDU_AK);
+		$add=json_decode($add_json);
+		if($add->status==0){
+			return $add->result->addressComponent->city . $add->result->addressComponent->district;//当前用户位置 formatted_address 全地址
+		}
+	}
+	
 	function getLngFromBaidu($address){
 		$addr=array('lng'=>0,'lat'=>0);
 		//获取经纬度

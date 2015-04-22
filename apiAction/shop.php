@@ -47,7 +47,7 @@ function nearbyShops(){
 	$page_size = PAGE_SIZE;
 	$start = ($page_no - 1) * $page_size;
 	$sql="select * from ".DB_PREFIX."shop where status=2 ";
-	$sql.=(!empty($lng)&&!empty($lat))?" order by recommend, sqrt(power(lng-{$lng},2)+power(lat-{$lat},2)),id ":' order by recommend,id ';
+	$sql.=(!empty($lng)&&!empty($lat))?" order by sqrt(power(lng-{$lng},2)+power(lat-{$lat},2)),id ":' order by recommend,id ';
 	
 	$sql .= " limit $start,$page_size";
 	$shops=$db->getAllBySql($sql);
@@ -178,7 +178,7 @@ function shopInfo(){
 		//特色
 		$shop['features']=explode(',', $shop['feature']);
 		//店铺图片
-		$imgs=array($shop['img']);
+		$imgs=array();
 		$shopimgs=$db->getAll('shop_img',array('shop_id'=>$shopid));
 		foreach ($shopimgs as $im){
 			$imgs[]=$im['img'];
