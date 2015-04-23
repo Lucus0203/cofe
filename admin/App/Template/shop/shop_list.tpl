@@ -63,7 +63,7 @@
                  <td>{$list[sec].introduction|substr:0:40}</td>
                  <td>
                  	{if $list[sec].status eq '1'}准备中{else}发布中{/if}<br/>
-                 	{if $list[sec].recommend eq '1'}推荐{else}未推荐{/if}
+                 	{if $list[sec].recommend eq '1'}推荐中{else}未推荐{/if}
                  </td>
                  <td style="word-break:keep-all;">
                  	<a href="{url controller=Shop action=Edit id=$list[sec].id}">编辑</a><a class="delBtn" href="{url controller=Shop action=Del id=$list[sec].id}">删除</a><br/>

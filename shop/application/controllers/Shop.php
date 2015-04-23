@@ -96,6 +96,7 @@ class Shop extends CI_Controller {
 			$shopinfo ['lat'] = $this->input->post ('lat');
 			$shopinfo ['introduction'] = $this->input->post ('introduction');
 			$shopinfo ['created'] = date("Y-m-d H:i:s");
+			$shopinfo ['status'] = 1;
 			
 			//更新数据
 			$this->shop_model->update ( $shopinfo, $shopinfo ['user_id'] );

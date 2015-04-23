@@ -185,7 +185,7 @@ function searchUsersByNear(){
 	$sql="select u.id as user_id,if((trim(ur1.relation_name)<>'' and ur1.relation_name is not null),ur1.relation_name,u.nick_name) as nick_name,u.user_name,upt.path as head_photo,u.sex,u.age,u.constellation,u.lng,u.lat,if(ur1.id !='','added','unadd') isadd from ".DB_PREFIX."user u
 		left join ".DB_PREFIX."user_photo upt on u.head_photo_id = upt.id
 		left join ".DB_PREFIX."user_relation ur1 on u.id=ur1.relation_id and ur1.user_id=$loginid
-			where u.allow_add = 1 and allow_find=1 and round(6378.138*2*asin(sqrt(pow(sin( ($lat*pi()/180-lat*pi()/180)/2),2)+cos($lat*pi()/180)*cos(lat*pi()/180)* pow(sin( ($lng*pi()/180-lng*pi()/180)/2),2)))*1000) <= ".RANGE_KILO;
+			where u.user_name is not null and u.allow_add = 1 and allow_find=1 and round(6378.138*2*asin(sqrt(pow(sin( ($lat*pi()/180-lat*pi()/180)/2),2)+cos($lat*pi()/180)*cos(lat*pi()/180)* pow(sin( ($lng*pi()/180-lng*pi()/180)/2),2)))*1000) <= ".RANGE_KILO;
 	
 	$res['count']=$db->getCountBySql($sql);
 	$data=$db->getAllBySql($sql." order by  sqrt(power(lng-{$lng},2)+power(lat-{$lat},2)) limit $start,$page_size");

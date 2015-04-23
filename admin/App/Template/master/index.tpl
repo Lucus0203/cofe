@@ -39,6 +39,7 @@
 				<col width="17%">
 				<col width="7%">
 				<col width="7%">
+				<col width="7%">
 			</colgroup>
              <tr>
                  <th>缩略图</th>
@@ -48,6 +49,7 @@
                  <th>坐标</th>
                  <th>简介</th>
                  <th>状态</th>
+                 <th>内容</th>
                  <th>操作</th>
              </tr>
              {section name=sec loop=$list}
@@ -62,10 +64,13 @@
                  <td>{$list[sec].lng},<br/>{$list[sec].lat}</td>
                  <td>{$list[sec].introduction|substr:0:40}</td>
                  <td>
-                 	{if $list[sec].status eq '1'}待审核{else}审核通过{/if}
+                 	{if $list[sec].status eq '1'}<font color="red">待审核</font>{else}审核通过{/if}
                  </td>
+                 <td><a href="{url controller=Master action=ShopInfo shopid=$list[sec].id}">查看</a></td>
                  <td style="word-break:keep-all;">
-                 	{if $list[sec].status neq '2'}<a class="pubBtn" href="{url controller=Master action=Pass shopid=$list[sec].id}">通过</a>{else}<a class="depubBtn" href="{url controller=Master action=DePass shopid=$list[sec].id}">再审核{/if}</a></a>
+                 	{if $list[sec].status neq '2'}<a class="pubBtn" href="{url controller=Master action=Pass shopid=$list[sec].id}">通过</a>{else}<a class="depubBtn" href="{url controller=Master action=DePass shopid=$list[sec].id}">再审核{/if}</a>
+                 	{if $list[sec].shop_id neq ''}<br/><br/><a href="{url controller=Shop action=Edit id=$list[sec].shop_id}">编辑</a>{/if}
+                 	
                  </td>
              </tr>
              {/section}

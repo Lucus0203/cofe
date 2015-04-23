@@ -145,7 +145,7 @@
              <tr>
                  <td style="text-align:center;">审核状态</td>
                  <td>
-                 	<?php if ($data['status']==2){ ?>审核通过 <?php }else{ ?>请认证店主身份,等待审核<?php } ?>
+                 	<?php if ($data['status']==2){ ?>审核通过 <?php }else{ ?>等待审核<?php } ?>
                  </td>
              </tr>
          </table>

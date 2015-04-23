@@ -299,6 +299,11 @@ function infoEdit(){
 		$info['age']=$data['age'];
 	}
 	if(!empty($data['user_name'])){
+		if(checkMobile($data['user_name'])){
+			echo json_result(null,'15','约我账号不能使用手机号');
+			return;
+			
+		}
 		$info['user_name']=$data['user_name'];
 		if($db->getCountBySql("select id from ".DB_PREFIX."user where user_name='{$data['user_name']}' and id <> $user_id ")>0){
 			echo json_result(null,'15','约我账号已被使用');

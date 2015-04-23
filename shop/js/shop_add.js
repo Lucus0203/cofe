@@ -220,7 +220,7 @@ function checkFrom(){
 		flag=false;
 	}else{
 		if($('input[name=img]:checked').length<=0){
-			msg+='请选择一张图片作为[店铺主图]\n';
+			msg+='请选择一张店铺图片作为主图\n';
 			flag=false;
 		}
 	}

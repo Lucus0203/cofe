@@ -118,13 +118,13 @@
              <tr>
                  <td style="text-align:center;">身份证<br/>(照片或者扫描,文件格式gif|jpg|png|jpeg)<span class="red">*</span></td>
                  <td>
-                 	{if $masterinfo.idfile neq '' }<a href="{$masterinfo.idfile}" data-lightbox="idfile"><img src="{$masterinfo.idfile}" height="300" /></a>{/if}
+                 	{if $masterinfo.idfile neq '' }<a href="{$masterinfo.idfile}" data-lightbox="idfile"><img src="{$masterinfo.idfile}" height="200" /></a>{/if}
                  </td>
              </tr>
              <tr>
                  <td style="text-align:center;">营业执照<br/>(必须和本人有关,文件格式gif|jpg|png|jpeg)<span class="red">*</span></td>
                  <td>
-                 	{if $masterinfo.business_license neq '' }<a href="{$masterinfo.business_license}" data-lightbox="business_license"><img src="{$masterinfo.business_license}" height="300" /></a>{/if}
+                 	{if $masterinfo.business_license neq '' }<a href="{$masterinfo.business_license}" data-lightbox="business_license"><img src="{$masterinfo.business_license}" height="200" /></a>{/if}
                  </td>
              </tr>
              <tr>

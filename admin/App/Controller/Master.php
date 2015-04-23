@@ -119,7 +119,7 @@ class Controller_Master extends FLEA_Controller_Action {
 		$shopimg=$this->_shop->findBySql($shopimgsql);
 		$menusql="select * from ".$SHOP_PREFIX."menu menu where menu.user_id = {$data['user_id']}";
 		$menu=$this->_shop->findBySql($menusql);
-		
+
 		$mastersql="select * from ".$SHOP_PREFIX."master master where master.user_id = {$data['user_id']}";
 		$masterinfo=$this->_shop->findBySql($mastersql);
 		$masterinfo=@$masterinfo[0];
@@ -136,7 +136,6 @@ class Controller_Master extends FLEA_Controller_Action {
 	}
 	
 	function actionDePass(){
-		echo 1;
 		$shopid=isset ( $_GET ['shopid'] ) ? $this->_common->filter($_GET ['shopid']) : '';
 		if(!empty($shopid)){
 			$this->depassShop($shopid);
@@ -152,6 +151,7 @@ class Controller_Master extends FLEA_Controller_Action {
 		$sql="select * from ".$SHOP_PREFIX."info shop  where shop.id = $mastshopid ";
 		$data=$this->_shop->findBySql($sql);
 		$data=$data[0];
+		$master_userid=$data['user_id'];
 		if(empty($data['shop_id'])){
 			unset($data['id']);
 			unset($data['shop_id']);
@@ -163,8 +163,17 @@ class Controller_Master extends FLEA_Controller_Action {
 			$data['status']=2;
 			$this->_shop->update($data);
 		}
-		$updatesql="update ".$SHOP_PREFIX."info set shop_id = $shopid,status=2 where id={$mastshopid} ";
-		$this->_shop->execute($updatesql);
+		$updatasql="update ".$SHOP_PREFIX."info set shop_id = $shopid,status=2 where id={$mastshopid} ";
+		$this->_shop->execute($updatasql);
+		$updatemastersql="update ".$SHOP_PREFIX."master set status=2 where user_id={$master_userid} ";
+		$this->_shop->execute($updatemastersql);
+		//更新菜单和店铺图片
+		$this->_shop_img->removeByConditions(array('shop_id'=>$shopid));
+		$this->_shop_menu->removeByConditions(array('shop_id'=>$shopid));
+		$imgsql="insert into ".$PREFIX."shop_img (img,shop_id) select img,$shopid from ".$SHOP_PREFIX."img img where img.user_id={$master_userid} ";
+		$this->_shop->execute($imgsql);
+		$menusql="insert into ".$PREFIX."shop_menu (img,title,shop_id) select img,title,$shopid from ".$SHOP_PREFIX."menu menu where menu.user_id={$master_userid} ";
+		$this->_shop->execute($menusql);
 		
 	}
 	
