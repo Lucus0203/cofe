@@ -100,11 +100,96 @@ class Controller_Master extends FLEA_Controller_Action {
 		$SHOP_PREFIX=$config ['shop_prefix'];
 		$PREFIX = $config ['prefix'];
 		$shopid=isset ( $_GET ['shopid'] ) ? $this->_common->filter($_GET ['shopid']) : '';
+		$act=isset ( $_POST ['act'] ) ? $this->_common->filter($_POST ['act']) : '';
+		$msg='';
+		if(!empty($act)){
+			$status=isset ( $_POST ['status'] ) ? $this->_common->filter($_POST ['status']) : '';
+			if($status==1){//待审核
+				$this->depassShop($shopid);
+			}elseif ($status==2){//审核通过
+				$this->passShop($shopid);
+			}
+
+			$msg='更新成功';
+		}
 		$sql="select shop.*,p.name as province,c.name as city,t.name as town from ".$SHOP_PREFIX."info shop left join ".$PREFIX."address_province p on p.id=shop.province_id left join ".$PREFIX."address_city c on c.id=shop.city_id left join ".$PREFIX."address_town t on shop.town_id = t.id  where shop.id = $shopid ";
 		$data=$this->_shop->findBySql($sql);
 		$data=$data[0];
+		$shopimgsql="select * from ".$SHOP_PREFIX."img img where img.user_id = {$data['user_id']}";
+		$shopimg=$this->_shop->findBySql($shopimgsql);
+		$menusql="select * from ".$SHOP_PREFIX."menu menu where menu.user_id = {$data['user_id']}";
+		$menu=$this->_shop->findBySql($menusql);
 		
-		$this->_common->show ( array ('main' => 'master/shop_info.tpl','data'=>$data) );
+		$mastersql="select * from ".$SHOP_PREFIX."master master where master.user_id = {$data['user_id']}";
+		$masterinfo=$this->_shop->findBySql($mastersql);
+		$masterinfo=@$masterinfo[0];
+		$this->_common->show ( array ('main' => 'master/shop_info.tpl','data'=>$data,'shopimg'=>$shopimg,'menu'=>$menu,'masterinfo'=>$masterinfo,'msg'=>$msg) );
+		
+	}
+	
+	function actionPass(){
+		$shopid=isset ( $_GET ['shopid'] ) ? $this->_common->filter($_GET ['shopid']) : '';
+		if(!empty($shopid)){
+			$this->passShop($shopid);
+		}
+		redirect($_SERVER['HTTP_REFERER']);
+	}
+	
+	function actionDePass(){
+		echo 1;
+		$shopid=isset ( $_GET ['shopid'] ) ? $this->_common->filter($_GET ['shopid']) : '';
+		if(!empty($shopid)){
+			$this->depassShop($shopid);
+		}
+		redirect($_SERVER['HTTP_REFERER']);
+	}
+	
+	function passShop($mastshopid){
+		$config = FLEA::getAppInf ( 'dbDSN' );
+		$SHOP_PREFIX=$config ['shop_prefix'];
+		$PREFIX = $config ['prefix'];
+		
+		$sql="select * from ".$SHOP_PREFIX."info shop  where shop.id = $mastshopid ";
+		$data=$this->_shop->findBySql($sql);
+		$data=$data[0];
+		if(empty($data['shop_id'])){
+			unset($data['id']);
+			unset($data['shop_id']);
+			$data['status']=2;
+			$shopid=$this->_shop->create($data);
+		}else{
+			$shopid=$data['id']=$data['shop_id'];
+			unset($data['shop_id']);
+			$data['status']=2;
+			$this->_shop->update($data);
+		}
+		$updatesql="update ".$SHOP_PREFIX."info set shop_id = $shopid,status=2 where id={$mastshopid} ";
+		$this->_shop->execute($updatesql);
+		
+	}
+	
+	function depassShop($mastshopid){
+		$config = FLEA::getAppInf ( 'dbDSN' );
+		$SHOP_PREFIX=$config ['shop_prefix'];
+		$PREFIX = $config ['prefix'];
+
+		$sql="select * from ".$SHOP_PREFIX."info shop  where shop.id = $mastshopid ";
+		$data=$this->_shop->findBySql($sql);
+		$data=$data[0];
+		if(empty($data['shop_id'])){
+			unset($data['id']);
+			unset($data['shop_id']);
+			$data['status']=1;
+			$shopid=$this->_shop->create($data);
+		}else{
+			$shopid=$data['id']=$data['shop_id'];
+			unset($data['shop_id']);
+			$data['status']=1;
+			$this->_shop->update($data);
+		}
+		$updatesql="update ".$SHOP_PREFIX."info set shop_id = $shopid,status = 1 where id={$mastshopid} ";
+		$this->_shop->execute($updatesql);
+		
 		
 	}
 	

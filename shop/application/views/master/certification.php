@@ -36,15 +36,15 @@
              <tr>
                  <td style="text-align:center;">身份证<br/>(照片或者扫描,文件格式gif|jpg|png|jpeg)<span class="red">*</span></td>
                  <td>
-                 	<input name="IDfile" type="file" style="width:240px;">
-                 	<?php if(!empty($data['idfile'])){?><br/><a href="<?php echo base_url().$data['idfile'] ?>" data-lightbox="idfile"><img src="<?php echo base_url().$data['idfile']; ?>" height="300" /></a><?php } ?>
+                 	<input name="IDfile" type="file" >
+                 	<?php if(!empty($data['idfile'])){?><br/><a href="<?php echo $data['idfile'] ?>" data-lightbox="idfile"><img src="<?php echo $data['idfile']; ?>" height="300" /></a><?php } ?>
                  </td>
              </tr>
              <tr>
                  <td style="text-align:center;">营业执照<br/>(必须和本人有关,文件格式gif|jpg|png|jpeg)<span class="red">*</span></td>
                  <td>
-                 	<input name="business_license" type="file" style="width:240px;">
-                 	<?php if(!empty($data['business_license'])){?><br/><a href="<?php echo base_url().$data['business_license'] ?>" data-lightbox="business_license"><img src="<?php echo base_url().$data['business_license']; ?>" height="300" /></a><?php } ?>
+                 	<input name="business_license" type="file" >
+                 	<?php if(!empty($data['business_license'])){?><br/><a href="<?php echo $data['business_license'] ?>" data-lightbox="business_license"><img src="<?php echo $data['business_license']; ?>" height="300" /></a><?php } ?>
                  </td>
              </tr>
              <tr>

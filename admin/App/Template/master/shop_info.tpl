@@ -32,7 +32,7 @@
              			{section name=spi loop=$shopimg}
 	                 		<li>
 	                 			<a href="{$shopimg[spi].img}" data-lightbox="roadtrip"><img src="{$shopimg[spi].img}"></a>
-	                 			<label><input type="radio" name="img" value="{$shopimg[spi].id}" {if $data.img eq $shopimg[spi].img} checked {/if} />作为主图</label>
+	                 			<label>{if $data.img eq $shopimg[spi].img}<input type="radio" checked />为主图{/if}</label>
 	                 		</li>
              			{/section}
 	             	</ul>
@@ -54,17 +54,16 @@
              </tr>
              <tr>
                  <td style="text-align:center;">地址</td>
-                 <td>{$data.address}<input id="address" name="address" type="hidden" value="{$data.address}" style="width:600px;">
-                 	<div id="allmap"></div>
+                 <td>{$data.address}
                  </td>
              </tr>
              <tr>
                  <td style="text-align:center;">经度</td>
-                 <td>{$data.lng}<input id="lng" name="lng" type="hidden" value="{$data.lng}" style="width:240px;"></td>
+                 <td>{$data.lng}</td>
              </tr>
              <tr>
                  <td style="text-align:center;">纬度</td>
-                 <td>{$data.lat}<input id="lat" name="lat" type="hidden" value="{$data.lat}" style="width:240px;"></td>
+                 <td>{$data.lat}</td>
              </tr>
              <tr>
                  <td style="text-align:center;">特色</td>
@@ -91,11 +90,48 @@
 	             	</ul>
                  </td>
              </tr>
+         </table>
+         <div class="hd_t">店主信息</div>
+         <table class="hd_del_ta" border="0" cellpadding="0" cellspacing="1" width="97%" align="center">
+             <colgroup>
+				<col width="10%">
+			 </colgroup>
+             <tr>
+                 <td class="hd_ta_t" colspan="2">店主信息</td>
+             </tr>
+             <tr>
+                 <td style="text-align:center;">店主姓名</td>
+                 <td>{$masterinfo.name}</td>
+             </tr>
+             <tr>
+                 <td style="text-align:center;">联系电话</td>
+                 <td>{$masterinfo.tel}</td>
+             </tr>
+             <tr>
+                 <td style="text-align:center;">QQ</td>
+                 <td>{$masterinfo.qq}</td>
+             </tr>
+             <tr>
+                 <td style="text-align:center;">微信号</td>
+                 <td>{$masterinfo.weixin}</td>
+             </tr>
+             <tr>
+                 <td style="text-align:center;">身份证<br/>(照片或者扫描,文件格式gif|jpg|png|jpeg)<span class="red">*</span></td>
+                 <td>
+                 	{if $masterinfo.idfile neq '' }<a href="{$masterinfo.idfile}" data-lightbox="idfile"><img src="{$masterinfo.idfile}" height="300" /></a>{/if}
+                 </td>
+             </tr>
+             <tr>
+                 <td style="text-align:center;">营业执照<br/>(必须和本人有关,文件格式gif|jpg|png|jpeg)<span class="red">*</span></td>
+                 <td>
+                 	{if $masterinfo.business_license neq '' }<a href="{$masterinfo.business_license}" data-lightbox="business_license"><img src="{$masterinfo.business_license}" height="300" /></a>{/if}
+                 </td>
+             </tr>
              <tr>
                  <td style="text-align:center;">审核状态</td>
                  <td>
                  	<label><input name="status" type="radio" value="1" checked="checked">再审核</label>
-                 	<label><input name="status" type="radio" value="2" {if $data.status eq 2}checked="checked"{/if} >审核通过</label>
+                 	<label><input name="status" type="radio" value="2" {if $data.status eq 2}checked="checked"{/if} >通过</label>
                  </td>
              </tr>
          </table>

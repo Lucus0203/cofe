@@ -12,7 +12,7 @@ class Master extends CI_Controller {
 				'path' 
 		) );
 		$this->load->model ( array (
-				'certification_model',
+				'master_model',
 		) );
 
 		$this->_logininfo=$this->session->userdata('loginInfo');
@@ -40,7 +40,7 @@ class Master extends CI_Controller {
 			$certification['tel']=$this->input->post('tel');
 			$certification['qq']=$this->input->post('qq');
 			$certification['weixin']=$this->input->post('weixin');
-			$dir = 'uploads/certification/' .$loginInfo['user_name'] . '/';
+			$dir = 'uploads/master/' .$loginInfo['user_name'] . '/';
 			if (! file_exists ( $dir )) {
 				mkdir ( $dir, 0777 );
 			}
@@ -50,7 +50,7 @@ class Master extends CI_Controller {
 			$this->upload->initialize($confimg);
 			if ($this->upload->do_upload ( 'IDfile' )) {
 				$imginfo = $this->upload->data ();
-				$certification['idfile'] = $dir . $imginfo ['file_name'];
+				$certification['idfile'] = base_url().$dir . $imginfo ['file_name'];
 			}else{
 				$imginfo = $this->upload->display_errors();
 			}
@@ -60,18 +60,18 @@ class Master extends CI_Controller {
 			$this->upload->initialize($confimg);
 			if ($this->upload->do_upload ( 'business_license' )) {
 				$imginfo = $this->upload->data ();
-				$certification['business_license'] = $dir . $imginfo ['file_name'];
+				$certification['business_license'] = base_url().$dir . $imginfo ['file_name'];
 			}
 			
 			$this->db->set_dbprefix('shop_');
 			if($this->input->post('id')!=''){
-				$this->certification_model->update($certification,$loginInfo['id']);
+				$this->master_model->update($certification,$loginInfo['id']);
 			}else{
-				$this->certification_model->create($certification);
+				$this->master_model->create($certification);
 			}
 			$msg='保存成功';
 		}
-		$data=$this->certification_model->getRow(array('user_id'=>$loginInfo['id']));
+		$data=$this->master_model->getRow(array('user_id'=>$loginInfo['id']));
 		$res = array ('data'=>$data,'msg'=>$msg);
 		
 		$this->load->view ( 'header');

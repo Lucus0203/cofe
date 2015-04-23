@@ -99,57 +99,6 @@ class Shop extends CI_Controller {
 			
 			//更新数据
 			$this->shop_model->update ( $shopinfo, $shopinfo ['user_id'] );
-			// 创建新更多店铺图
-// 			if (isset ( $data ['shop_oldimg'] )) {
-// 				foreach ( $data ['shop_oldimg'] as $mk => $pub ) {
-// 					$pp = array (
-// 							'shop_id' => $shopid,
-// 							'img' => $pub 
-// 					);
-// 					$this->shopimg_model->create ( $pp );
-// 				}
-// 			}
-// 			// 创建更多菜单
-// 			if (isset ( $data ['menu_oldimg'] )) {
-// 				foreach ( $data ['menu_oldimg'] as $mk => $pub ) {
-// 					$pp = array (
-// 							'shop_id' => $shopid,
-// 							'title' => $data ['menu_oldtitle'] [$mk],
-// 							'img' => $pub,
-// 							'created' => date ( "Y-m-d H:i:s" ) 
-// 					);
-// 					$this->menu_model->create ( $pp );
-// 				}
-// 			}
-// 			//更新图片
-// 			$shop_img_files=$this->multifile_array ( 'shop_img' ); // 多图结构化$_FILES
-// 			$menu_img_files=$this->multifile_array ( 'menu_img' ); // 多图结构化$_FILES
-// 			$_FILES=$shop_img_files;
-// 			foreach ( $_FILES as $file => $file_data ) {
-// 				$path = $this->uploadShopImg ( $file );
-// 				if(!empty($path)){
-// 					$pp = array (
-// 							'shop_id' => $shopid,
-// 							'img' => $path,
-// 							'created' => date ( "Y-m-d H:i:s" ) 
-// 					);
-// 					$this->shopimg_model->create ( $pp );
-// 				}
-// 			}
-// 			$_FILES=$menu_img_files;
-// 			$k = 0;
-// 			foreach ( $_FILES as $file => $file_data ) {
-// 				$path = $this->uploadMenuImg ( $file );
-// 				if(!empty($path)){
-// 					$pp = array (
-// 							'shop_id' => $shopid,
-// 							'title' => $data ['menu_title'] [$k ++],
-// 							'img' => $path,
-// 							'created' => date ( "Y-m-d H:i:s" ) 
-// 					);
-// 					$this->menu_model->create ( $pp );
-// 				}
-// 			}
 			$msg = "更新成功!";
 		}
 		
