@@ -137,8 +137,8 @@ class Shop extends CI_Controller {
 			}
 			$tags [$k] = $tag;
 		}
-		$data ['province_id'] = empty ( $data ['province_id'] ) ? 19 : $data ['province_id'];
-		$data ['city_id'] = empty ( $data ['city_id'] ) ? 200 : $data ['city_id'];
+		$data ['province_id'] = empty ( $data ['province_id'] ) ? 9 : $data ['province_id'];
+		$data ['city_id'] = empty ( $data ['city_id'] ) ? 75 : $data ['city_id'];
 		$this->db->set_dbprefix ( 'cofe_' );
 		$cities = $this->addresscity_model->get_cities ( $data ['province_id'] );
 		$towns = $this->addresstown_model->get_towns ( $data ['city_id'] );
