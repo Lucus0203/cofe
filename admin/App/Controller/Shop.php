@@ -394,6 +394,9 @@ class Controller_Shop extends FLEA_Controller_Action {
 	}
 	
 	function actionDel(){//删除
+		$config = FLEA::getAppInf ( 'dbDSN' );
+		$SHOP_PREFIX=$config ['shop_prefix'];
+		
 		$id=$this->_common->filter($_GET['id']);
 		$shopmenu=$this->_shop_menu->findAll(array('shop_id'=>$id));
 		foreach ($shopmenu as $shopm){
@@ -407,6 +410,9 @@ class Controller_Shop extends FLEA_Controller_Action {
 		}
 		$this->_shop_bbs->removeByConditions(array('shop_id'=>$id));
 		$this->_shop->removeByPkv($id);
+
+		$updatasql="update ".$SHOP_PREFIX."info set shop_id = NULL,status=1 where shop_id={$id} ";//待审核
+		$this->_shop->execute($updatasql);
 		redirect($_SERVER['HTTP_REFERER']);
 	}
 	function actionPublic(){ //发布

@@ -64,7 +64,7 @@ class Controller_PublicEvent extends FLEA_Controller_Action {
 			$Upload=$this->getUploadObj('publicEvent');
 			$img=$Upload->upload('img');
 			if($img['status']==1){
-				$data['img']=APP_SITE.$img['file_path'];
+				$data['img']=$img['file_path'];
 			}
 			//判断经纬度
 			if(empty($data['lng'])||empty($data['lat'])){

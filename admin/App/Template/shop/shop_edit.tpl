@@ -49,7 +49,7 @@
              			{section name=spi loop=$shopimg}
 	                 		<li>
 	                 			<a href="{$shopimg[spi].img}" data-lightbox="roadtrip"><img src="{$shopimg[spi].img}"></a><a class="delShopImg" rel="{$shopimg[spi].id}" href="javascript:void(0)">删 除</a>
-	                 			<label><input type="radio" name="img" value="{$shopimg[spi].id}" {if $data.img eq $shopimg[spi].img} checked {/if} />作为主图</label>
+	                 			<label><input type="radio" name="img" value="{$shopimg[spi].img}" {if $data.img eq $shopimg[spi].img} checked {/if} />作为主图</label>
 	                 		</li>
              			{/section}
 	             	</ul>
