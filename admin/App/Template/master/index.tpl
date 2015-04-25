@@ -50,6 +50,8 @@
                  <th>简介</th>
                  <th>状态</th>
                  <th>内容</th>
+                 <th>注册时间</th>
+                 <th>注册手机</th>
                  <th>操作</th>
              </tr>
              {section name=sec loop=$list}
@@ -67,6 +69,8 @@
                  	{if $list[sec].status eq '1'}<font color="red">待审核</font>{else}审核通过{/if}
                  </td>
                  <td><a href="{url controller=Master action=ShopInfo shopid=$list[sec].id}">查看</a></td>
+                 <td>{$list[sec].created}</td>
+                 <td>{$list[sec].mobile}</td>
                  <td style="word-break:keep-all;">
                  	{if $list[sec].status neq '2'}<a class="pubBtn" href="{url controller=Master action=Pass shopid=$list[sec].id}">通过</a>{else}<a class="depubBtn" href="{url controller=Master action=DePass shopid=$list[sec].id}">再审核{/if}</a>
                  	{if $list[sec].shop_id neq ''}<br/><br/><a href="{url controller=Shop action=Edit id=$list[sec].shop_id}">编辑</a>{/if}
