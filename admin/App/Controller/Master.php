@@ -71,7 +71,8 @@ class Controller_Master extends FLEA_Controller_Action {
 			$conditions.=" and town_id = $town_id ";
 			$pageparm['town_id']=$town_id;
 		}
-		$sql="select * from ".$SHOP_PREFIX."info where ".$conditions;
+		$sql="select info.id,info.img,info.title,info.tel,info.address,info.lng,info.lat,info.introduction,info.status,info.shop_id,user.mobile,user.created from ".$SHOP_PREFIX."info info 
+				left join ".$SHOP_PREFIX."user user on info.user_id = user.id where ".$conditions;
 		
 		$total=$this->_shop->findBySql("select count(*) as num from ($sql) s");
 		$total=@$total[0]['num'];
