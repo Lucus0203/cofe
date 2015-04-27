@@ -310,9 +310,9 @@ class Controller_Shop extends FLEA_Controller_Action {
 			//水印
 			$ImgWaterMark= & get_singleton ( "Service_ImgWaterMark" );
 			$waterpath=SERVERROOT.'/resource/images/watermark.png';
-			$path=str_replace(APP_SITE,'../', $filepath);
-			$ImgWaterMark->imageWaterMark($path,9,$waterpath);
-			
+			$ImgWaterMark->imageWaterMark($filepath,9,$waterpath);
+
+			$path=str_replace('../',APP_SITE, $filepath);
 			$pp = array (
 					'shop_id' => $shopid,
 					'img' => $path,
@@ -357,9 +357,9 @@ class Controller_Shop extends FLEA_Controller_Action {
 			//水印
 			$ImgWaterMark= & get_singleton ( "Service_ImgWaterMark" );
 			$waterpath_menu=SERVERROOT.'/resource/images/watermark_menu.png';
-			$path=str_replace(APP_SITE,'../', $filepath);
-			$ImgWaterMark->imageWaterMark($path,9,$waterpath_menu);
-			
+			$ImgWaterMark->imageWaterMark($filepath,9,$waterpath_menu);
+
+			$path=str_replace('../',APP_SITE, $filepath);
 			$pp = array (
 					'shop_id' => $shopid,
 					'title' => $title,

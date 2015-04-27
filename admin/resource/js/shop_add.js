@@ -25,6 +25,7 @@ $(function(){
 	    var imageData = $('.image-shoper').cropit('export');
 	    var shopid=$('input[name=id]').val();
 		if(imageData){
+			$('#shopimgs').append('<li class="loading"><img src="'+baseUrl+'resource/images/loading.gif" width="32" height="32"></li>');
 			$.ajax({
 				type:'post',
 				url:shopAddUrl,
@@ -32,7 +33,8 @@ $(function(){
 				dataType:'json',
 				success:function(res){
 					if(res.src!=''){
-						$('#shopimgs').append('<li><a href="'+baseUrl+res.src+'" data-lightbox="roadtrip"><img src="'+baseUrl+res.src+'"></a><a class="delShopImg" rel="'+res.id+'" href="javascript:void(0);">删 除</a>'+
+						$('#shopimgs .loading').eq(0).remove();
+						$('#shopimgs').append('<li><a href="'+res.src+'" data-lightbox="roadtrip"><img src="'+res.src+'"></a><a class="delShopImg" rel="'+res.id+'" href="javascript:void(0);">删 除</a>'+
 	             			'<label><input type="radio" name="img" value="'+res.src+'" />作为主图</label></li>');
 					}else{
 						alert('图片上传失败,请联系管理员');
@@ -54,6 +56,7 @@ $(function(){
 		var shopAddUrl=baseUrl+'index.php?controller=Shop&action=AjaxUploadShopMenu'
 	    var imageData = $('.image-menuer').cropit('export');
 		if(imageData){
+			$('#menuimgs').append('<li class="loading"><img src="'+baseUrl+'resource/images/loading.gif" width="32" height="32"></li>');
 			$.ajax({
 				type:'post',
 				url:shopAddUrl,
@@ -61,7 +64,8 @@ $(function(){
 				dataType:'json',
 				success:function(res){
 					if(res.src!=''){
-						$('#menuimgs').append('<li><a href="'+baseUrl+res.src+'" data-lightbox="menu-group"><img src="'+baseUrl+res.src+'"></a><a class="delMenuImg" rel="'+res.id+'" href="javascript:void(0);">删 除</a>'+
+						$('#menuimgs .loading').eq(0).remove();
+						$('#menuimgs').append('<li><a href="'+res.src+'" data-lightbox="menu-group"><img src="'+res.src+'"></a><a class="delMenuImg" rel="'+res.id+'" href="javascript:void(0);">删 除</a>'+
 		             			'<label>'+res.title+'</li>');
 					}else{
 						alert('图片上传失败,请联系管理员');
