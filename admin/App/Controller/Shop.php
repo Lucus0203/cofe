@@ -311,6 +311,9 @@ class Controller_Shop extends FLEA_Controller_Action {
 			$ImgWaterMark= & get_singleton ( "Service_ImgWaterMark" );
 			$waterpath=SERVERROOT.'/resource/images/watermark.png';
 			$ImgWaterMark->imageWaterMark($filepath,9,$waterpath);
+			//压缩图片
+			$imgpress = & get_singleton ( "Service_ImgSizePress" );
+			$imgpress->image_png_size_press($filepath,$filepath);
 
 			$path=str_replace('../',APP_SITE, $filepath);
 			$pp = array (
@@ -358,6 +361,9 @@ class Controller_Shop extends FLEA_Controller_Action {
 			$ImgWaterMark= & get_singleton ( "Service_ImgWaterMark" );
 			$waterpath_menu=SERVERROOT.'/resource/images/watermark_menu.png';
 			$ImgWaterMark->imageWaterMark($filepath,9,$waterpath_menu);
+			//压缩图片
+			$imgpress = & get_singleton ( "Service_ImgSizePress" );
+			$imgpress->image_png_size_press($filepath,$filepath);
 
 			$path=str_replace('../',APP_SITE, $filepath);
 			$pp = array (
@@ -465,5 +471,6 @@ class Controller_Shop extends FLEA_Controller_Action {
 		$count=$this->_shop->findCount(array("trim(address) = '$address'"));
 		echo $count;
 	}
+	
 	
 }

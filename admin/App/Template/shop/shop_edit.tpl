@@ -38,7 +38,8 @@
 							  </div>
 							<div class="slider-wrapper"><span class="icon icon-image small-image"></span><input type="range" class="cropit-image-zoom-input" min="0" max="1" step="0.01"><span class="icon icon-image large-image"></span></div>
 					    </div>
-	                 	<input type="button" value="上传图片" id="shopImg_add" />
+	                 	<input type="button" value="上传裁剪图片" id="shopImg_add" />
+	                 	<input type="button" value="上传原始图片" id="shopImg_add_nocut" />
                  	</div>
                  </td>
              </tr>
@@ -122,7 +123,9 @@
 							  </div>
 							<div class="slider-wrapper"><span class="icon icon-image small-image"></span><input type="range" class="cropit-image-zoom-input" min="0" max="1" step="0.01"><span class="icon icon-image large-image"></span></div>
 					    </div>
-	                 	菜品名称：<input type="text" id="menuTitle" style="margin-right: 20px;"/><input type="button" value="上传图片" id="menuImg_add" />
+	                 	菜品名称：<input type="text" id="menuTitle" style="margin-bottom: 20px;"/><br/>
+	                 	<input type="button" value="上传裁剪图片" id="menuImg_add" />
+	                 	<input type="button" value="上传原始图片" id="menuImg_add_nocut" />
                  	</div>
                  </td>
              </tr>

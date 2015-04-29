@@ -3,17 +3,15 @@ $(function(){
 	$('.image-shoper').cropit({ imageBackground: true ,imageBackgroundBorderWidth: 25 });// Width of background border
 	$('.image-menuer').cropit({ imageBackground: true ,imageBackgroundBorderWidth: 25 });// Width of background border
 	$('#shopimgtool').click(function(){
-		if ((navigator.userAgent.indexOf('MSIE') >= 0) 
-			    && (navigator.userAgent.indexOf('Opera') < 0)){
-            alert("不推荐使用ie浏览器,可能造成图片无法正常上传");
+		if (typeof FileReader =='undefined'){
+            alert("您的浏览器不支持文件上传工具,建议换谷歌或者火狐浏览器.");
 		}
 		$(this).text($("#shopimgBox").is(":hidden") ? "收起上传工具" : "显示上传工具");
 		$("#shopimgBox").slideToggle();
 	});
 	$('#menuimgtool').click(function(){
-		if ((navigator.userAgent.indexOf('MSIE') >= 0) 
-			    && (navigator.userAgent.indexOf('Opera') < 0)){
-            alert("不推荐使用ie浏览器,可能造成图片无法正常上传");
+		if (typeof FileReader =='undefined'){
+            alert("您的浏览器不支持文件上传工具,建议换谷歌或者火狐浏览器.");
 		}
 		$(this).text($("#menuimgBox").is(":hidden") ? "收起上传工具" : "显示上传工具");
 		$("#menuimgBox").slideToggle();
