@@ -27,6 +27,10 @@
                  <td><input name="subtitle" type="text" value="{$data.subtitle}" style="width:240px;"></td>
              </tr>
              <tr>
+                 <td style="text-align:center;">主图</td>
+                 <td><img src="{$data.img}" /></td>
+             </tr>
+             <tr>
                  <td style="text-align:center;word-break:keep-all;">上传店铺图片<br/>(图片大小640x480)</td>
                  <td style="padding-left:30px;">
                  	<a id="shopimgtool" href="javascript:void(0);">显示上传工具</a>
