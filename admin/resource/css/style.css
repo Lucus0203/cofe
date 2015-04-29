@@ -148,7 +148,7 @@ input.cropit-image-zoom-input {
 /*店铺图片列表css*/
 #shopimgs li,#menuimgs li{
 	width:240px;
-	height:190px;
+	min-height:190px;
 	float:left;
 	margin-right:10px;
 }
