@@ -374,7 +374,7 @@ function nearUsers(){//附近想喝咖啡的人
 	$lat=filter($_REQUEST['lat']);
 	$page_no = isset ( $_GET ['page'] ) ? $_GET ['page'] : 1;
 	$userid=empty($_REQUEST['userid'])?'':filter($_REQUEST['userid']);
-	$page_size = PAGE_SIZE;
+	$page_size = 50;
 	$start = ($page_no - 1) * $page_size;
 	if(empty($lng)||empty($lat)){
 		echo json_result(null,'40','获取不到经纬度,请设置允许获取位置');

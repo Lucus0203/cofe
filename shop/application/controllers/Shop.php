@@ -39,6 +39,7 @@ class Shop extends CI_Controller {
 				'供应早餐',
 				'免费停车',
 				'临时办公',
+				'临近大学',
 				'桌游',
 				'书吧',
 				'影吧',
