@@ -322,7 +322,7 @@ function infoEdit(){
 		$info['constellation']=$data['constellation'];
 	}
 	if(!empty($data['nick_name'])){
-		$info['nick_name']=$data['nick_name'];
+		$info['nick_name']=!empty($data['nick_name'])?$data['nick_name']:$data['user_name'];
 		$info['pinyin']=!empty($info['nick_name'])?getFirstCharter($info['nick_name']):'';
 	}
 	if(!empty($data['head_photo_id'])){
