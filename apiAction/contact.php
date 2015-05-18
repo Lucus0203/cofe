@@ -395,15 +395,15 @@ function nearUsers(){//附近想喝咖啡的人
 	}
 	
 	//客服
-	if($page_no==1){
-		$sql="select u.id,u.nick_name,u.user_name,if((trim(ur1.relation_name)<>'' and ur1.relation_name is not null),ur1.relation_name,u.nick_name) as nick_name,u.head_photo_id,upt.user_id,upt.path as head_photo,u.sex,u.age,u.constellation,u.lng,u.lat from ".DB_PREFIX."user u
-				left join ".DB_PREFIX."user_relation ur1 on u.id=ur1.relation_id and ur1.user_id='$userid'
-					left join ".DB_PREFIX."user_photo upt on u.head_photo_id = upt.id
-					where u.user_name = '001' ";
-		$firstdata=$db->getRowBySql($sql);
-		$firstdata['distance']='0';
-				array_unshift($data, $firstdata);
-	}
+// 	if($page_no==1){
+// 		$sql="select u.id,u.nick_name,u.user_name,if((trim(ur1.relation_name)<>'' and ur1.relation_name is not null),ur1.relation_name,u.nick_name) as nick_name,u.head_photo_id,upt.user_id,upt.path as head_photo,u.sex,u.age,u.constellation,u.lng,u.lat from ".DB_PREFIX."user u
+// 				left join ".DB_PREFIX."user_relation ur1 on u.id=ur1.relation_id and ur1.user_id='$userid'
+// 					left join ".DB_PREFIX."user_photo upt on u.head_photo_id = upt.id
+// 					where u.user_name = '001' ";
+// 		$firstdata=$db->getRowBySql($sql);
+// 		$firstdata['distance']='0';
+// 				array_unshift($data, $firstdata);
+// 	}
 	echo json_result($data);
 }
 

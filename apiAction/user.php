@@ -311,9 +311,11 @@ function infoEdit(){
 		}
 		$headimg=$db->getRow('user',array('id'=>$user_id));
 		if(empty($headimg['head_photo_id'])){
-			echo json_result(null,'16','请上传您的照片');
+			echo json_result(null,'16','请秀下您美丽帅气的照片吧~');
 			return;
 		}
+		$info['nick_name']=$data['user_name'];//默认用账号
+		$info['pinyin']=getFirstCharter($info['nick_name']);
 	}
 	if(!empty($data['talk'])){
 		$info['talk']=$data['talk'];
@@ -322,7 +324,7 @@ function infoEdit(){
 		$info['constellation']=$data['constellation'];
 	}
 	if(!empty($data['nick_name'])){
-		$info['nick_name']=!empty($data['nick_name'])?$data['nick_name']:$data['user_name'];
+		$info['nick_name']=$data['nick_name'];
 		$info['pinyin']=!empty($info['nick_name'])?getFirstCharter($info['nick_name']):'';
 	}
 	if(!empty($data['head_photo_id'])){
