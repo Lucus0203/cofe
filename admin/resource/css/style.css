@@ -148,6 +148,7 @@ input.cropit-image-zoom-input {
 /*店铺图片列表css*/
 #shopimgs li,#menuimgs li{
 	width:240px;
+	min-height:190px;
 	float:left;
 	margin-right:10px;
 }
@@ -171,4 +172,18 @@ input.cropit-image-zoom-input {
 	width:100px;
 	display:block;
 	margin-bottom:10px;
+}
+
+#shopimgs li.loading,#menuimgs li.loading{
+	border:solid 1px #000;
+	width:200px;
+	height:150px;
+	margin-bottom:10px;
+}
+
+#shopimgs li.loading img,#menuimgs li.loading img{
+	border:none;
+	width:32px;
+	height:32px;
+	margin:60px 0 0 80px;
 }

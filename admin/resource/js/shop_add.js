@@ -3,47 +3,66 @@ $(function(){
 	$('.image-shoper').cropit({ imageBackground: true ,imageBackgroundBorderWidth: 25 });// Width of background border
 	$('.image-menuer').cropit({ imageBackground: true ,imageBackgroundBorderWidth: 25 });// Width of background border
 	$('#shopimgtool').click(function(){
-		if ((navigator.userAgent.indexOf('MSIE') >= 0) 
-			    && (navigator.userAgent.indexOf('Opera') < 0)){
-            alert("不推荐使用ie浏览器,可能造成图片无法正常上传");
+		if (typeof FileReader =='undefined'){
+            alert("您的浏览器不支持文件上传工具,建议换谷歌或者火狐浏览器.");
 		}
 		$(this).text($("#shopimgBox").is(":hidden") ? "收起上传工具" : "显示上传工具");
 		$("#shopimgBox").slideToggle();
 	});
 	$('#menuimgtool').click(function(){
-		if ((navigator.userAgent.indexOf('MSIE') >= 0) 
-			    && (navigator.userAgent.indexOf('Opera') < 0)){
-            alert("不推荐使用ie浏览器,可能造成图片无法正常上传");
+		if (typeof FileReader =='undefined'){
+            alert("您的浏览器不支持文件上传工具,建议换谷歌或者火狐浏览器.");
 		}
 		$(this).text($("#menuimgBox").is(":hidden") ? "收起上传工具" : "显示上传工具");
 		$("#menuimgBox").slideToggle();
 	});
-	//上传店铺图片
-	$('#shopImg_add').click(function(){
+	
+
+	//Ajax上传店铺图片公用方法
+	function shopImgUpload(imageData){
 		var baseUrl=$('#baseUrl').val();
 		var shopAddUrl=baseUrl+'index.php?controller=Shop&action=AjaxUploadShopImg';
-	    var imageData = $('.image-shoper').cropit('export');
 	    var shopid=$('input[name=id]').val();
-		if(imageData){
-			$.ajax({
-				type:'post',
-				url:shopAddUrl,
-				data:{'shopid':shopid,'image-data':imageData},
-				dataType:'json',
-				success:function(res){
-					if(res.src!=''){
-						$('#shopimgs').append('<li><a href="'+baseUrl+res.src+'" data-lightbox="roadtrip"><img src="'+baseUrl+res.src+'"></a><a class="delShopImg" rel="'+res.id+'" href="javascript:void(0);">删 除</a>'+
-	             			'<label><input type="radio" name="img" value="'+res.src+'" />作为主图</label></li>');
-					}else{
-						alert('图片上传失败,请联系管理员');
-					}
+	    $('#shopimgs').append('<li class="loading"><img src="'+baseUrl+'resource/images/loading.gif" width="32" height="32"></li>');
+		$.ajax({
+			type:'post',
+			url:shopAddUrl,
+			data:{'shopid':shopid,'image-data':imageData},
+			dataType:'json',
+			success:function(res){
+				if(res.src!=''){
+					$('#shopimgs .loading').eq(0).remove();
+					$('#shopimgs').append('<li><a href="'+res.src+'" data-lightbox="roadtrip"><img src="'+res.src+'"></a><a class="delShopImg" rel="'+res.id+'" href="javascript:void(0);">删 除</a>'+
+             			'<label><input type="radio" name="img" value="'+res.src+'" />作为主图</label></li>');
+				}else{
+					alert('图片上传失败,请联系管理员');
 				}
-			});
+			}
+		});
+	}
+	//上传店铺裁剪
+	$('#shopImg_add').click(function(){
+		var baseUrl=$('#baseUrl').val();
+	    var imageData = $('.image-shoper').cropit('export');
+		if(imageData){
+	        shopImgUpload(imageData);
 		}
 	});
-	
-	//上传菜单
-	$('#menuImg_add').click(function(){
+	//上传店铺原图
+	$('#shopImg_add_nocut').click(function(){
+		var file=$('#shopimgBox .cropit-image-input').get(0).files[0];
+		if(typeof FileReader) {  
+            var fr = new FileReader();
+            fr.onloadend = function(e) {
+               var imageData=e.target.result;
+               shopImgUpload(imageData);
+            };
+            fr.readAsDataURL(file);
+        }  
+	});
+
+	//Ajax上传菜品图片公用方法
+	function menuImgUpload(imageData){
 		var title=$('#menuTitle').val();
 		if($.trim(title)==''){
 			alert('请填写菜品名称');
@@ -51,26 +70,46 @@ $(function(){
 		}
 	    var shopid=$('input[name=id]').val();
 		var baseUrl=$('#baseUrl').val();
-		var shopAddUrl=baseUrl+'index.php?controller=Shop&action=AjaxUploadShopMenu'
+		var shopAddUrl=baseUrl+'index.php?controller=Shop&action=AjaxUploadShopMenu';
+		$('#menuimgs').append('<li class="loading"><img src="'+baseUrl+'resource/images/loading.gif" width="32" height="32"></li>');
+		$.ajax({
+			type:'post',
+			url:shopAddUrl,
+			data:{'shopid':shopid,'image-data':imageData,'title':title},
+			dataType:'json',
+			success:function(res){
+				if(res.src!=''){
+					$('#menuimgs .loading').eq(0).remove();
+					$('#menuimgs').append('<li><a href="'+res.src+'" data-lightbox="menu-group"><img src="'+res.src+'"></a><a class="delMenuImg" rel="'+res.id+'" href="javascript:void(0);">删 除</a>'+
+	             			'<label>'+res.title+'</li>');
+				}else{
+					alert('图片上传失败,请联系管理员');
+				}
+				
+			}
+		});
+	}
+	//上传菜单
+	$('#menuImg_add').click(function(){
 	    var imageData = $('.image-menuer').cropit('export');
 		if(imageData){
-			$.ajax({
-				type:'post',
-				url:shopAddUrl,
-				data:{'shopid':shopid,'image-data':imageData,'title':title},
-				dataType:'json',
-				success:function(res){
-					if(res.src!=''){
-						$('#menuimgs').append('<li><a href="'+baseUrl+res.src+'" data-lightbox="menu-group"><img src="'+baseUrl+res.src+'"></a><a class="delMenuImg" rel="'+res.id+'" href="javascript:void(0);">删 除</a>'+
-		             			'<label>'+res.title+'</li>');
-					}else{
-						alert('图片上传失败,请联系管理员');
-					}
-					
-				}
-			});
+			menuImgUpload(imageData);
 		}
 	});
+	
+	//上传菜品原始图片
+	$('#menuImg_add_nocut').click(function(){
+		var file=$('#menuimgBox .cropit-image-input').get(0).files[0];
+		if(typeof FileReader) {  
+            var fr = new FileReader();
+            fr.onloadend = function(e) {
+               var imgdata=e.target.result;
+               menuImgUpload(imgdata);
+            };
+            fr.readAsDataURL(file);
+        }  
+	});
+	
 	
 	$('#shopimgs').on('click','a.delShopImg',function(){
 		var baseUrl=$('#baseUrl').val();
@@ -183,6 +222,7 @@ function changeMap(map,point,marker,zoom){
 	}, $('.city_id option:selected').text());
 }
 
+//验证
 function checkFrom(){
 	var flag=true;
 	var title=$('input[name=title]').val();

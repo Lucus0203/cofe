@@ -5,7 +5,7 @@ class Shop extends CI_Controller {
 	var $_logininfo;
 	function __construct() {
 		parent::__construct ();
-		$this->load->library ( array('session', 'common' , 'upload' , 'image_lib'));
+		$this->load->library ( array('session', 'common' , 'upload' , 'image_lib' ,'imgsizepress'));
 		$this->load->helper ( array (
 				'form',
 				'url',
@@ -39,6 +39,7 @@ class Shop extends CI_Controller {
 				'供应早餐',
 				'免费停车',
 				'临时办公',
+				'临近大学',
 				'桌游',
 				'书吧',
 				'影吧',
@@ -168,6 +169,7 @@ class Shop extends CI_Controller {
 		$logininfo=$this->_logininfo;
 		$file=$this->input->post('image-data');
 		$img = $this->uploadBase64Img($file,'shop');
+		$this->imgsizepress->image_png_size_press($img,$img);//压缩图片
 		if(!empty($img)){
 			$pp = array (
 					'user_id' => $logininfo['id'],
@@ -186,6 +188,7 @@ class Shop extends CI_Controller {
 		$file=$this->input->post('image-data');
 		$title=$this->input->post('title');
 		$img = $this->uploadBase64Img($file,'menu');
+		$this->imgsizepress->image_png_size_press($img,$img);//压缩图片
 		if(!empty($img)){
 			$pp = array (
 					'user_id' => $logininfo['id'],

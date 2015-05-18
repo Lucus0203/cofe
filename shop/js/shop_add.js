@@ -3,17 +3,15 @@ $(function(){
 	$('.image-shoper').cropit({ imageBackground: true ,imageBackgroundBorderWidth: 25 });// Width of background border
 	$('.image-menuer').cropit({ imageBackground: true ,imageBackgroundBorderWidth: 25 });// Width of background border
 	$('#shopimgtool').click(function(){
-		if ((navigator.userAgent.indexOf('MSIE') >= 0) 
-			    && (navigator.userAgent.indexOf('Opera') < 0)){
-            alert("不推荐使用ie浏览器,可能造成图片无法正常上传");
+		if (typeof FileReader =='undefined'){
+            alert("您的浏览器不支持文件上传工具,建议换谷歌或者火狐浏览器.");
 		}
 		$(this).text($("#shopimgBox").is(":hidden") ? "收起上传工具" : "显示上传工具");
 		$("#shopimgBox").slideToggle();
 	});
 	$('#menuimgtool').click(function(){
-		if ((navigator.userAgent.indexOf('MSIE') >= 0) 
-			    && (navigator.userAgent.indexOf('Opera') < 0)){
-            alert("不推荐使用ie浏览器,可能造成图片无法正常上传");
+		if (typeof FileReader =='undefined'){
+            alert("您的浏览器不支持文件上传工具,建议换谷歌或者火狐浏览器.");
 		}
 		$(this).text($("#menuimgBox").is(":hidden") ? "收起上传工具" : "显示上传工具");
 		$("#menuimgBox").slideToggle();
@@ -24,6 +22,7 @@ $(function(){
 		var shopAddUrl=baseUrl+'shop/ajaxUploadShopImg'
 	    var imageData = $('.image-shoper').cropit('export');
 		if(imageData){
+			$('#shopimgs').append('<li class="loading"><img src="'+baseUrl+'images/loading.gif" width="32" height="32"></li>');
 			$.ajax({
 				type:'post',
 				url:shopAddUrl,
@@ -31,6 +30,7 @@ $(function(){
 				dataType:'json',
 				success:function(res){
 					if(res.src!=''){
+						$('#shopimgs .loading').eq(0).remove();
 						$('#shopimgs').append('<li><a href="'+res.src+'" data-lightbox="roadtrip"><img src="'+res.src+'"></a><a class="delShopImg" rel="'+res.id+'" href="javascript:void(0);">删 除</a>'+
 	             			'<label><input type="radio" name="img" value="'+res.src+'" />作为主图</label></li>');
 					}else{
@@ -52,6 +52,7 @@ $(function(){
 		var shopAddUrl=baseUrl+'shop/ajaxUploadShopMenu'
 	    var imageData = $('.image-menuer').cropit('export');
 		if(imageData){
+			$('#menuimgs').append('<li class="loading"><img src="'+baseUrl+'images/loading.gif" width="32" height="32"></li>');
 			$.ajax({
 				type:'post',
 				url:shopAddUrl,
@@ -59,6 +60,7 @@ $(function(){
 				dataType:'json',
 				success:function(res){
 					if(res.src!=''){
+						$('#menuimgs .loading').eq(0).remove();
 						$('#menuimgs').append('<li><a href="'+res.src+'" data-lightbox="menu-group"><img src="'+res.src+'"></a><a class="delMenuImg" rel="'+res.id+'" href="javascript:void(0);">删 除</a>'+
 		             			'<label>'+res.title+'</li>');
 					}else{

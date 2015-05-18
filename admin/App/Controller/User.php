@@ -34,7 +34,7 @@ class Controller_User extends FLEA_Controller_Action {
 
 		$conditions=array();
 		if(!empty($keyword)){
-			$conditions[]=" INSTR(user_name,'".addslashes($keyword)."') or INSTR(nick_name,'".addslashes($keyword)."') ";
+			$conditions[]=" INSTR(user_name,'".addslashes($keyword)."') or INSTR(nick_name,'".addslashes($keyword)."')  or mobile = '".addslashes($keyword)."' ";
 			$pageparm['keyword']=$keyword;
 		}
 
