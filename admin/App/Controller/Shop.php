@@ -178,7 +178,7 @@ class Controller_Shop extends FLEA_Controller_Action {
 		$prov=$this->_address_province->findByField('id',11);//广州
 		$city=$this->_address_city->findAll(array('provinceCode'=>$prov['code']));
 		$ctow=$this->_address_city->findByField('id',91);//广州
-		$towns=$this->_address_town->findAll(array('cityCode'=>$ctow['code']));
+		$towns=$this->_address_town->findAll(array('cityCode'=>$ctow['code']),'code asc');
 		
 		$this->_common->show ( array ('main' => 'shop/shop_add.tpl','tags'=>$this->_tags,'provinces'=>$provinces,'city'=>$city,'towns'=>$towns) );
 	}
@@ -277,7 +277,7 @@ class Controller_Shop extends FLEA_Controller_Action {
 		$prov=$this->_address_province->findByField('id',$data['province_id']);//广州
 		$city=$this->_address_city->findAll(array('provinceCode'=>$prov['code']));
 		$ctow=$this->_address_city->findByField('id',$data['city_id']);//广州
-		$towns=$this->_address_town->findAll(array('cityCode'=>$ctow['code']));
+		$towns=$this->_address_town->findAll(array('cityCode'=>$ctow['code']),'code asc');
 		
 		$this->_common->show ( array ('main' => 'shop/shop_edit.tpl','data'=>$data,'menu'=>$menu,'shopimg'=>$shopimg,'msg'=>$msg,'tags'=>$tags,'provinces'=>$provinces,'city'=>$city,'towns'=>$towns) );
 	}
