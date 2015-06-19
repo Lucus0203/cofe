@@ -114,35 +114,6 @@
                  <td><textarea name="introduction" style="width:640px;height:250px;"><?php echo $data['introduction']?></textarea></td>
              </tr>
              <tr>
-                 <td style="text-align:center;word-break:keep-all;">上传菜品<br>(图片大小292x233)</td>
-                 <td style="padding-left:30px;">
-                 	<a id="menuimgtool" href="javascript:void(0);">显示上传工具</a>
-                 	<div id="menuimgBox" style="display: none;">
-	                 	<div class="image-menuer">
-		                    <input name="file" type="file" style="width:240px;" class="cropit-image-input" />
-		                    <div class="cropit-image-preview-container">
-							    <div class="cropit-image-preview"></div>
-							  </div>
-							<div class="slider-wrapper"><span class="icon icon-image small-image"></span><input type="range" class="cropit-image-zoom-input" min="0" max="1" step="0.01"><span class="icon icon-image large-image"></span></div>
-					    </div>
-	                 	菜品名称：<input type="text" id="menuTitle" style="margin-right: 20px;"/><input type="button" value="上传图片" id="menuImg_add" />
-                 	</div>
-                 </td>
-             </tr>
-             <tr>
-                 <td style="text-align:center;">菜品</td>
-                 <td>
-	                 <ul  id="menuimgs">
-             			<?php foreach ($menu as $m){ ?>
-	                 		<li>
-	                 			<a href="<?php echo $m['img']?>" data-lightbox="menu-group"><img src="<?php echo $m['img']?>"></a><a class="delMenuImg" rel="<?php echo $m['id']?>" href="javascript:void(0)">删 除</a>
-	                 			<label><?php echo $m['title']?></label>
-	                 		</li>
-	             		<?php } ?>
-	             	</ul>
-                 </td>
-             </tr>
-             <tr>
                  <td style="text-align:center;">审核状态</td>
                  <td>
                  	<?php if ($data['status']==2){ ?>审核通过 <?php }else{ ?>等待审核<?php } ?>

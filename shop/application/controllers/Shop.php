@@ -17,6 +17,7 @@ class Shop extends CI_Controller {
 				'addresstown_model',
 				'shop_model',
 				'menu_model',
+				'menuprice_model',
 				'shopimg_model' 
 		) );
 		
@@ -162,6 +163,78 @@ class Shop extends CI_Controller {
 		$this->load->view ( 'left' );
 		$this->load->view ( 'shop/info', $res );
 		$this->load->view ( 'footer' );
+	}
+	
+	/**
+	 *咖啡甜品
+	 *
+	 **/
+	public function menu() {
+		$this->db->set_dbprefix ( 'shop_' );
+		$loginInfo = $this->session->userdata ( 'loginInfo' );
+		$msg = '';
+		$menu = array ();
+		
+		// 读取菜单信息
+		$menu = $this->menu_model->getAll ( array (
+				'user_id' => $loginInfo ['id']
+		) );
+		foreach ($menu as $k=>$m){
+			$menu[$k]['prices']=$this->menuprice_model->getAll(array('menu_id'=>$m['id']));
+		}
+		$res = array (
+				'menu' => $menu,
+				'msg' => $msg
+		);
+		$this->load->view ( 'header');
+		$this->load->view ( 'left' );
+		$this->load->view ( 'shop/menu', $res );
+		$this->load->view ( 'footer' );
+	}
+	
+	/**
+	 *菜品价高更新
+	 */
+	public function menuPriceUpdate(){
+		$menuid=$this->input->post('menuid');
+		$prices=$this->input->post('prices');
+		$prices=explode(',' , $prices);
+		$typies=$this->input->post('typies');
+		$typies=explode(',' , $typies);
+		$this->db->set_dbprefix ( 'shop_' );
+		
+		$menu = $this->menu_model->getRow ( array (
+				'id' => $menuid
+		) );
+		$loginInfo = $this->session->userdata ( 'loginInfo' );
+		if($menu['user_id']==$loginInfo ['id'] ){//属于本人的菜品
+			$this->menuprice_model->delByCond(array('menu_id'=>$menuid));
+			foreach ($prices as $k=>$p){
+				$mp=array('menu_id'=>$menuid,'price'=>$p,'type'=>$typies[$k]);
+				$this->menuprice_model->create($mp);
+			}
+			echo 1;
+		}else{
+			echo '0';//需要重新登录
+		}
+	}
+	
+	/**
+	 * 菜品上下架
+	 */
+	public function menuPublic(){
+		$menuid=$this->input->post('menuid');
+		$public=$this->input->post('public');//1待售,2寄售中
+		$menu = $this->menu_model->getRow ( array (
+				'id' => $menuid
+		) );
+		$loginInfo = $this->session->userdata ( 'loginInfo' );
+		if($menu['user_id']==$loginInfo ['id'] ){//属于本人的菜品
+			$this->menu_model->update(array('status'=>$public), $menuid);
+			echo 1;
+		}else{
+			echo '0';//需要重新登录
+		}
 	}
 	
 	//ajax上传店铺图片
