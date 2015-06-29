@@ -139,8 +139,8 @@ $(function(){
 	});
 	
 	//北京
-	var lng=$('#lng').val()!=''?$('#lng').val():116.400244;
-	var lat=$('#lat').val()!=''?$('#lat').val():39.92556;
+	var lng=$('#lng').val()!=''?$('#lng').val():121.48;
+	var lat=$('#lat').val()!=''?$('#lat').val():31.22;
 	// 百度地图API功能
 	var map = new BMap.Map("allmap");
 	map.enableScrollWheelZoom();                         //启用滚轮放大缩小
@@ -231,7 +231,7 @@ function checkFrom(){
 	}
 	
 	if(flag){
-		return confirm('确认修改信息吗?')
+		return confirm('确认操作吗?')
 	}
 	return flag;
 }

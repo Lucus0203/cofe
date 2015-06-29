@@ -17,7 +17,6 @@ class Api extends CI_Controller {
 	//获取城市
 	public function getCityByProvince() {
 		$province_id = $this->input->get('province_id');
-		$this->db->set_dbprefix('cofe_');
 		$this->db->select('id,name');
 		$this->db->where('province_id',$province_id);
 		$this->db->order_by('id','asc');
@@ -34,7 +33,6 @@ class Api extends CI_Controller {
 	//获取区县
 	public function getTownByCity(){
 		$city_id = $this->input->get('city_id');
-		$this->db->set_dbprefix('cofe_');
 		$this->db->select('id,name');
 		$this->db->where('city_id',$city_id);
 		$this->db->order_by('id','asc');

@@ -72,13 +72,11 @@
 						<?php } ?>
 					</select>
 	                <select name="city_id" class="city_id">
-					<option value="">不限</option>
 	                	<?php foreach ($cities as $c){ ?>
 							<option value="<?php echo $c['id'] ?>" <?php if ($data['city_id']==$c['id']){ ?>selected<?php } ?> > <?php echo $c['name'] ?></option>
 						<?php } ?>
 					</select>
 					<select name="town_id" class="town_id">
-					<option value="">不限</option>
 	                	<?php foreach ($towns as $t){ ?>
 						{section name=sec loop=$towns}
 							<option value="<?php echo $t['id'] ?>" <?php if ($data['town_id']==$t['id']){ ?>selected<?php } ?> > <?php echo $t['name'] ?></option>
@@ -114,13 +112,14 @@
                  <td><textarea name="introduction" style="width:640px;height:250px;"><?php echo $data['introduction']?></textarea></td>
              </tr>
              <tr>
-                 <td style="text-align:center;">审核状态</td>
+                 <td style="text-align:center;">是否发布</td>
                  <td>
-                 	<?php if ($data['status']==2){ ?>审核通过 <?php }else{ ?>等待审核<?php } ?>
+                 	<label><input name="status" type="radio" value="1" checked="checked">准备中</label>
+                 	<label><input name="status" type="radio" value="2" <?php if ($data['status']==2){ ?>checked="checked"<?php } ?> >发布中</label>
                  </td>
              </tr>
          </table>
-         <p class="btn"><input type="submit" value=" 确定修改 "></p>
+         <p class="btn"><input type="submit" value=" 确定操作 "></p>
          </form>
  	</div>       
  </td>

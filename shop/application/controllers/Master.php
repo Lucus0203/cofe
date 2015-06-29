@@ -29,13 +29,11 @@ class Master extends CI_Controller {
 	
 	//店主认证
 	public function certification() {
-		$this->db->set_dbprefix ( 'shop_' );
 		$loginInfo = $this->session->userdata ( 'loginInfo' );
 		$act = $this->input->post ( 'act' );
 		$msg = '';
 		if(!empty($act)){
 			$certification=array();
-			$certification['user_id']=$loginInfo['id'];
 			$certification['name']=$this->input->post('name');
 			$certification['tel']=$this->input->post('tel');
 			$certification['qq']=$this->input->post('qq');
@@ -63,7 +61,6 @@ class Master extends CI_Controller {
 				$certification['business_license'] = base_url().$dir . $imginfo ['file_name'];
 			}
 			
-			$this->db->set_dbprefix('shop_');
 			if($this->input->post('id')!=''){
 				$this->master_model->update($certification,$loginInfo['id']);
 			}else{
@@ -71,7 +68,7 @@ class Master extends CI_Controller {
 			}
 			$msg='保存成功';
 		}
-		$data=$this->master_model->getRow(array('user_id'=>$loginInfo['id']));
+		$data=$this->master_model->getRow(array('id'=>$loginInfo['id']));
 		$res = array ('data'=>$data,'msg'=>$msg);
 		
 		$this->load->view ( 'header');

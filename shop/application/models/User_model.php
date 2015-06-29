@@ -9,7 +9,6 @@ class User_model extends CI_Model {
 	
 	public function __construct() {
 		$this->load->database ();
-		$this->db->set_dbprefix('shop_');
 	}
 	
 	// 查

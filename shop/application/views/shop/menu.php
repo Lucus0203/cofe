@@ -27,7 +27,7 @@
 							  </div>
 							<div class="slider-wrapper"><span class="icon icon-image small-image"></span><input type="range" class="cropit-image-zoom-input" min="0" max="1" step="0.01"><span class="icon icon-image large-image"></span></div>
 					    </div>
-	                 	菜品名称：<input type="text" id="menuTitle" style="margin-right: 20px;"/><input type="button" value="上传图片" id="menuImg_add" />
+	                 	菜品名称：<input type="text" id="menuTitle" style="margin-right: 20px;"/><input type="button" value="添加" id="menuImg_add" />
                  	</div>
                  </td>
              </tr>
@@ -65,7 +65,7 @@
 	                 			<option value="中" <?php if($p['type']=='中'){echo 'selected';$typeflag=2;} ?> >中</option>
 	                 			<option value="大" <?php if($p['type']=='大'){echo 'selected';$typeflag=2;} ?> >大</option>
 	                 			<option value="超大" <?php if($p['type']=='超大'){echo 'selected';$typeflag=2;} ?> >超大</option>
-	                 			<option value="其他" <?php if($typeflag==1){echo 'selected';} ?> >其他</option>
+	                 			<option value="自定义" <?php if($typeflag==1){echo 'selected';} ?> >自定义</option>
 	                 		</select> <?php if($typeflag==1){?><input type="text" value="<?php echo $p['type'] ; ?>" /><?php } ?>	<a class="del" href="#">删除</a>
 	                 	</li>
 	                 	<?php } ?>

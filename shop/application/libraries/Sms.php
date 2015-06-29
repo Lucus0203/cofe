@@ -16,7 +16,6 @@ class Sms{
 	
 	public function sendMsg($msg,$mobile){
 		$url='http://210.5.158.31:9011/hy?uid='.$this->_uid.'&auth='.$this->_auth.'&mobile='.$mobile.'&msg='.$msg.'&expid=0&encode=utf-8';
-		echo $url;
 		return $this->Get($url);
 	}
 	

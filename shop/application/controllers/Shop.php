@@ -18,7 +18,8 @@ class Shop extends CI_Controller {
 				'shop_model',
 				'menu_model',
 				'menuprice_model',
-				'shopimg_model' 
+				'shopimg_model',
+				'master_model'
 		) );
 		
 		$this->_tags = array (
@@ -60,11 +61,10 @@ class Shop extends CI_Controller {
 	}
 	
 	public function info() {
-		$this->db->set_dbprefix ( 'shop_' );
 		$loginInfo = $this->session->userdata ( 'loginInfo' );
 		$act = $this->input->post ( 'act' );
 		$msg = '';
-		$shopimg = $menu = $provinces = $cities = $towns = array ();
+		$shopimg = $provinces = $cities = $towns = array ();
 		$tags = $this->_tags;
 		
 		if ($act == 'edit') {
@@ -84,7 +84,7 @@ class Shop extends CI_Controller {
 				$feats = implode ( ",", $features );
 				$shopinfo ['feature'] = $feats;
 			}
-			$shopinfo ['user_id'] = $loginInfo ['id'];
+			$shopinfo ['master_id'] = $loginInfo ['id'];
 			$shopinfo ['title'] = $this->input->post ('title');
 			$shopinfo ['subtitle'] = $this->input->post ('subtitle');
 			$shopinfo ['img'] = $this->input->post ('img');
@@ -98,15 +98,21 @@ class Shop extends CI_Controller {
 			$shopinfo ['lat'] = $this->input->post ('lat');
 			$shopinfo ['introduction'] = $this->input->post ('introduction');
 			$shopinfo ['created'] = date("Y-m-d H:i:s");
-			$shopinfo ['status'] = 1;
-			
+			$shopinfo ['status'] = $this->input->post ('status');
+			if(empty($loginInfo['shop_id'])){//创建店铺数据
+				$loginInfo['shop_id']=$this->shop_model->create ( $shopinfo );
+				$this->master_model->update ( $loginInfo , $loginInfo['id'] );//更新master的shop_id
+				$this->session->set_userdata('loginInfo',$loginInfo);
+			}else{
 			//更新数据
-			$this->shop_model->update ( $shopinfo, $shopinfo ['user_id'] );
-			$msg = "更新成功!";
+				$this->shop_model->update ( $shopinfo, $loginInfo ['shop_id'] );
+				$msg = "更新成功!";
+			}
+	 		
 		}
 		
 		$data = $this->shop_model->getRow ( array (
-				'user_id' => $loginInfo ['id'] 
+				'master_id' => $loginInfo ['id'] 
 		) );
 		// 特色标签
 		$tags = $this->_tags;
@@ -118,39 +124,34 @@ class Shop extends CI_Controller {
 			$tags [$k] = $tag;
 		}
 		
-		// 读取店铺信息
-		$menu = $this->menu_model->getAll ( array (
-				'user_id' => $loginInfo ['id'] 
-		) );
-		$shopimg = $this->shopimg_model->getAll ( array (
-				'user_id' => $loginInfo ['id'] 
-		) );
-		// 特色标签
-		$feats = explode ( ',', $data ['feature'] );
-		$feats = array_flip ( $feats );
-		$tags = $this->_tags;
-		foreach ( $tags as $k => $t ) {
-			$tag = array (
-					'tag' => $t,
-					'checked' => '' 
-			);
-			if (array_key_exists ( $t, $feats )) {
-				$tag ['checked'] = 'checked';
+		if(!empty($data)){//如果已有店铺数据
+			$shopimg = $this->shopimg_model->getAll ( array (
+					'shop_id' => $data ['id'] 
+			) );
+			// 特色标签
+			$feats = explode ( ',', $data ['feature'] );
+			$feats = array_flip ( $feats );
+			$tags = $this->_tags;
+			foreach ( $tags as $k => $t ) {
+				$tag = array (
+						'tag' => $t,
+						'checked' => '' 
+				);
+				if (array_key_exists ( $t, $feats )) {
+					$tag ['checked'] = 'checked';
+				}
+				$tags [$k] = $tag;
 			}
-			$tags [$k] = $tag;
 		}
 		$data ['province_id'] = empty ( $data ['province_id'] ) ? 9 : $data ['province_id'];
 		$data ['city_id'] = empty ( $data ['city_id'] ) ? 75 : $data ['city_id'];
-		$this->db->set_dbprefix ( 'cofe_' );
 		$cities = $this->addresscity_model->get_cities ( $data ['province_id'] );
 		$towns = $this->addresstown_model->get_towns ( $data ['city_id'] );
 			
-		$this->db->set_dbprefix ( 'cofe_' );
 		$provinces = $this->addressprovince_model->get_provinces ();
 		
 		$res = array (
 				'data' => $data,
-				'menu' => $menu,
 				'shopimg' => $shopimg,
 				'msg' => $msg,
 				'tags' => $tags,
@@ -165,77 +166,6 @@ class Shop extends CI_Controller {
 		$this->load->view ( 'footer' );
 	}
 	
-	/**
-	 *咖啡甜品
-	 *
-	 **/
-	public function menu() {
-		$this->db->set_dbprefix ( 'shop_' );
-		$loginInfo = $this->session->userdata ( 'loginInfo' );
-		$msg = '';
-		$menu = array ();
-		
-		// 读取菜单信息
-		$menu = $this->menu_model->getAll ( array (
-				'user_id' => $loginInfo ['id']
-		) );
-		foreach ($menu as $k=>$m){
-			$menu[$k]['prices']=$this->menuprice_model->getAll(array('menu_id'=>$m['id']));
-		}
-		$res = array (
-				'menu' => $menu,
-				'msg' => $msg
-		);
-		$this->load->view ( 'header');
-		$this->load->view ( 'left' );
-		$this->load->view ( 'shop/menu', $res );
-		$this->load->view ( 'footer' );
-	}
-	
-	/**
-	 *菜品价高更新
-	 */
-	public function menuPriceUpdate(){
-		$menuid=$this->input->post('menuid');
-		$prices=$this->input->post('prices');
-		$prices=explode(',' , $prices);
-		$typies=$this->input->post('typies');
-		$typies=explode(',' , $typies);
-		$this->db->set_dbprefix ( 'shop_' );
-		
-		$menu = $this->menu_model->getRow ( array (
-				'id' => $menuid
-		) );
-		$loginInfo = $this->session->userdata ( 'loginInfo' );
-		if($menu['user_id']==$loginInfo ['id'] ){//属于本人的菜品
-			$this->menuprice_model->delByCond(array('menu_id'=>$menuid));
-			foreach ($prices as $k=>$p){
-				$mp=array('menu_id'=>$menuid,'price'=>$p,'type'=>$typies[$k]);
-				$this->menuprice_model->create($mp);
-			}
-			echo 1;
-		}else{
-			echo '0';//需要重新登录
-		}
-	}
-	
-	/**
-	 * 菜品上下架
-	 */
-	public function menuPublic(){
-		$menuid=$this->input->post('menuid');
-		$public=$this->input->post('public');//1待售,2寄售中
-		$menu = $this->menu_model->getRow ( array (
-				'id' => $menuid
-		) );
-		$loginInfo = $this->session->userdata ( 'loginInfo' );
-		if($menu['user_id']==$loginInfo ['id'] ){//属于本人的菜品
-			$this->menu_model->update(array('status'=>$public), $menuid);
-			echo 1;
-		}else{
-			echo '0';//需要重新登录
-		}
-	}
 	
 	//ajax上传店铺图片
 	public function ajaxUploadShopImg(){
@@ -245,33 +175,13 @@ class Shop extends CI_Controller {
 		$this->imgsizepress->image_png_size_press($img,$img);//压缩图片
 		if(!empty($img)){
 			$pp = array (
-					'user_id' => $logininfo['id'],
+					'shop_id' => $logininfo['shop_id'],
 					'img' => base_url().$img,
 					'created' => date ( "Y-m-d H:i:s" ) 
 			);
 			$id=$this->shopimg_model->create ( $pp );
 		}
 		$data=array('src'=>base_url().$img,'id'=>$id);
-		echo json_encode($data);
-	}
-	
-	//ajax上传菜品图片
-	public function ajaxUploadShopMenu(){
-		$logininfo=$this->_logininfo;
-		$file=$this->input->post('image-data');
-		$title=$this->input->post('title');
-		$img = $this->uploadBase64Img($file,'menu');
-		$this->imgsizepress->image_png_size_press($img,$img);//压缩图片
-		if(!empty($img)){
-			$pp = array (
-					'user_id' => $logininfo['id'],
-					'title' => $title,
-					'img' => base_url().$img,
-					'created' => date ( "Y-m-d H:i:s" ) 
-			);
-			$id=$this->menu_model->create ( $pp );
-		}
-		$data=array('src'=>base_url().$img,'id'=>$id,'title'=>$title);
 		echo json_encode($data);
 	}
 	
@@ -285,19 +195,6 @@ class Shop extends CI_Controller {
 		if (file_exists ( $fileurl ))
 			unlink ( $fileurl );
 		$this->shopimg_model->del ( $pid );
-		echo 1;
-	}
-	
-	// 删除菜品
-	public function delmenu() {
-		$pid = $this->input->get ( 'pid' );
-		$img = $this->menu_model->getRow ( array (
-				'id' => $pid 
-		) );
-		$fileurl=str_replace(base_url(), '', $img ['img']);
-		if (file_exists ( $fileurl ))
-			unlink ( $fileurl );
-		$this->menu_model->del ( $pid );
 		echo 1;
 	}
 	
@@ -326,15 +223,15 @@ class Shop extends CI_Controller {
 			// 生成文件
 			if (file_put_contents($filepath, base64_decode($data), true)) {
 				// 水印
-				$confmk ['source_image'] = $filepath;
-				$confmk ['wm_type'] = 'overlay';
-				$confmk ['wm_overlay_path'] = './images/watermark.png';
-				$confmk ['wm_vrt_alignment'] = 'bottom';
-				$confmk ['wm_hor_alignment'] = 'right';
-				$confmk ['wm_opacity'] = '50';
-				//$this->load->library ( 'image_lib', $confmk );
-				$this->image_lib->initialize($confmk);
-				$this->image_lib->watermark ();
+// 				$confmk ['source_image'] = $filepath;
+// 				$confmk ['wm_type'] = 'overlay';
+// 				$confmk ['wm_overlay_path'] = './images/watermark.png';
+// 				$confmk ['wm_vrt_alignment'] = 'bottom';
+// 				$confmk ['wm_hor_alignment'] = 'right';
+// 				$confmk ['wm_opacity'] = '50';
+// 				//$this->load->library ( 'image_lib', $confmk );
+// 				$this->image_lib->initialize($confmk);
+// 				$this->image_lib->watermark ();
 				return $filepath;
 			}else{
 				return '';
@@ -348,15 +245,15 @@ class Shop extends CI_Controller {
 			$filepath = $dir.$logininfo['id'].time().$ext;
 			// 生成文件
 			if (file_put_contents($filepath, base64_decode($data), true)) {
-				$confmk ['source_image'] = $filepath;
-				$confmk ['wm_type'] = 'overlay';
-				$confmk ['wm_overlay_path'] = './images/watermark_menu.png';
-				$confmk ['wm_vrt_alignment'] = 'bottom';
-				$confmk ['wm_hor_alignment'] = 'right';
-				$confmk ['wm_opacity'] = '50';
-				//$this->load->library ( 'image_lib', $confmk );
-				$this->image_lib->initialize($confmk);
-				$this->image_lib->watermark ();
+// 				$confmk ['source_image'] = $filepath;
+// 				$confmk ['wm_type'] = 'overlay';
+// 				$confmk ['wm_overlay_path'] = './images/watermark_menu.png';
+// 				$confmk ['wm_vrt_alignment'] = 'bottom';
+// 				$confmk ['wm_hor_alignment'] = 'right';
+// 				$confmk ['wm_opacity'] = '50';
+// 				//$this->load->library ( 'image_lib', $confmk );
+// 				$this->image_lib->initialize($confmk);
+// 				$this->image_lib->watermark ();
 				return $filepath;
 			}else{
 				return '';

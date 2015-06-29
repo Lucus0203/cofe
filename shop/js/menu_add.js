@@ -24,7 +24,7 @@ $(function(){
 			return;
 		}
 		var baseUrl=$('#baseUrl').val();
-		var shopAddUrl=baseUrl+'shop/ajaxUploadShopMenu'
+		var menuAddUrl=baseUrl+'menu/ajaxUploadShopMenu'
 	    var imageData = $('.image-menuer').cropit('export');
 		if(imageData){
 			$('#menuList').append('<tr class="loading"><td class="menu_img">'+
@@ -38,12 +38,12 @@ $(function(){
 		                 			'<option value="中">中</option>'+
 		                 			'<option value="大">大</option>'+
 		                 			'<option value="超大">超大</option>'+
-		                 			'<option value="其他">其他</option>'+
+		                 			'<option value="自定义">自定义</option>'+
 		                 		'</select>	<a class="del" href="#">删除</a>'+
 		                 	'</li><li class="add"><a href="#">添加</a></li>'+
 		                 '</ul></td>'+
 	                 '<td style="text-align:center;">'+
-	                 	'待售中'+
+	                 	'待售'+
 	                 '</td>'+
 	                 '<td class="opera">'+
 	                 	'<a class="updatePrice" href="#">更新价格</a>'+
@@ -52,7 +52,7 @@ $(function(){
 	                 '</td></tr>');//'<li class="loading"><img src="'+baseUrl+'images/loading.gif" width="32" height="32"></li>';
 			$.ajax({
 				type:'post',
-				url:shopAddUrl,
+				url:menuAddUrl,
 				data:{'image-data':imageData,'title':title},
 				dataType:'json',
 				success:function(res){
@@ -77,7 +77,7 @@ $(function(){
 			var pid=$(this).attr('rel');
 			$.ajax({
 				type:'get',
-				url:baseUrl+'shop/delmenu',
+				url:baseUrl+'menu/delmenu',
 				data:{'pid':pid},
 				success:function(res){
 					if(res==1){
@@ -121,6 +121,13 @@ $(function(){
 		return false;
 	});
 	
+	$('#menuList').on('keyup','.price',function(){
+		if(!isnumber($(this).val())){
+			$(this).css('border','#f00 1px solid');
+		}else{
+			$(this).css('border','');
+		}
+	});
 	//更新价格
 	$('#menuList').on('click','.opera .updatePrice',function(){
 		var baseUrl=$('#baseUrl').val();
@@ -128,7 +135,11 @@ $(function(){
 		var menuprice=$(this).parent().parent().find('.menu_price');
 		var prices='';
 		var typies='';
+		var number_flag=true;
 		menuprice.find('.price').each(function(i){
+			if(!isnumber($(this).val())){
+				number_flag=false;
+			}
 			prices+=$(this).val()+',';
 			var t=menuprice.find('.type').eq(i).val();
 			if(t=='其他'){
@@ -136,20 +147,29 @@ $(function(){
 			}
 			typies+=t+',';
 		});
-		prices=prices.slice(0,-1);
-		typies=typies.slice(0,-1);
-		$.ajax({
-			type:'post',
-			url:baseUrl+'shop/menuPriceUpdate',
-			data:{'menuid':menuid,'prices':prices,'typies':typies},
-			success:function(res){
-				if(res==1){
-					alert('价格更新成功');
-				}else{
-					alert('价格更新失败');
-				}
+		if(!number_flag){ //价格格式验证
+			alert('请输入正确的数字')
+			return false;
+		}else{
+			prices=prices.slice(0,-1);
+			typies=typies.slice(0,-1);
+			if(confirm('确认更新价格么?')){
+				$.ajax({
+					type:'post',
+					url:baseUrl+'menu/menuPriceUpdate',
+					data:{'menuid':menuid,'prices':prices,'typies':typies},
+					success:function(res){
+						if(res==1){
+							alert('操作成功');
+						}else{
+							alert('操作失败');
+						}
+					}
+				});
 			}
-		});
+			
+		}
+		
 	});
 
 	//上架
@@ -159,7 +179,7 @@ $(function(){
 		var thisobj=$(this);
 		$.ajax({
 			type:'post',
-			url:baseUrl+'shop/menuPublic',
+			url:baseUrl+'menu/menuPublic',
 			data:{'menuid':menuid,'public':2},
 			success:function(res){
 				if(res==1){
@@ -179,7 +199,7 @@ $(function(){
 		var thisobj=$(this);
 		$.ajax({
 			type:'post',
-			url:baseUrl+'shop/menuPublic',
+			url:baseUrl+'menu/menuPublic',
 			data:{'menuid':menuid,'public':1},
 			success:function(res){
 				if(res==1){
