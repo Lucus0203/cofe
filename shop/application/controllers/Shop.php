@@ -100,6 +100,7 @@ class Shop extends CI_Controller {
 			$shopinfo ['created'] = date("Y-m-d H:i:s");
 			$shopinfo ['status'] = $this->input->post ('status');
 			if(empty($loginInfo['shop_id'])){//创建店铺数据
+				$shopinfo['ispassed']=2;
 				$loginInfo['shop_id']=$this->shop_model->create ( $shopinfo );
 				$this->master_model->update ( $loginInfo , $loginInfo['id'] );//更新master的shop_id
 				$this->session->set_userdata('loginInfo',$loginInfo);

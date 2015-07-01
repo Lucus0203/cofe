@@ -131,7 +131,7 @@
                  <td style="text-align:center;">审核状态</td>
                  <td>
                  	<label><input name="status" type="radio" value="1" checked="checked">再审核</label>
-                 	<label><input name="status" type="radio" value="2" {if $data.status eq 2}checked="checked"{/if} >通过</label>
+                 	<label><input name="status" type="radio" value="2" {if $data.ispassed eq 1}checked="checked"{/if} >通过</label>
                  </td>
              </tr>
          </table>

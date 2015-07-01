@@ -34,17 +34,19 @@
                  <td><input name="weixin" type="text" value="<?php echo $data['weixin'] ?>" style="width:240px;"></td>
              </tr>
              <tr>
-                 <td style="text-align:center;">身份证<br/>(照片或者扫描,文件格式gif|jpg|png|jpeg)<span class="red">*</span></td>
+                 <td style="text-align:center;">身份证<br/>(照片或者扫描件)</td>
                  <td>
                  	<input name="IDfile" type="file" >
                  	<?php if(!empty($data['idfile'])){?><br/><a href="<?php echo $data['idfile'] ?>" data-lightbox="idfile"><img src="<?php echo $data['idfile']; ?>" height="300" /></a><?php } ?>
+                 	<p>上传您的身份证,更利于平台快速审核通过您的信息</p>
                  </td>
              </tr>
              <tr>
-                 <td style="text-align:center;">营业执照<br/>(必须和本人有关,文件格式gif|jpg|png|jpeg)<span class="red">*</span></td>
+                 <td style="text-align:center;">营业执照<br/>(必须和本人有关的照片或者扫描件)</td>
                  <td>
                  	<input name="business_license" type="file" >
                  	<?php if(!empty($data['business_license'])){?><br/><a href="<?php echo $data['business_license'] ?>" data-lightbox="business_license"><img src="<?php echo $data['business_license']; ?>" height="300" /></a><?php } ?>
+                 	<p>上传您的营业执照,更利于平台快速审核通过您的信息</p>
                  </td>
              </tr>
              <tr>

@@ -27,17 +27,18 @@
                  <td><input name="subtitle" type="text" value="<?php echo $data['subtitle'] ?>" style="width:240px;"></td>
              </tr>
              <tr>
-                 <td style="text-align:center;word-break:keep-all;">上传店铺图片<br/>(图片大小640x480)</td>
+                 <td style="text-align:center;word-break:keep-all;">上传店铺图片<br/>(最小尺寸750x500)</td>
                  <td style="padding-left:30px;">
                  	<a id="shopimgtool" href="javascript:void(0);">显示上传工具</a>
                  	<div id="shopimgBox" style="display: none;">
-	                 	<div class="image-shoper">
+                 		<div class="image-shoper">
 		                    <input name="file" type="file" style="width:240px;" class="cropit-image-input" />
 		                    <div class="cropit-image-preview-container">
 							    <div class="cropit-image-preview"></div>
 							  </div>
 							<div class="slider-wrapper"><span class="icon icon-image small-image"></span><input type="range" class="cropit-image-zoom-input" min="0" max="1" step="0.01"><span class="icon icon-image large-image"></span></div>
-					    </div>
+					    	<div class="shopimgBoxResize"><span>图片高度</span><input type="range" step="1" max="500" min="0" class="cropit-image-resize" value="0"></div>
+	                 	</div>
 	                 	<input type="button" value="上传图片" id="shopImg_add" />
                  	</div>
                  </td>
@@ -57,7 +58,85 @@
              </tr>
              <tr>
                  <td style="text-align:center;">营业时间</td>
-                 <td><input name="hours" type="text" value="<?php echo $data['hours']?>" style="width:240px;"></td>
+                 <td>周
+                 	<select>
+                 		<option value="一">一</option>
+                 		<option value="二">二</option>
+                 		<option value="三">三</option>
+                 		<option value="四">四</option>
+                 		<option value="五">五</option>
+                 		<option value="六">六</option>
+                 		<option value="日">日</option>
+                 	</select>
+                 	至周
+                 	<select>
+                 		<option value="一">一</option>
+                 		<option value="二">二</option>
+                 		<option value="三">三</option>
+                 		<option value="四">四</option>
+                 		<option value="五">五</option>
+                 		<option value="六">六</option>
+                 		<option value="日" selected >日</option>
+                 	</select>
+                 	<select>
+                 		<?php for ($i=0;$i<25;$i++){
+                 			$h=$i<10?'0'.$i:$i;
+                 		?>
+                 		<option value="<?php echo $h; ?>"><?php echo $h; ?></option>
+                 		<?php } ?>
+                 	</select>
+                 	:
+                 	<select>
+                 		<option value="00">00</option>
+                 		<option value="30">30</option>
+                 	</select>
+                 	~
+                 	<select>
+                 		<?php for ($i=0;$i<25;$i++){
+                 			$h=$i<10?'0'.$i:$i;
+                 		?>
+                 		<option value="<?php echo $h; ?>"><?php echo $h; ?></option>
+                 		<?php } ?>
+                 	</select>
+                 	:
+                 	<select>
+                 		<option value="00">00</option>
+                 		<option value="30">30</option>
+                 	</select>
+                 </td>
+             </tr>
+             <tr>
+                 <td style="text-align:center;">其他日期</td>
+                 <td>
+                 	<label><input type="radio" name="holiday" value="1" />部分时间工作</label><label><input type="radio" name="holiday" value="2" checked />照常休息</label>
+                 	<br/>
+                 	<div class="holidaytime">
+                 	<select>
+                 		<?php for ($i=0;$i<25;$i++){
+                 			$h=$i<10?'0'.$i:$i;
+                 		?>
+                 		<option value="<?php echo $h; ?>"><?php echo $h; ?></option>
+                 		<?php } ?>
+                 	</select>
+                 	:
+                 	<select>
+                 		<option value="00">00</option>
+                 		<option value="30">30</option>
+                 	</select>
+                 	~
+                 	<select>
+                 		<?php for ($i=0;$i<25;$i++){
+                 			$h=$i<10?'0'.$i:$i;
+                 		?>
+                 		<option value="<?php echo $h; ?>"><?php echo $h; ?></option>
+                 		<?php } ?>
+                 	</select>
+                 	:
+                 	<select>
+                 		<option value="00">00</option>
+                 		<option value="30">30</option>
+                 	</select></div>
+                 </td>
              </tr>
              <tr>
                  <td style="text-align:center;">电话</td>

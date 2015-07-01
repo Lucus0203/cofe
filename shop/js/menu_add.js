@@ -1,13 +1,6 @@
 $(function(){
 	//裁剪工具
 	$('.image-menuer').cropit({ imageBackground: true ,imageBackgroundBorderWidth: 25 });// Width of background border
-	$('#shopimgtool').click(function(){
-		if (typeof FileReader =='undefined'){
-            alert("您的浏览器不支持文件上传工具,建议换谷歌或者火狐浏览器.");
-		}
-		$(this).text($("#shopimgBox").is(":hidden") ? "收起上传工具" : "显示上传工具");
-		$("#shopimgBox").slideToggle();
-	});
 	$('#menuimgtool').click(function(){
 		if (typeof FileReader =='undefined'){
             alert("您的浏览器不支持文件上传工具,建议换谷歌或者火狐浏览器.");
