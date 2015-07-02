@@ -260,8 +260,14 @@ table#menuList .opera a{
 	margin:10px 0;
 }
 
-.holidaytime{
+
+.holidays,.holidaytime{
 	display:none;
+	margin-top:10px;
+}
+ul.holidays li{
+	float:left;
+	margin-right:10px;
 }
 /*店主认证*/
 span.red{

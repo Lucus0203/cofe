@@ -94,12 +94,16 @@ $(function(){
 			}
 		})
 	});
+	
 	//营业时间
-	$('input[name=holiday]').change(function(){
+	$('input[name=holidayflag]').change(function(){
 		if($(this).val()==1){
-			$('.holidaytime').show();
-		}else{
+			$('.holidays,.holidaytime').hide();
+		}else if($(this).val()==2){
+			$('.holidays').show();
 			$('.holidaytime').hide();
+		}else{
+			$('.holidays,.holidaytime').show();
 		}
 	});
 	

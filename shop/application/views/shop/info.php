@@ -58,84 +58,74 @@
              </tr>
              <tr>
                  <td style="text-align:center;">营业时间</td>
-                 <td>周
-                 	<select>
-                 		<option value="一">一</option>
-                 		<option value="二">二</option>
-                 		<option value="三">三</option>
-                 		<option value="四">四</option>
-                 		<option value="五">五</option>
-                 		<option value="六">六</option>
-                 		<option value="日">日</option>
-                 	</select>
-                 	至周
-                 	<select>
-                 		<option value="一">一</option>
-                 		<option value="二">二</option>
-                 		<option value="三">三</option>
-                 		<option value="四">四</option>
-                 		<option value="五">五</option>
-                 		<option value="六">六</option>
-                 		<option value="日" selected >日</option>
-                 	</select>
-                 	<select>
-                 		<?php for ($i=0;$i<25;$i++){
+                 <td>
+                 	<select name="hours1" >
+                 		<?php for ($i=0;$i<24;$i++){
                  			$h=$i<10?'0'.$i:$i;
                  		?>
-                 		<option value="<?php echo $h; ?>"><?php echo $h; ?></option>
+                 		<option value="<?php echo $h; ?>" <?php if($h==$data['hours1']){?>selected <?php }?> ><?php echo $h; ?></option>
                  		<?php } ?>
                  	</select>
                  	:
-                 	<select>
-                 		<option value="00">00</option>
-                 		<option value="30">30</option>
+                 	<select name="minutes1">
+                 		<option value="00" <?php if('00'==$data['minutes1']){?>selected <?php }?>>00</option>
+                 		<option value="30" <?php if('30'==$data['minutes1']){?>selected <?php }?>>30</option>
                  	</select>
                  	~
-                 	<select>
-                 		<?php for ($i=0;$i<25;$i++){
+                 	<select name="hours2">
+                 		<?php for ($i=0;$i<24;$i++){
                  			$h=$i<10?'0'.$i:$i;
                  		?>
-                 		<option value="<?php echo $h; ?>"><?php echo $h; ?></option>
+                 		<option value="<?php echo $h; ?>" <?php if($h==$data['hours2']){?>selected <?php }?> ><?php echo $h; ?></option>
                  		<?php } ?>
                  	</select>
                  	:
-                 	<select>
-                 		<option value="00">00</option>
-                 		<option value="30">30</option>
+                 	<select name="minutes2">
+                 		<option value="00" <?php if('00'==$data['minutes2']){?>selected <?php }?> >00</option>
+                 		<option value="30" <?php if('30'==$data['minutes2']){?>selected <?php }?> >30</option>
                  	</select>
                  </td>
              </tr>
              <tr>
-                 <td style="text-align:center;">其他日期</td>
+                 <td style="text-align:center;">休息日</td>
                  <td>
-                 	<label><input type="radio" name="holiday" value="1" />部分时间工作</label><label><input type="radio" name="holiday" value="2" checked />照常休息</label>
-                 	<br/>
-                 	<div class="holidaytime">
-                 	<select>
-                 		<?php for ($i=0;$i<25;$i++){
-                 			$h=$i<10?'0'.$i:$i;
-                 		?>
-                 		<option value="<?php echo $h; ?>"><?php echo $h; ?></option>
-                 		<?php } ?>
-                 	</select>
-                 	:
-                 	<select>
-                 		<option value="00">00</option>
-                 		<option value="30">30</option>
-                 	</select>
-                 	~
-                 	<select>
-                 		<?php for ($i=0;$i<25;$i++){
-                 			$h=$i<10?'0'.$i:$i;
-                 		?>
-                 		<option value="<?php echo $h; ?>"><?php echo $h; ?></option>
-                 		<?php } ?>
-                 	</select>
-                 	:
-                 	<select>
-                 		<option value="00">00</option>
-                 		<option value="30">30</option>
-                 	</select></div>
+                 	<label><input type="radio" name="holidayflag" value="1" checked />无休</label><label><input type="radio" name="holidayflag" <?php if($data['holidayflag']==2){ ?>checked<?php } ?> value="2" />休息日</label><label><input type="radio" name="holidayflag" <?php if($data['holidayflag']==3){ ?>checked<?php } ?> value="3" />休息日营业时间</label>
+                 	<ul class="holidays" <?php if($data['holidayflag']==2||$data['holidayflag']==3){ ?>style="display: block;"<?php } ?> >
+                 		<li><label><input name="holidays[]" type="checkbox" <?php if(strpos($data['holidays'],'1') !== false){?>checked<?php } ?> value="1">一</label></li>
+                 		<li><label><input name="holidays[]" type="checkbox" <?php if(strpos($data['holidays'],'2') !== false){?>checked<?php } ?> value="2">二</label></li>
+                 		<li><label><input name="holidays[]" type="checkbox" <?php if(strpos($data['holidays'],'3') !== false){?>checked<?php } ?> value="3">三</label></li>
+                 		<li><label><input name="holidays[]" type="checkbox" <?php if(strpos($data['holidays'],'4') !== false){?>checked<?php } ?> value="4">四</label></li>
+                 		<li><label><input name="holidays[]" type="checkbox" <?php if(strpos($data['holidays'],'5') !== false){?>checked<?php } ?> value="5">五</label></li>
+                 		<li><label><input name="holidays[]" type="checkbox" <?php if(strpos($data['holidays'],'6') !== false){?>checked<?php } ?> value="6">六</label></li>
+                 		<li><label><input name="holidays[]" type="checkbox" <?php if(strpos($data['holidays'],'0') !== false){?>checked<?php } ?> value="0">日</label></li>
+                 	</ul>
+                 	<div class="holidaytime" <?php if($data['holidayflag']==3){ ?>style="display: block;"<?php } ?> >
+	                 	<select name="holidayhours1">
+	                 		<?php for ($i=0;$i<24;$i++){
+	                 			$h=$i<10?'0'.$i:$i;
+	                 		?>
+	                 		<option value="<?php echo $h; ?>" <?php if($h==$data['holidayhours1']){?>selected <?php }?> ><?php echo $h; ?></option>
+	                 		<?php } ?>
+	                 	</select>
+	                 	:
+	                 	<select name="holidayminutes1">
+	                 		<option value="00" <?php if('00'==$data['holidayminutes1']){?>selected <?php }?> >00</option>
+	                 		<option value="30" <?php if('30'==$data['holidayminutes1']){?>selected <?php }?> >30</option>
+	                 	</select>
+	                 	~
+	                 	<select name="holidayhours2">
+	                 		<?php for ($i=0;$i<24;$i++){
+	                 			$h=$i<10?'0'.$i:$i;
+	                 		?>
+	                 		<option value="<?php echo $h; ?>" <?php if($h==$data['holidayhours2']){?>selected <?php }?> ><?php echo $h; ?></option>
+	                 		<?php } ?>
+	                 	</select>
+	                 	:
+	                 	<select name="holidayminutes2">
+	                 		<option value="00" <?php if('00'==$data['holidayminutes2']){?>selected <?php }?> >00</option>
+	                 		<option value="30" <?php if('30'==$data['holidayminutes2']){?>selected <?php }?> >30</option>
+	                 	</select>
+	                 </div>
                  </td>
              </tr>
              <tr>
