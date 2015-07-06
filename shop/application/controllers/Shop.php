@@ -203,10 +203,13 @@ class Shop extends CI_Controller {
 		$file=$this->input->post('image-data');
 		$img = $this->uploadBase64Img($file,'shop');
 		$this->imgsizepress->image_png_size_press($img,$img);//压缩图片
+		list($width,$height,$type)=getimagesize($img);
 		if(!empty($img)){
 			$pp = array (
 					'shop_id' => $logininfo['shop_id'],
 					'img' => base_url().$img,
+					'width' => $width,
+					'height' => $height,
 					'created' => date ( "Y-m-d H:i:s" ) 
 			);
 			$id=$this->shopimg_model->create ( $pp );

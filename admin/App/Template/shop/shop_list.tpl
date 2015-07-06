@@ -73,6 +73,7 @@
                  		{if $list[sec].status eq '2'}<a class="pubBtn" href="{url controller=Shop action=Public id=$list[sec].id}">准备</a>{else}<a class="depubBtn" href="{url controller=Shop action=DePublic id=$list[sec].id}">发布{/if}</a><br/>
                  	{/if}
                  	{if $list[sec].recommend eq '2'}<a class="pubBtn" href="{url controller=Shop action=Recommend id=$list[sec].id}">推荐</a>{else}<a class="depubBtn" href="{url controller=Shop action=DeRecommend id=$list[sec].id}">不推荐{/if}</a>
+                 	<a href="{url controller=ShopMenu action=Index id=$list[sec].id}">查看菜品</a>
                  </td>
              </tr>
              {/section}

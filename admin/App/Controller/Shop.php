@@ -315,11 +315,14 @@ class Controller_Shop extends FLEA_Controller_Action {
 			//压缩图片
 			$imgpress = & get_singleton ( "Service_ImgSizePress" );
 			$imgpress->image_png_size_press($filepath,$filepath);
+			list($width,$height,$type)=getimagesize($filepath);
 
 			$path=str_replace('../',APP_SITE, $filepath);
 			$pp = array (
 					'shop_id' => $shopid,
 					'img' => $path,
+					'width' => $width,
+					'height' => $height,
 					'created' => date ( "Y-m-d H:i:s" ) 
 			);
 			$id=$this->_shop_img->create ( $pp );

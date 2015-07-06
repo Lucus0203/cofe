@@ -181,7 +181,7 @@ function time2Units ($time)
 		return $elapse;
 }
 
-//根据经纬度获取地址
+//根据经纬度获取地址--百度
 function getAddressFromBaidu($lng,$lat){
 	$add_json=file_get_contents("http://api.map.baidu.com/geocoder/v2/?callbakc=renderReverse&location=".$lat.",".$lng."&output=json&ak=".BAIDU_AK);
 	$add=json_decode($add_json);
@@ -190,7 +190,8 @@ function getAddressFromBaidu($lng,$lat){
 	}
 }
 
-//根据地址获取经纬度
+
+//根据地址获取经纬度--百度
 function getLngFromBaidu($address){
 	$loc_json=file_get_contents("http://api.map.baidu.com/geocoder/v2/?address=".$address."&output=json&ak=".BAIDU_AK);
 	$loc=json_decode($loc_json);

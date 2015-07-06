@@ -50,8 +50,7 @@ class Menu extends CI_Controller {
 			$menu[$k]['prices']=$this->menuprice_model->getAll(array('menu_id'=>$m['id']));
 		}
 		$res = array (
-				'menu' => $menu,
-				'msg' => $msg
+				'menu' => $menu
 		);
 		$this->load->view ( 'header');
 		$this->load->view ( 'left' );

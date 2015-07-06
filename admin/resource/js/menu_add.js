@@ -81,7 +81,7 @@ $(function(){
 		}
 		return false;
 	});
-	//自定义规格
+	//其他规格
 	$('#menuList').on('change','.menu_price select.type',function(){
 		if($(this).val()=='自定义'&&$(this).next().text()=='删除'){
 			$(this).after('<input type="text" value="" />');
@@ -207,4 +207,3 @@ $(function(){
 	});
 	
 });
-
