@@ -37,3 +37,8 @@ function ismobile(mobile) {
 	}
 	return true;
 }
+
+function isnumber(number){
+	var reg=/^\d*$/
+	return reg.test(number);
+}

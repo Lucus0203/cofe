@@ -3,7 +3,6 @@ class Addressprovince_model extends CI_Model {
 	
 	public function __construct() {
 		$this->load->database ();
-		$this->db->set_dbprefix('cofe_');
 	}
 	
 	public function get_provinces(){

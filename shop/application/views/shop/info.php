@@ -27,17 +27,18 @@
                  <td><input name="subtitle" type="text" value="<?php echo $data['subtitle'] ?>" style="width:240px;"></td>
              </tr>
              <tr>
-                 <td style="text-align:center;word-break:keep-all;">上传店铺图片<br/>(图片大小640x480)</td>
+                 <td style="text-align:center;word-break:keep-all;">上传店铺图片<br/>(最小尺寸750x500)</td>
                  <td style="padding-left:30px;">
                  	<a id="shopimgtool" href="javascript:void(0);">显示上传工具</a>
                  	<div id="shopimgBox" style="display: none;">
-	                 	<div class="image-shoper">
+                 		<div class="image-shoper">
 		                    <input name="file" type="file" style="width:240px;" class="cropit-image-input" />
 		                    <div class="cropit-image-preview-container">
 							    <div class="cropit-image-preview"></div>
 							  </div>
 							<div class="slider-wrapper"><span class="icon icon-image small-image"></span><input type="range" class="cropit-image-zoom-input" min="0" max="1" step="0.01"><span class="icon icon-image large-image"></span></div>
-					    </div>
+					    	<div class="shopimgBoxResize"><span>图片高度</span><input type="range" step="1" max="500" min="0" class="cropit-image-resize" value="0"></div>
+	                 	</div>
 	                 	<input type="button" value="上传图片" id="shopImg_add" />
                  	</div>
                  </td>
@@ -57,7 +58,75 @@
              </tr>
              <tr>
                  <td style="text-align:center;">营业时间</td>
-                 <td><input name="hours" type="text" value="<?php echo $data['hours']?>" style="width:240px;"></td>
+                 <td>
+                 	<select name="hours1" >
+                 		<?php for ($i=0;$i<24;$i++){
+                 			$h=$i<10?'0'.$i:$i;
+                 		?>
+                 		<option value="<?php echo $h; ?>" <?php if($h==$data['hours1']){?>selected <?php }?> ><?php echo $h; ?></option>
+                 		<?php } ?>
+                 	</select>
+                 	:
+                 	<select name="minutes1">
+                 		<option value="00" <?php if('00'==$data['minutes1']){?>selected <?php }?>>00</option>
+                 		<option value="30" <?php if('30'==$data['minutes1']){?>selected <?php }?>>30</option>
+                 	</select>
+                 	~
+                 	<select name="hours2">
+                 		<?php for ($i=0;$i<24;$i++){
+                 			$h=$i<10?'0'.$i:$i;
+                 		?>
+                 		<option value="<?php echo $h; ?>" <?php if($h==$data['hours2']){?>selected <?php }?> ><?php echo $h; ?></option>
+                 		<?php } ?>
+                 	</select>
+                 	:
+                 	<select name="minutes2">
+                 		<option value="00" <?php if('00'==$data['minutes2']){?>selected <?php }?> >00</option>
+                 		<option value="30" <?php if('30'==$data['minutes2']){?>selected <?php }?> >30</option>
+                 	</select>
+                 </td>
+             </tr>
+             <tr>
+                 <td style="text-align:center;">休息日</td>
+                 <td>
+                 	<label><input type="radio" name="holidayflag" value="1" checked />无休</label><label><input type="radio" name="holidayflag" <?php if($data['holidayflag']==2){ ?>checked<?php } ?> value="2" />休息日</label><label><input type="radio" name="holidayflag" <?php if($data['holidayflag']==3){ ?>checked<?php } ?> value="3" />休息日营业时间</label>
+                 	<ul class="holidays" <?php if($data['holidayflag']==2||$data['holidayflag']==3){ ?>style="display: block;"<?php } ?> >
+                 		<li><label><input name="holidays[]" type="checkbox" <?php if(strpos($data['holidays'],'1') !== false){?>checked<?php } ?> value="1">一</label></li>
+                 		<li><label><input name="holidays[]" type="checkbox" <?php if(strpos($data['holidays'],'2') !== false){?>checked<?php } ?> value="2">二</label></li>
+                 		<li><label><input name="holidays[]" type="checkbox" <?php if(strpos($data['holidays'],'3') !== false){?>checked<?php } ?> value="3">三</label></li>
+                 		<li><label><input name="holidays[]" type="checkbox" <?php if(strpos($data['holidays'],'4') !== false){?>checked<?php } ?> value="4">四</label></li>
+                 		<li><label><input name="holidays[]" type="checkbox" <?php if(strpos($data['holidays'],'5') !== false){?>checked<?php } ?> value="5">五</label></li>
+                 		<li><label><input name="holidays[]" type="checkbox" <?php if(strpos($data['holidays'],'6') !== false){?>checked<?php } ?> value="6">六</label></li>
+                 		<li><label><input name="holidays[]" type="checkbox" <?php if(strpos($data['holidays'],'0') !== false){?>checked<?php } ?> value="0">日</label></li>
+                 	</ul>
+                 	<div class="holidaytime" <?php if($data['holidayflag']==3){ ?>style="display: block;"<?php } ?> >
+	                 	<select name="holidayhours1">
+	                 		<?php for ($i=0;$i<24;$i++){
+	                 			$h=$i<10?'0'.$i:$i;
+	                 		?>
+	                 		<option value="<?php echo $h; ?>" <?php if($h==$data['holidayhours1']){?>selected <?php }?> ><?php echo $h; ?></option>
+	                 		<?php } ?>
+	                 	</select>
+	                 	:
+	                 	<select name="holidayminutes1">
+	                 		<option value="00" <?php if('00'==$data['holidayminutes1']){?>selected <?php }?> >00</option>
+	                 		<option value="30" <?php if('30'==$data['holidayminutes1']){?>selected <?php }?> >30</option>
+	                 	</select>
+	                 	~
+	                 	<select name="holidayhours2">
+	                 		<?php for ($i=0;$i<24;$i++){
+	                 			$h=$i<10?'0'.$i:$i;
+	                 		?>
+	                 		<option value="<?php echo $h; ?>" <?php if($h==$data['holidayhours2']){?>selected <?php }?> ><?php echo $h; ?></option>
+	                 		<?php } ?>
+	                 	</select>
+	                 	:
+	                 	<select name="holidayminutes2">
+	                 		<option value="00" <?php if('00'==$data['holidayminutes2']){?>selected <?php }?> >00</option>
+	                 		<option value="30" <?php if('30'==$data['holidayminutes2']){?>selected <?php }?> >30</option>
+	                 	</select>
+	                 </div>
+                 </td>
              </tr>
              <tr>
                  <td style="text-align:center;">电话</td>
@@ -72,13 +141,11 @@
 						<?php } ?>
 					</select>
 	                <select name="city_id" class="city_id">
-					<option value="">不限</option>
 	                	<?php foreach ($cities as $c){ ?>
 							<option value="<?php echo $c['id'] ?>" <?php if ($data['city_id']==$c['id']){ ?>selected<?php } ?> > <?php echo $c['name'] ?></option>
 						<?php } ?>
 					</select>
 					<select name="town_id" class="town_id">
-					<option value="">不限</option>
 	                	<?php foreach ($towns as $t){ ?>
 						{section name=sec loop=$towns}
 							<option value="<?php echo $t['id'] ?>" <?php if ($data['town_id']==$t['id']){ ?>selected<?php } ?> > <?php echo $t['name'] ?></option>
@@ -114,42 +181,14 @@
                  <td><textarea name="introduction" style="width:640px;height:250px;"><?php echo $data['introduction']?></textarea></td>
              </tr>
              <tr>
-                 <td style="text-align:center;word-break:keep-all;">上传菜品<br>(图片大小292x233)</td>
-                 <td style="padding-left:30px;">
-                 	<a id="menuimgtool" href="javascript:void(0);">显示上传工具</a>
-                 	<div id="menuimgBox" style="display: none;">
-	                 	<div class="image-menuer">
-		                    <input name="file" type="file" style="width:240px;" class="cropit-image-input" />
-		                    <div class="cropit-image-preview-container">
-							    <div class="cropit-image-preview"></div>
-							  </div>
-							<div class="slider-wrapper"><span class="icon icon-image small-image"></span><input type="range" class="cropit-image-zoom-input" min="0" max="1" step="0.01"><span class="icon icon-image large-image"></span></div>
-					    </div>
-	                 	菜品名称：<input type="text" id="menuTitle" style="margin-right: 20px;"/><input type="button" value="上传图片" id="menuImg_add" />
-                 	</div>
-                 </td>
-             </tr>
-             <tr>
-                 <td style="text-align:center;">菜品</td>
+                 <td style="text-align:center;">是否发布</td>
                  <td>
-	                 <ul  id="menuimgs">
-             			<?php foreach ($menu as $m){ ?>
-	                 		<li>
-	                 			<a href="<?php echo $m['img']?>" data-lightbox="menu-group"><img src="<?php echo $m['img']?>"></a><a class="delMenuImg" rel="<?php echo $m['id']?>" href="javascript:void(0)">删 除</a>
-	                 			<label><?php echo $m['title']?></label>
-	                 		</li>
-	             		<?php } ?>
-	             	</ul>
-                 </td>
-             </tr>
-             <tr>
-                 <td style="text-align:center;">审核状态</td>
-                 <td>
-                 	<?php if ($data['status']==2){ ?>审核通过 <?php }else{ ?>等待审核<?php } ?>
+                 	<label><input name="status" type="radio" value="1" checked="checked">准备中</label>
+                 	<label><input name="status" type="radio" value="2" <?php if ($data['status']==2){ ?>checked="checked"<?php } ?> >发布中</label>
                  </td>
              </tr>
          </table>
-         <p class="btn"><input type="submit" value=" 确定修改 "></p>
+         <p class="btn"><input type="submit" value=" 确定操作 "></p>
          </form>
  	</div>       
  </td>

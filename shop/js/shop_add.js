@@ -1,20 +1,27 @@
 $(function(){
 	//裁剪工具
-	$('.image-shoper').cropit({ imageBackground: true ,imageBackgroundBorderWidth: 25 });// Width of background border
-	$('.image-menuer').cropit({ imageBackground: true ,imageBackgroundBorderWidth: 25 });// Width of background border
+	$('.image-shoper').cropit({ width:750,height:500,imageBackground: true ,imageBackgroundBorderWidth: 25 });// Width of background border
+	//图片尺寸切换
+	$('input[name=cropit-size]').click(function(){
+		var i=$('input[name=cropit-size]').index($(this));
+		if(i==0){
+			$('.image-shoper').cropit('previewSize', { width: 750, height: 500 });
+		}else if(i==1){
+			$('.image-shoper').cropit('previewSize', { width: 750, height: 750 });
+		}else if(i==2){
+			$('.image-shoper').cropit('previewSize', { width: 750, height: 1000 });
+		}
+	});
+	$('.cropit-image-resize').change(function(){
+		var h=$(this).val()*1+500;
+		$('.image-shoper').cropit('previewSize', { width: 750, height: h });
+	});
 	$('#shopimgtool').click(function(){
 		if (typeof FileReader =='undefined'){
             alert("您的浏览器不支持文件上传工具,建议换谷歌或者火狐浏览器.");
 		}
 		$(this).text($("#shopimgBox").is(":hidden") ? "收起上传工具" : "显示上传工具");
 		$("#shopimgBox").slideToggle();
-	});
-	$('#menuimgtool').click(function(){
-		if (typeof FileReader =='undefined'){
-            alert("您的浏览器不支持文件上传工具,建议换谷歌或者火狐浏览器.");
-		}
-		$(this).text($("#menuimgBox").is(":hidden") ? "收起上传工具" : "显示上传工具");
-		$("#menuimgBox").slideToggle();
 	});
 	//上传店铺图片
 	$('#shopImg_add').click(function(){
@@ -41,37 +48,6 @@ $(function(){
 		}
 	});
 	
-	//上传菜单
-	$('#menuImg_add').click(function(){
-		var title=$('#menuTitle').val();
-		if($.trim(title)==''){
-			alert('请填写菜品名称');
-			return;
-		}
-		var baseUrl=$('#baseUrl').val();
-		var shopAddUrl=baseUrl+'shop/ajaxUploadShopMenu'
-	    var imageData = $('.image-menuer').cropit('export');
-		if(imageData){
-			$('#menuimgs').append('<li class="loading"><img src="'+baseUrl+'images/loading.gif" width="32" height="32"></li>');
-			$.ajax({
-				type:'post',
-				url:shopAddUrl,
-				data:{'image-data':imageData,'title':title},
-				dataType:'json',
-				success:function(res){
-					if(res.src!=''){
-						$('#menuimgs .loading').eq(0).remove();
-						$('#menuimgs').append('<li><a href="'+res.src+'" data-lightbox="menu-group"><img src="'+res.src+'"></a><a class="delMenuImg" rel="'+res.id+'" href="javascript:void(0);">删 除</a>'+
-		             			'<label>'+res.title+'</li>');
-					}else{
-						alert('图片上传失败,请联系管理员');
-					}
-					
-				}
-			});
-		}
-	});
-	
 	$('#shopimgs').on('click','a.delShopImg',function(){
 		var baseUrl=$('#baseUrl').val();
 		var thisimg=$(this).parent();
@@ -80,25 +56,6 @@ $(function(){
 			$.ajax({
 				type:'get',
 				url:baseUrl+'shop/delshopimg',
-				data:{'pid':pid},
-				success:function(res){
-					if(res==1){
-						thisimg.remove();
-					}
-				}
-			})
-		}
-		return false;
-	});
-
-	$('#menuimgs').on('click','a.delMenuImg',function(){
-		var baseUrl=$('#baseUrl').val();
-		var thisimg=$(this).parent();
-		if(confirm('确定删除吗?')){
-			var pid=$(this).attr('rel');
-			$.ajax({
-				type:'get',
-				url:baseUrl+'shop/delmenu',
 				data:{'pid':pid},
 				success:function(res){
 					if(res==1){
@@ -138,9 +95,21 @@ $(function(){
 		})
 	});
 	
+	//营业时间
+	$('input[name=holidayflag]').change(function(){
+		if($(this).val()==1){
+			$('.holidays,.holidaytime').hide();
+		}else if($(this).val()==2){
+			$('.holidays').show();
+			$('.holidaytime').hide();
+		}else{
+			$('.holidays,.holidaytime').show();
+		}
+	});
+	
 	//北京
-	var lng=$('#lng').val()!=''?$('#lng').val():116.400244;
-	var lat=$('#lat').val()!=''?$('#lat').val():39.92556;
+	var lng=$('#lng').val()!=''?$('#lng').val():121.48;
+	var lat=$('#lat').val()!=''?$('#lat').val():31.22;
 	// 百度地图API功能
 	var map = new BMap.Map("allmap");
 	map.enableScrollWheelZoom();                         //启用滚轮放大缩小
@@ -231,7 +200,7 @@ function checkFrom(){
 	}
 	
 	if(flag){
-		return confirm('确认修改信息吗?')
+		return confirm('确认操作吗?')
 	}
 	return flag;
 }

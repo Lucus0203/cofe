@@ -62,13 +62,18 @@
                  <td>{$list[sec].lng},<br/>{$list[sec].lat}</td>
                  <td>{$list[sec].introduction|substr:0:40}</td>
                  <td>
-                 	{if $list[sec].status eq '1'}准备中{else}发布中{/if}<br/>
+                 	{if $list[sec].ispassed eq '2'}审核中{else}{if $list[sec].status eq '1'}准备中{else}发布中{/if}{/if}<br/>
                  	{if $list[sec].recommend eq '1'}推荐中{else}未推荐{/if}
                  </td>
                  <td style="word-break:keep-all;">
                  	<a href="{url controller=Shop action=Edit id=$list[sec].id}">编辑</a><a class="delBtn" href="{url controller=Shop action=Del id=$list[sec].id}">删除</a><br/>
-                 	{if $list[sec].status eq '2'}<a class="pubBtn" href="{url controller=Shop action=Public id=$list[sec].id}">准备</a>{else}<a class="depubBtn" href="{url controller=Shop action=DePublic id=$list[sec].id}">发布{/if}</a><br/>
+                 	{if $list[sec].ispassed eq '2'}
+						<a class="pubBtn" href="{url controller=Master action=Pass shopid=$list[sec].id}">审核通过</a>
+                 	{else}
+                 		{if $list[sec].status eq '2'}<a class="pubBtn" href="{url controller=Shop action=Public id=$list[sec].id}">准备</a>{else}<a class="depubBtn" href="{url controller=Shop action=DePublic id=$list[sec].id}">发布{/if}</a><br/>
+                 	{/if}
                  	{if $list[sec].recommend eq '2'}<a class="pubBtn" href="{url controller=Shop action=Recommend id=$list[sec].id}">推荐</a>{else}<a class="depubBtn" href="{url controller=Shop action=DeRecommend id=$list[sec].id}">不推荐{/if}</a>
+                 	<a href="{url controller=ShopMenu action=Index id=$list[sec].id}">查看菜品</a>
                  </td>
              </tr>
              {/section}

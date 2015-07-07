@@ -118,8 +118,8 @@ ul{list-style:none;}
   border: 1px solid #ccc;
   border-radius: 3px;
   margin: 30px 0;
-  width: 640px;
-  height: 480px;
+  width: 654px;
+  height: 430px;
   cursor: move;
 }
 
@@ -156,6 +156,7 @@ input.cropit-image-zoom-input {
 	border:solid 1px #000;
 	width:200px;
 	margin-bottom:10px;
+	height:200px;
 }
 #shopimgs li label,#menuimgs li label{
 	display:block;
@@ -164,8 +165,8 @@ input.cropit-image-zoom-input {
 	width:200px;
 }
 .image-menuer .cropit-image-preview{
-  width: 292px;
-  height: 233px;
+  width: 414px;
+  height: 380px;
 }
 
 #shopimgtool,#menuimgtool{
@@ -186,4 +187,35 @@ input.cropit-image-zoom-input {
 	width:32px;
 	height:32px;
 	margin:60px 0 0 80px;
+}
+
+
+table#menuList{
+	margin-top:30px;
+}
+table#menuList .menu_img,table#menuList .menu_title{
+	text-align:center;
+}
+table#menuList .menu_img a img{
+	border:solid 1px #000;
+	width:200px;
+	height:150px;
+	margin:10px;
+}
+table#menuList ul.menu_price{
+	min-width:315px;
+	margin:10px;
+}
+table#menuList ul.menu_price li{
+	margin:10px 0;
+}
+table#menuList ul.menu_price li input{
+	width:50px;
+}
+table#menuList .opera{
+	text-align:center;
+}
+table#menuList .opera a{
+	display:block;
+	margin:10px 0;
 }

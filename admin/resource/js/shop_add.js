@@ -1,7 +1,6 @@
 $(function(){
 	//裁剪工具
-	$('.image-shoper').cropit({ imageBackground: true ,imageBackgroundBorderWidth: 25 });// Width of background border
-	$('.image-menuer').cropit({ imageBackground: true ,imageBackgroundBorderWidth: 25 });// Width of background border
+	$('.image-shoper').cropit({ width:750,height:500,imageBackground: true ,imageBackgroundBorderWidth: 25 });// Width of background border
 	$('#shopimgtool').click(function(){
 		if (typeof FileReader =='undefined'){
             alert("您的浏览器不支持文件上传工具,建议换谷歌或者火狐浏览器.");
@@ -9,14 +8,6 @@ $(function(){
 		$(this).text($("#shopimgBox").is(":hidden") ? "收起上传工具" : "显示上传工具");
 		$("#shopimgBox").slideToggle();
 	});
-	$('#menuimgtool').click(function(){
-		if (typeof FileReader =='undefined'){
-            alert("您的浏览器不支持文件上传工具,建议换谷歌或者火狐浏览器.");
-		}
-		$(this).text($("#menuimgBox").is(":hidden") ? "收起上传工具" : "显示上传工具");
-		$("#menuimgBox").slideToggle();
-	});
-	
 
 	//Ajax上传店铺图片公用方法
 	function shopImgUpload(imageData){
@@ -61,54 +52,6 @@ $(function(){
         }  
 	});
 
-	//Ajax上传菜品图片公用方法
-	function menuImgUpload(imageData){
-		var title=$('#menuTitle').val();
-		if($.trim(title)==''){
-			alert('请填写菜品名称');
-			return;
-		}
-	    var shopid=$('input[name=id]').val();
-		var baseUrl=$('#baseUrl').val();
-		var shopAddUrl=baseUrl+'index.php?controller=Shop&action=AjaxUploadShopMenu';
-		$('#menuimgs').append('<li class="loading"><img src="'+baseUrl+'resource/images/loading.gif" width="32" height="32"></li>');
-		$.ajax({
-			type:'post',
-			url:shopAddUrl,
-			data:{'shopid':shopid,'image-data':imageData,'title':title},
-			dataType:'json',
-			success:function(res){
-				if(res.src!=''){
-					$('#menuimgs .loading').eq(0).remove();
-					$('#menuimgs').append('<li><a href="'+res.src+'" data-lightbox="menu-group"><img src="'+res.src+'"></a><a class="delMenuImg" rel="'+res.id+'" href="javascript:void(0);">删 除</a>'+
-	             			'<label>'+res.title+'</li>');
-				}else{
-					alert('图片上传失败,请联系管理员');
-				}
-				
-			}
-		});
-	}
-	//上传菜单
-	$('#menuImg_add').click(function(){
-	    var imageData = $('.image-menuer').cropit('export');
-		if(imageData){
-			menuImgUpload(imageData);
-		}
-	});
-	
-	//上传菜品原始图片
-	$('#menuImg_add_nocut').click(function(){
-		var file=$('#menuimgBox .cropit-image-input').get(0).files[0];
-		if(typeof FileReader) {  
-            var fr = new FileReader();
-            fr.onloadend = function(e) {
-               var imgdata=e.target.result;
-               menuImgUpload(imgdata);
-            };
-            fr.readAsDataURL(file);
-        }  
-	});
 	
 	
 	$('#shopimgs').on('click','a.delShopImg',function(){
@@ -130,24 +73,6 @@ $(function(){
 		return false;
 	});
 
-	$('#menuimgs').on('click','a.delMenuImg',function(){
-		var baseUrl=$('#baseUrl').val();
-		var thisimg=$(this).parent();
-		if(confirm('确定删除吗?')){
-			var pid=$(this).attr('rel');
-			$.ajax({
-				type:'get',
-				url:baseUrl+'index.php?controller=Shop&action=DelMenu',
-				data:{'pid':pid},
-				success:function(res){
-					if(res==1){
-						thisimg.remove();
-					}
-				}
-			})
-		}
-		return false;
-	});
 	
 	$('.province_id').change(function(){
 		var index=$('.province_id').index($(this));
@@ -176,6 +101,20 @@ $(function(){
 			}
 		})
 	});
+	
+	
+	//营业时间
+	$('input[name=holidayflag]').change(function(){
+		if($(this).val()==1){
+			$('.holidays,.holidaytime').hide();
+		}else if($(this).val()==2){
+			$('.holidays').show();
+			$('.holidaytime').hide();
+		}else{
+			$('.holidays,.holidaytime').show();
+		}
+	});
+	
 	
 	//北京
 	var lng=$('#lng').val()!=''?$('#lng').val():116.400244;
