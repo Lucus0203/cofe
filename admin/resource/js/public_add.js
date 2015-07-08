@@ -1,3 +1,6 @@
+KindEditor.ready(function(K) {
+        window.editor = K.create('#editor');
+});
 $(function(){
 	$('#photo_add').click(function(){
 		$(this).before('<tr><td style="text-align:center;">海报图片</td>'+

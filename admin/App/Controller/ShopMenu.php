@@ -75,7 +75,7 @@ class Controller_ShopMenu extends FLEA_Controller_Action {
 			$menu[$k]['prices']=$this->_shop_menu_price->findAll(array('menu_id'=>$m['id']));
 		}
 		
-		$this->_common->show ( array ('main' => 'shop/menu.tpl','menu'=>$menu) );
+		$this->_common->show ( array ('main' => 'shop/menu.tpl','menu'=>$menu,'shopid'=>$shopid) );
 	}
 
 	//ajax上传菜品
@@ -133,7 +133,6 @@ class Controller_ShopMenu extends FLEA_Controller_Action {
 		//$pub_photo=$this->_shop_menu->findByField('id',$pid);
 		//$this->delAppImg($pub_photo['img']);
 		echo $this->_shop_menu->removeByPkv($pid);
-		echo 1;
 	}
 	
 

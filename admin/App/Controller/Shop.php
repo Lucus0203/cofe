@@ -10,6 +10,7 @@ class Controller_Shop extends FLEA_Controller_Action {
 	var $_shop;
 	var $_shop_bbs;
 	var $_shop_menu;
+	var $_shop_menu_price;
 	var $_shop_img;
 	var $_admin;
 	var $_adminid;
@@ -25,6 +26,7 @@ class Controller_Shop extends FLEA_Controller_Action {
 		$this->_shop = get_singleton ( "Model_Shop" );
 		$this->_shop_bbs = get_singleton ( "Model_ShopBbs" );
 		$this->_shop_menu = get_singleton ( "Model_ShopMenu" );
+		$this->_shop_menu_price = get_singleton ( "Model_ShopMenuPrice" );
 		$this->_shop_img = get_singleton ( "Model_ShopImg" );
 		$this->_address_city = get_singleton ( "Model_AddressCity" );
 		$this->_address_province = get_singleton ( "Model_AddressProvince" );
@@ -142,6 +144,11 @@ class Controller_Shop extends FLEA_Controller_Action {
 			//特色
 			$feats=implode(",", $data['features']);
 			$data['feature']=$feats;
+			$data ['hours1'] = $data ['hours1'].':'.$data ['minutes1'];
+			$data ['hours2'] = $data ['hours2'].':'.$data ['minutes2'];
+			$data ['holidays'] = implode(',', $data ['holidays']);
+			$data ['holidayhours1'] = $data ['holidayhours1'].':'.$data ['holidayminutes1'];
+			$data ['holidayhours2'] = $data ['holidayhours2'].':'.$data ['holidayminutes2'];
 			$id=$this->_shop->create($data);
 			
 			//更多店铺图片
@@ -189,21 +196,6 @@ class Controller_Shop extends FLEA_Controller_Action {
 		$msg='';
 		if($act=='edit'){
 			$data=$_POST;
-			//水印
-// 			$ImgWaterMark= & get_singleton ( "Service_ImgWaterMark" );
-// 			$waterpath=SERVERROOT.'/resource/images/watermark.png';
-// 			$waterpath_menu=SERVERROOT.'/resource/images/watermark_menu.png';
-			
-// 			$Upload=$this->getUploadObj('shop');
-// 			$img=$Upload->upload('file');
-// 			if($img['status']==1){
-// 				$this->delAppImg($data['img']);
-// 				if($data['iswatermark']=='1'){
-// 					$path=str_replace(APP_SITE,'../', $img['file_path']);
-// 					$ImgWaterMark->imageWaterMark($path,9,$waterpath);
-// 				}
-// 				$data['img']=$img['file_path'];
-// 			}
 			//判断经纬度
 			if(empty($data['lng'])||empty($data['lat'])){
 				$lng=$this->_common->getLngFromBaidu($data['address']);
@@ -213,48 +205,12 @@ class Controller_Shop extends FLEA_Controller_Action {
 			//特色
 			$feats=implode(",", $data['features']);
 			$data['feature']=$feats;
+			$data ['hours1'] = $data ['hours1'].':'.$data ['minutes1'];
+			$data ['hours2'] = $data ['hours2'].':'.$data ['minutes2'];
+			$data ['holidays'] = implode(',', $data ['holidays']);
+			$data ['holidayhours1'] = $data ['holidayhours1'].':'.$data ['holidayminutes1'];
+			$data ['holidayhours2'] = $data ['holidayhours2'].':'.$data ['holidayminutes2'];
 			$this->_shop->update($data);
-// 			$this->_shop_img->removeByConditions(array('shop_id'=>$id));
-// 			$this->_shop_menu->removeByConditions(array('shop_id'=>$id));
-			//创建新更多店铺图
-
-// 			if(isset($data['shop_oldimg'] )){
-// 				foreach ($data['shop_oldimg'] as $mk=>$pub){
-// 					$pp=array('shop_id'=>$id,'img'=>$pub);
-// 					$this->_shop_img->create($pp);
-// 				}
-// 			}
-// 			$shimgs=$Upload->uploadFiles('shop_img');
-// 			if($shimgs['status']==1){
-// 				foreach ($shimgs['filepaths'] as $k=>$p){
-// 					if($data['iswatermark']=='1'){
-// 						$path=str_replace(APP_SITE,'../', $p);
-// 						$ImgWaterMark->imageWaterMark($path,9,$waterpath);
-// 					}
-// 					$pp=array('shop_id'=>$id,'img'=>$p,'created'=>date("Y-m-d H:i:s"));
-// 					$this->_shop_img->create($pp);
-// 				}
-// 			}
-// 			//创建新的菜品
-// 			if(isset($data['menu_oldimg'] )){
-// 				foreach ($data['menu_oldimg'] as $mk=>$pub){
-// 					$pp=array('shop_id'=>$id,'title'=>$data['menu_oldtitle'][$mk],'img'=>$pub,'created'=>date("Y-m-d H:i:s"));
-// 					$this->_shop_menu->create($pp);
-// 				}
-// 			}
-
-// 			$Upload=$this->getUploadObj('shopMenu');
-// 			$files=$Upload->uploadFiles('menu_img');
-// 			if($files['status']==1){
-// 				foreach ($files['filepaths'] as $k=>$p){
-// 					if($data['iswatermark']=='1'){
-// 						$path=str_replace(APP_SITE,'../', $p);
-// 						$ImgWaterMark->imageWaterMark($path,9,$waterpath_menu);
-// 					}
-// 					$pp=array('shop_id'=>$id,'title'=>$data['menu_title'][$k],'img'=>$p,'created'=>date("Y-m-d H:i:s"));
-// 					$this->_shop_menu->create($pp);
-// 				}
-// 			}
 			$msg="更新成功!";
 		}
 		$data=$this->_shop->findByField('id',$id);
@@ -270,6 +226,28 @@ class Controller_Shop extends FLEA_Controller_Action {
 				$tag['checked']='checked';
 			}
 			$tags[$k]=$tag;
+		}
+		//营业时间
+		if(!empty($data['hours1'])){
+			$hours=explode ( ':', $data ['hours1'] );
+			$data ['hours1']=$hours[0];
+			$data ['minutes1']=$hours[1];
+		}
+		if(!empty($data['hours2'])){
+			$hours=explode ( ':', $data ['hours2'] );
+			$data ['hours2']=$hours[0];
+			$data ['minutes2']=$hours[1];
+		}
+		//休息日营业时间
+		if(!empty($data['holidayhours1'])){
+			$hours=explode ( ':', $data ['holidayhours1'] );
+			$data ['holidayhours1']=$hours[0];
+			$data ['holidayminutes1']=$hours[1];
+		}
+		if(!empty($data['holidayhours2'])){
+			$hours=explode ( ':', $data ['holidayhours2'] );
+			$data ['holidayhours2']=$hours[0];
+			$data ['holidayminutes2']=$hours[1];
 		}
 		$data['province_id']=empty($data['province_id'])?19:$data['province_id'];
 		$data['city_id']=empty($data['city_id'])?200:$data['city_id'];
@@ -309,9 +287,9 @@ class Controller_Shop extends FLEA_Controller_Action {
 		// 生成文件
 		if (file_put_contents($filepath, base64_decode($data), true)) {
 			//水印
-			$ImgWaterMark= & get_singleton ( "Service_ImgWaterMark" );
-			$waterpath=SERVERROOT.'/resource/images/watermark.png';
-			$ImgWaterMark->imageWaterMark($filepath,9,$waterpath);
+// 			$ImgWaterMark= & get_singleton ( "Service_ImgWaterMark" );
+// 			$waterpath=SERVERROOT.'/resource/images/watermark.png';
+// 			$ImgWaterMark->imageWaterMark($filepath,9,$waterpath);
 			//压缩图片
 			$imgpress = & get_singleton ( "Service_ImgSizePress" );
 			$imgpress->image_png_size_press($filepath,$filepath);
@@ -334,56 +312,6 @@ class Controller_Shop extends FLEA_Controller_Action {
 		echo json_encode($data);
 	}
 
-	//上传菜品
-	function actionAjaxUploadShopMenu(){
-		$shopid=$_POST['shopid'];
-		$title=$_POST['title'];
-		$file=$_POST['image-data'];
-	
-		$folder='../upload/shopMenu/';
-		if (! file_exists ( $folder )) {
-			mkdir ( $folder, 0777 );
-		}
-		$dir = $folder . date ( "Ymd" ) . '/';
-		if (! file_exists ( $dir )) {
-			mkdir ( $dir, 0777 );
-		}
-		list($imgtype, $data) = explode(',', $file);
-		// 判断类型
-		if(strstr($imgtype,'image/jpeg')!==''){
-			$ext = '.jpg';
-		}elseif(strstr($imgtype,'image/gif')!==''){
-			$ext = '.gif';
-		}elseif(strstr($imgtype,'image/png')!==''){
-			$ext = '.png';
-		}
-		// 生成的文件名
-		$filepath = $dir.time().$ext;
-		// 生成文件
-		if (file_put_contents($filepath, base64_decode($data), true)) {
-			//水印
-			$ImgWaterMark= & get_singleton ( "Service_ImgWaterMark" );
-			$waterpath_menu=SERVERROOT.'/resource/images/watermark_menu.png';
-			$ImgWaterMark->imageWaterMark($filepath,9,$waterpath_menu);
-			//压缩图片
-			$imgpress = & get_singleton ( "Service_ImgSizePress" );
-			$imgpress->image_png_size_press($filepath,$filepath);
-
-			$path=str_replace('../',APP_SITE, $filepath);
-			$pp = array (
-					'shop_id' => $shopid,
-					'title' => $title,
-					'img' => $path,
-					'created' => date ( "Y-m-d H:i:s" )
-			);
-			$id=$this->_shop_menu->create ( $pp );
-			$img=$path;
-		}else{
-			$img=$id='';
-		}
-		$data=array('src'=>$img,'id'=>$id,'title'=>$title);
-		echo json_encode($data);
-	}
 	
 	function actionDelShopImg(){//删除更多店铺图
 		$pid=isset ( $_GET ['pid'] ) ? $_GET ['pid'] : '';
@@ -394,24 +322,15 @@ class Controller_Shop extends FLEA_Controller_Action {
 	
 	}
 	
-	function actionDelMenu(){//删除菜单
-		$pid=isset ( $_GET ['pid'] ) ? $_GET ['pid'] : '';
-		$pid=$this->_common->filter($pid);
-		$pub_photo=$this->_shop_menu->findByField('id',$pid);
-		$this->delAppImg($pub_photo['img']);
-		echo $this->_shop_menu->removeByPkv($pid);
-	
-	}
-	
 	function actionDel(){//删除
 		$config = FLEA::getAppInf ( 'dbDSN' );
-		$SHOP_PREFIX=$config ['shop_prefix'];
 		
 		$id=$this->_common->filter($_GET['id']);
 		$shopmenu=$this->_shop_menu->findAll(array('shop_id'=>$id));
 		foreach ($shopmenu as $shopm){
 			$this->delAppImg($shopm['img']);
 			$this->_shop_menu->removeByPkv($shopm['id']);
+			$this->_shop_menu_price->removeByConditions(array('shop_id'=>$id));
 		}
 		$shopimg=$this->_shop_img->findAll(array('shop_id'=>$id));
 		foreach ($shopimg as $shopm){
@@ -420,9 +339,6 @@ class Controller_Shop extends FLEA_Controller_Action {
 		}
 		$this->_shop_bbs->removeByConditions(array('shop_id'=>$id));
 		$this->_shop->removeByPkv($id);
-
-		$updatasql="update ".$SHOP_PREFIX."info set shop_id = NULL,status=1 where shop_id={$id} ";//待审核
-		$this->_shop->execute($updatasql);
 		redirect($_SERVER['HTTP_REFERER']);
 	}
 	function actionPublic(){ //发布

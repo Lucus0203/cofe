@@ -89,7 +89,6 @@ class Shop extends CI_Controller {
 			$shopinfo ['subtitle'] = $this->input->post ('subtitle');
 			$shopinfo ['img'] = $this->input->post ('img');
 			$shopinfo ['tel'] = $this->input->post ('tel');
-			$shopinfo ['hours'] = $this->input->post ('hours');
 			$shopinfo ['hours1'] = $this->input->post ('hours1').':'.$this->input->post ('minutes1');
 			$shopinfo ['hours2'] = $this->input->post ('hours2').':'.$this->input->post ('minutes2');
 			$shopinfo ['holidayflag'] = $this->input->post ('holidayflag');
@@ -154,23 +153,23 @@ class Shop extends CI_Controller {
 			if(!empty($data['hours1'])){
 				$hours=explode ( ':', $data ['hours1'] );
 				$data ['hours1']=$hours[0];
-				$data ['minutes1']=$hours[0];
+				$data ['minutes1']=$hours[1];
 			}
 			if(!empty($data['hours2'])){
 				$hours=explode ( ':', $data ['hours2'] );
 				$data ['hours2']=$hours[0];
-				$data ['minutes2']=$hours[0];
+				$data ['minutes2']=$hours[1];
 			}
 			//休息日营业时间
 			if(!empty($data['holidayhours1'])){
 				$hours=explode ( ':', $data ['holidayhours1'] );
 				$data ['holidayhours1']=$hours[0];
-				$data ['holidayminutes1']=$hours[0];
+				$data ['holidayminutes1']=$hours[1];
 			}
 			if(!empty($data['holidayhours2'])){
 				$hours=explode ( ':', $data ['holidayhours2'] );
 				$data ['holidayhours2']=$hours[0];
-				$data ['holidayminutes2']=$hours[0];
+				$data ['holidayminutes2']=$hours[1];
 			}
 		}
 		$data ['province_id'] = empty ( $data ['province_id'] ) ? 9 : $data ['province_id'];

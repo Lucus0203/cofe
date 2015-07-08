@@ -54,7 +54,7 @@
              </tr>
              {section name=sec loop=$list}
              <tr>
-                 <td>{if $list[sec].img neq ''}<img src="{$list[sec].img}">{else}<img src="{$smarty.const.SITE}resource/images/no_img.gif">{/if}</td>
+                 <td><a href="{url controller=Shop action=Edit id=$list[sec].id}">{if $list[sec].img neq ''}<img src="{$list[sec].img}">{else}<img src="{$smarty.const.SITE}resource/images/no_img.gif">{/if}</a></td>
                  <td class="hd_td_l">{$list[sec].title}</td>
                  <td>{$list[sec].tel}</td>
                  <td>{$list[sec].address}</td>

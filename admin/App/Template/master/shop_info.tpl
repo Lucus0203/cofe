@@ -40,7 +40,23 @@
              </tr>
              <tr>
                  <td style="text-align:center;">营业时间</td>
-                 <td>{$data.hours}</td>
+                 <td>
+                 	{$data.hours}(旧数据需要)<br/>
+                 	{$data.hours1}~{$data.hours2}<br/>
+                 	{if $data.holidayflag eq 2 or $data.holidayflag eq 3}
+                 		休息日:
+                 		{if $data.holidays|strpos:"1" !== false}一{/if}
+                 		{if $data.holidays|strpos:"2" !== false}二{/if}
+                 		{if $data.holidays|strpos:"3" !== false}三{/if}
+                 		{if $data.holidays|strpos:"4" !== false}四{/if}
+                 		{if $data.holidays|strpos:"5" !== false}五{/if}
+                 		{if $data.holidays|strpos:"6" !== false}六{/if}
+                 		{if $data.holidays|strpos:"0" !== false}日{/if}
+                 	{/if}
+                 	{if $data.holidayflag eq 3}
+                 		额外营业时间:{$data.holidayhours1}~{$data.holidayhours2}
+                 	{/if}
+                 </td>
              </tr>
              <tr>
                  <td style="text-align:center;">电话</td>
@@ -68,9 +84,7 @@
              <tr>
                  <td style="text-align:center;">特色</td>
                  <td>
-                 	{section name=t loop=$tags}
-                 	<label>{$tags[t].tag}</label>&nbsp;
-                 	{/section}
+                 	{$data.feature}
                  </td>
              </tr>
              <tr>
