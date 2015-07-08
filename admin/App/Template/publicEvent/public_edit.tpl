@@ -1,3 +1,6 @@
+<link href="{$smarty.const.SITE}resource/js/kindeditor/themes/default/default.css" rel="stylesheet" type="text/css">
+<script type="text/javascript" src="{$smarty.const.SITE}resource/js/kindeditor/kindeditor-min.js"></script>
+<script type="text/javascript" src="{$smarty.const.SITE}resource/js/kindeditor/lang/zh_CN.js"></script>
 <script type="text/javascript" src="{$smarty.const.SITE}resource/js/public_add.js"></script>
 <script type="text/javascript" src="http://api.map.baidu.com/api?v=2.0&ak=ho6LXkYw6eWBzWFlPvcMpLhR"></script>
 <td valign="top" align="center">
@@ -54,7 +57,7 @@
              </tr>
              <tr>
                  <td style="text-align:center;">活动内容</td>
-                 <td><textarea name="content" style="width:540px;height:800px;">{$data.content}</textarea></td>
+                 <td><textarea id="editor" name="content" style="width:540px;height:800px;">{$data.content}</textarea></td>
              </tr>
              <tr>
                  <td style="text-align:center;">(宽高640:310)<br/>首页图片</td>

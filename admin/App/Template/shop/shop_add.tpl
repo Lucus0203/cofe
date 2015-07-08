@@ -26,7 +26,88 @@
              </tr>
              <tr>
                  <td style="text-align:center;">营业时间</td>
-                 <td><input name="hours" type="text" value="" style="width:240px;"></td>
+                 <td>
+                 	<input name="hours" type="text" value="" style="width:240px;">(旧版需要)<br/>
+                 	<select name="hours1" >
+                 		{section name=loop loop=24}
+                 		{if $smarty.section.loop.index lt 10}
+                 			{assign var="h" value='0'|cat:$smarty.section.loop.index}
+                 		{else}
+                 			{assign var="h" value=$smarty.section.loop.index}
+                 		{/if}
+                 		<option value="{$h}" >{$h}</option>
+                 		{/section}
+                 	</select>
+                 	:
+                 	<select name="minutes1">
+                 		<option value="00" >00</option>
+                 		<option value="30" >30</option>
+                 	</select>
+                 	~
+                 	<select name="hours2">
+                 		{section name=loop loop=24}
+                 		{if $smarty.section.loop.index lt 10}
+                 			{assign var="h" value='0'|cat:$smarty.section.loop.index}
+                 		{else}
+                 			{assign var="h" value=$smarty.section.loop.index}
+                 		{/if}
+                 		<option value="{$h}" >{$h}</option>
+                 		{/section}
+                 	</select>
+                 	:
+                 	<select name="minutes2">
+                 		<option value="00" >00</option>
+                 		<option value="30" >30</option>
+                 	</select>
+                 </td>
+             </tr>
+             <tr>
+                 <td style="text-align:center;">休息日</td>
+                 <td>
+                 	<label><input type="radio" name="holidayflag" value="1" checked />无休</label><label><input type="radio" name="holidayflag" value="2" />休息日</label><label><input type="radio" name="holidayflag" value="3" />休息日营业时间</label>
+                 	<ul class="holidays" >
+                 		<li><label><input name="holidays[]" type="checkbox" value="1">一</label></li>
+                 		<li><label><input name="holidays[]" type="checkbox" value="2">二</label></li>
+                 		<li><label><input name="holidays[]" type="checkbox" value="3">三</label></li>
+                 		<li><label><input name="holidays[]" type="checkbox" value="4">四</label></li>
+                 		<li><label><input name="holidays[]" type="checkbox" value="5">五</label></li>
+                 		<li><label><input name="holidays[]" type="checkbox" value="6">六</label></li>
+                 		<li><label><input name="holidays[]" type="checkbox" value="0">日</label></li>
+                 	</ul>
+                 	<div class="holidaytime" {if $data.holidayflag eq 3}style="display: block;"{/if} >
+	                 	<select name="holidayhours1">
+	                 		{section name=loop loop=24}
+	                 		{if $smarty.section.loop.index lt 10}
+	                 			{assign var="h" value='0'|cat:$smarty.section.loop.index}
+	                 		{else}
+	                 			{assign var="h" value=$smarty.section.loop.index}
+	                 		{/if}
+	                 		<option value="{$h}" >{$h}</option>
+	                 		{/section}
+	                 	</select>
+	                 	:
+	                 	<select name="holidayminutes1">
+	                 		<option value="00" >00</option>
+	                 		<option value="30" >30</option>
+	                 	</select>
+	                 	~
+	                 	<select name="holidayhours2">
+	                 		{section name=loop loop=24}
+	                 		{if $smarty.section.loop.index lt 10}
+	                 			{assign var="h" value='0'|cat:$smarty.section.loop.index}
+	                 		{else}
+	                 			{assign var="h" value=$smarty.section.loop.index}
+	                 		{/if}
+	                 		<option value="{$h}" >{$h}</option>
+	                 		{/section}
+	                 	</select>
+	                 	:
+	                 	<select name="holidayminutes2">
+	                 		<option value="00" >00</option>
+	                 		<option value="30" >30</option>
+	                 	</select>
+	                 </div>
+                 </td>
              </tr>
              <tr>
                  <td style="text-align:center;">电话</td>

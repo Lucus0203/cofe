@@ -91,6 +91,7 @@ ul{list-style:none;}
 }
 
 .slider-wrapper {
+  float:left;
   width:250px;
   text-align: center;
 }
@@ -145,6 +146,18 @@ input.cropit-image-zoom-input {
   overflow: hidden;
 }
 
+.shopimgBoxResize{
+	margin:10px 0 0 0;
+}
+
+.shopimgBoxResize span{
+	margin-right:20px;
+}
+
+.shopimgBoxResize .cropit-image-resize{
+	vertical-align: middle
+}
+
 /*店铺图片列表css*/
 #shopimgs li,#menuimgs li{
 	width:240px;
@@ -189,7 +202,7 @@ input.cropit-image-zoom-input {
 	margin:60px 0 0 80px;
 }
 
-
+/*菜品样式*/
 table#menuList{
 	margin-top:30px;
 }
@@ -218,4 +231,13 @@ table#menuList .opera{
 table#menuList .opera a{
 	display:block;
 	margin:10px 0;
+}
+
+.holidays,.holidaytime{
+	display:none;
+	margin-top:10px;
+}
+ul.holidays li{
+	float:left;
+	margin-right:10px;
 }

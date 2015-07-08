@@ -19,6 +19,10 @@
                  <td class="hd_ta_t" colspan="2">店铺编辑</td>
              </tr>
              <tr>
+             	<td style="text-align:center;">菜单列表</td>
+             	<td style="padding-left:30px;"><a href="{url controller=ShopMenu action=Index id = $data.id}">查看菜品</a></td>
+             </tr>
+             <tr>
                  <td style="text-align:center;">店铺名称</td>
                  <td><input name="title" type="text" value="{$data.title}" style="width:240px;"></td>
              </tr>
@@ -27,20 +31,17 @@
                  <td><input name="subtitle" type="text" value="{$data.subtitle}" style="width:240px;"></td>
              </tr>
              <tr>
-                 <td style="text-align:center;">主图</td>
-                 <td><img src="{$data.img}" /></td>
-             </tr>
-             <tr>
-                 <td style="text-align:center;word-break:keep-all;">上传店铺图片<br/>(图片大小640x480)</td>
+                 <td style="text-align:center;word-break:keep-all;">上传店铺图片<br/>(最小尺寸750x500)</td>
                  <td style="padding-left:30px;">
                  	<a id="shopimgtool" href="javascript:void(0);">显示上传工具</a>
                  	<div id="shopimgBox" style="display: none;">
 	                 	<div class="image-shoper">
-		                    <input name="file" type="file" class="cropit-image-input" />
+		                    <input name="file" type="file" style="width:240px;" class="cropit-image-input" />
 		                    <div class="cropit-image-preview-container">
 							    <div class="cropit-image-preview"></div>
 							  </div>
 							<div class="slider-wrapper"><span class="icon icon-image small-image"></span><input type="range" class="cropit-image-zoom-input" min="0" max="1" step="0.01"><span class="icon icon-image large-image"></span></div>
+					    	<div class="shopimgBoxResize"><span>图片高度</span><input type="range" step="1" max="500" min="0" class="cropit-image-resize" value="0"></div>
 					    </div>
 	                 	<input type="button" value="上传裁剪图片" id="shopImg_add" />
 	                 	<input type="button" value="上传原始图片" id="shopImg_add_nocut" />
@@ -62,7 +63,88 @@
              </tr>
              <tr>
                  <td style="text-align:center;">营业时间</td>
-                 <td><input name="hours" type="text" value="{$data.hours}" style="width:240px;"></td>
+                 <td>
+                 	<input name="hours" type="text" value="{$data.hours}" style="width:240px;">(旧版需要)<br/>
+                 	<select name="hours1" >
+                 		{section name=loop loop=24}
+                 		{if $smarty.section.loop.index lt 10}
+                 			{assign var="h" value='0'|cat:$smarty.section.loop.index}
+                 		{else}
+                 			{assign var="h" value=$smarty.section.loop.index}
+                 		{/if}
+                 		<option value="{$h}" {if $h eq $data.hours1} selected {/if} >{$h}</option>
+                 		{/section}
+                 	</select>
+                 	:
+                 	<select name="minutes1">
+                 		<option value="00" {if '00' eq $data.minutes1} selected {/if} >00</option>
+                 		<option value="30" {if '30' eq $data.minutes1} selected {/if} >30</option>
+                 	</select>
+                 	~
+                 	<select name="hours2">
+                 		{section name=loop loop=24}
+                 		{if $smarty.section.loop.index lt 10}
+                 			{assign var="h" value='0'|cat:$smarty.section.loop.index}
+                 		{else}
+                 			{assign var="h" value=$smarty.section.loop.index}
+                 		{/if}
+                 		<option value="{$h}" {if $h eq $data.hours2} selected {/if} >{$h}</option>
+                 		{/section}
+                 	</select>
+                 	:
+                 	<select name="minutes2">
+                 		<option value="00" {if '00' eq $data.minutes2} selected {/if} >00</option>
+                 		<option value="30" {if '30' eq $data.minutes2} selected {/if} >30</option>
+                 	</select>
+                 </td>
+             </tr>
+             <tr>
+                 <td style="text-align:center;">休息日</td>
+                 <td>
+                 	<label><input type="radio" name="holidayflag" value="1" checked />无休</label><label><input type="radio" name="holidayflag" {if $data.holidayflag eq 2} checked {/if}  value="2" />休息日</label><label><input type="radio" name="holidayflag" {if $data.holidayflag eq 3} checked {/if} value="3" />休息日营业时间</label>
+                 	<ul class="holidays" {if $data.holidayflag eq 2 or $data.holidayflag eq 3}style="display: block;"{/if} >
+                 		<li><label><input name="holidays[]" type="checkbox" {if $data.holidays|strpos:"1" !== false}checked{/if} value="1">一</label></li>
+                 		<li><label><input name="holidays[]" type="checkbox" {if $data.holidays|strpos:"2" !== false}checked{/if} value="2">二</label></li>
+                 		<li><label><input name="holidays[]" type="checkbox" {if $data.holidays|strpos:"3" !== false}checked{/if} value="3">三</label></li>
+                 		<li><label><input name="holidays[]" type="checkbox" {if $data.holidays|strpos:"4" !== false}checked{/if} value="4">四</label></li>
+                 		<li><label><input name="holidays[]" type="checkbox" {if $data.holidays|strpos:"5" !== false}checked{/if} value="5">五</label></li>
+                 		<li><label><input name="holidays[]" type="checkbox" {if $data.holidays|strpos:"6" !== false}checked{/if} value="6">六</label></li>
+                 		<li><label><input name="holidays[]" type="checkbox" {if $data.holidays|strpos:"0" !== false}checked{/if} value="0">日</label></li>
+                 	</ul>
+                 	<div class="holidaytime" {if $data.holidayflag eq 3}style="display: block;"{/if} >
+	                 	<select name="holidayhours1">
+	                 		{section name=loop loop=24}
+	                 		{if $smarty.section.loop.index lt 10}
+	                 			{assign var="h" value='0'|cat:$smarty.section.loop.index}
+	                 		{else}
+	                 			{assign var="h" value=$smarty.section.loop.index}
+	                 		{/if}
+	                 		<option value="{$h}" {if $data.holidayhours1 eq $h}selected{/if} >{$h}</option>
+	                 		{/section}
+	                 	</select>
+	                 	:
+	                 	<select name="holidayminutes1">
+	                 		<option value="00" {if $data.holidayminutes1 eq '00'}selected{/if} >00</option>
+	                 		<option value="30" {if $data.holidayminutes1 eq '30'}selected{/if} >30</option>
+	                 	</select>
+	                 	~
+	                 	<select name="holidayhours2">
+	                 		{section name=loop loop=24}
+	                 		{if $smarty.section.loop.index lt 10}
+	                 			{assign var="h" value='0'|cat:$smarty.section.loop.index}
+	                 		{else}
+	                 			{assign var="h" value=$smarty.section.loop.index}
+	                 		{/if}
+	                 		<option value="{$h}" {if $data.holidayhours2 eq $h}selected{/if} >{$h}</option>
+	                 		{/section}
+	                 	</select>
+	                 	:
+	                 	<select name="holidayminutes2">
+	                 		<option value="00" {if $data.holidayminutes2 eq '00'}selected{/if} >00</option>
+	                 		<option value="30" {if $data.holidayminutes2 eq '30'}selected{/if} >30</option>
+	                 	</select>
+	                 </div>
+                 </td>
              </tr>
              <tr>
                  <td style="text-align:center;">电话</td>
@@ -114,37 +196,6 @@
              <tr>
                  <td style="text-align:center;">简介</td>
                  <td><textarea name="introduction" style="width:540px;height:80px;">{$data.introduction}</textarea></td>
-             </tr>
-             <tr>
-                 <td style="text-align:center;word-break:keep-all;">上传菜品<br>(图片大小414x380)</td>
-                 <td style="padding-left:30px;">
-                 	<a id="menuimgtool" href="javascript:void(0);">显示上传工具</a>
-                 	<div id="menuimgBox" style="display: none;">
-	                 	<div class="image-menuer">
-		                    <input name="file" type="file" class="cropit-image-input" />
-		                    <div class="cropit-image-preview-container">
-							    <div class="cropit-image-preview"></div>
-							  </div>
-							<div class="slider-wrapper"><span class="icon icon-image small-image"></span><input type="range" class="cropit-image-zoom-input" min="0" max="1" step="0.01"><span class="icon icon-image large-image"></span></div>
-					    </div>
-	                 	菜品名称：<input type="text" id="menuTitle" style="margin-bottom: 20px;"/><br/>
-	                 	<input type="button" value="上传裁剪图片" id="menuImg_add" />
-	                 	<input type="button" value="上传原始图片" id="menuImg_add_nocut" />
-                 	</div>
-                 </td>
-             </tr>
-             <tr>
-                 <td style="text-align:center;">菜品</td>
-                 <td>
-	                 <ul  id="menuimgs">
-           				{section name=sec loop=$menu}
-	                 		<li>
-	                 			<a href="{$menu[sec].img}" data-lightbox="menu-group"><img src="{$menu[sec].img}"></a><a class="delMenuImg" rel="{$menu[sec].id}" href="javascript:void(0)">删 除</a>
-	                 			<label>{$menu[sec].title}</label>
-	                 		</li>
-             			{/section}
-	             	</ul>
-                 </td>
              </tr>
              <tr>
                  <td style="text-align:center;">是否发布</td>

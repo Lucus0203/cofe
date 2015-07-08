@@ -52,7 +52,7 @@ $(function(){
 					if(res.src!=''){
 						$('#menuList .loading').eq(0).find('.menu_img').html('<a href="'+res.src+'" data-lightbox="menu-group"><img src="'+res.src+'"></a>');
 						$('#menuList .loading').eq(0).find('.delMenuImg').attr('rel',res.id);
-						$('#menuimgs .loading').eq(0).removeAttr('class');
+						$('#menuList .loading').eq(0).removeAttr('class');
 					}else{
 						alert('图片上传失败,请联系管理员');
 					}
@@ -162,7 +162,8 @@ $(function(){
 			}
 			
 		}
-		
+
+		return false;
 	});
 
 	//上架
@@ -184,6 +185,7 @@ $(function(){
 				}
 			}
 		});
+		return false;
 	});
 	//下架
 	$('#menuList').on('click','.opera .depublic',function(){
@@ -204,6 +206,7 @@ $(function(){
 				}
 			}
 		});
+		return false;
 	});
 	
 });

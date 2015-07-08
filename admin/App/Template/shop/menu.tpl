@@ -13,6 +13,10 @@
                  <td class="hd_ta_t" colspan="2">咖啡甜品</td>
              </tr>
              <tr>
+                 <td style="text-align:center;">店铺信息</td>
+                 <td style="padding-left:30px;"><a href="{url controller=Shop action=Edit id=$shopid}">返回店铺编辑</a><input id="shopid" type="hidden" value="{$shopid}" /></td>
+             </tr>
+             <tr>
                  <td style="text-align:center;word-break:keep-all;">上传菜品<br>(图片大小414x380)</td>
                  <td style="padding-left:30px;">
                  	<a id="menuimgtool" href="javascript:void(0);">显示上传工具</a>

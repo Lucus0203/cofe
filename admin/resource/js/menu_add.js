@@ -11,17 +11,18 @@ $(function(){
 	
 	//上传菜单
 	$('#menuImg_add').click(function(){
+		var shopid=$('#shopid').val();
 		var title=$('#menuTitle').val();
 		if($.trim(title)==''){
 			alert('请填写菜品名称');
 			return;
 		}
 		var baseUrl=$('#baseUrl').val();
-		var menuAddUrl=baseUrl+'menu/ajaxUploadShopMenu'
+		var menuAddUrl=baseUrl+'index.php?controller=ShopMenu&action=AjaxUploadShopMenu'
 	    var imageData = $('.image-menuer').cropit('export');
 		if(imageData){
 			$('#menuList').append('<tr class="loading"><td class="menu_img">'+
-	                 	'<img src="'+baseUrl+'images/loading.gif" width="32" height="32">'+
+	                 	'<img src="'+baseUrl+'resource/images/loading.gif" width="32" height="32">'+
 		             '</td><td class="menu_title">'+title+'</td>'+
 	                 '<td><ul class="menu_price"><li>'+
 		                 		'价格:<input class="price" type="text" value="" style="ime-mode:disabled;" /> '+
@@ -46,13 +47,13 @@ $(function(){
 			$.ajax({
 				type:'post',
 				url:menuAddUrl,
-				data:{'image-data':imageData,'title':title},
+				data:{'image-data':imageData,'title':title,'shopid':shopid},
 				dataType:'json',
 				success:function(res){
 					if(res.src!=''){
 						$('#menuList .loading').eq(0).find('.menu_img').html('<a href="'+res.src+'" data-lightbox="menu-group"><img src="'+res.src+'"></a>');
 						$('#menuList .loading').eq(0).find('.delMenuImg').attr('rel',res.id);
-						$('#menuimgs .loading').eq(0).removeAttr('class');
+						$('#menuList .loading').eq(0).removeAttr('class');
 					}else{
 						alert('图片上传失败,请联系管理员');
 					}
@@ -70,7 +71,7 @@ $(function(){
 			var pid=$(this).attr('rel');
 			$.ajax({
 				type:'get',
-				url:baseUrl+'menu/delmenu',
+				url:baseUrl+'index.php?controller=ShopMenu&action=DelMenu',
 				data:{'pid':pid},
 				success:function(res){
 					if(res==1){
@@ -149,7 +150,7 @@ $(function(){
 			if(confirm('确认更新价格么?')){
 				$.ajax({
 					type:'post',
-					url:baseUrl+'menu/menuPriceUpdate',
+					url:baseUrl+'index.php?controller=ShopMenu&action=MenuPriceUpdate',
 					data:{'menuid':menuid,'prices':prices,'typies':typies},
 					success:function(res){
 						if(res==1){
@@ -162,7 +163,7 @@ $(function(){
 			}
 			
 		}
-		
+		return false;
 	});
 
 	//上架
@@ -172,7 +173,7 @@ $(function(){
 		var thisobj=$(this);
 		$.ajax({
 			type:'post',
-			url:baseUrl+'menu/menuPublic',
+			url:baseUrl+'index.php?controller=ShopMenu&action=MenuPublic',
 			data:{'menuid':menuid,'public':2},
 			success:function(res){
 				if(res==1){
@@ -184,6 +185,7 @@ $(function(){
 				}
 			}
 		});
+		return false;
 	});
 	//下架
 	$('#menuList').on('click','.opera .depublic',function(){
@@ -192,7 +194,7 @@ $(function(){
 		var thisobj=$(this);
 		$.ajax({
 			type:'post',
-			url:baseUrl+'menu/menuPublic',
+			url:baseUrl+'index.php?controller=ShopMenu&action=MenuPublic',
 			data:{'menuid':menuid,'public':1},
 			success:function(res){
 				if(res==1){
@@ -204,6 +206,7 @@ $(function(){
 				}
 			}
 		});
+		return false;
 	});
 	
 });

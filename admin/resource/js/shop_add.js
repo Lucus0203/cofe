@@ -1,6 +1,21 @@
 $(function(){
 	//裁剪工具
 	$('.image-shoper').cropit({ width:750,height:500,imageBackground: true ,imageBackgroundBorderWidth: 25 });// Width of background border
+	//图片尺寸切换
+	$('input[name=cropit-size]').click(function(){
+		var i=$('input[name=cropit-size]').index($(this));
+		if(i==0){
+			$('.image-shoper').cropit('previewSize', { width: 750, height: 500 });
+		}else if(i==1){
+			$('.image-shoper').cropit('previewSize', { width: 750, height: 750 });
+		}else if(i==2){
+			$('.image-shoper').cropit('previewSize', { width: 750, height: 1000 });
+		}
+	});
+	$('.cropit-image-resize').change(function(){
+		var h=$(this).val()*1+500;
+		$('.image-shoper').cropit('previewSize', { width: 750, height: h });
+	});
 	$('#shopimgtool').click(function(){
 		if (typeof FileReader =='undefined'){
             alert("您的浏览器不支持文件上传工具,建议换谷歌或者火狐浏览器.");
