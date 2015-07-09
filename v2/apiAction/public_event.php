@@ -13,6 +13,12 @@ switch ($act){
 	case 'isCollect'://查看是否收藏
 		isCollect();
 		break;
+	case 'joinEvent'://求伴
+		joinEvent();
+		break;
+	case 'togetherEvent'://对求伴者发起搭伴邀请
+		togetherEvent();
+		break;
 	default:
 		break;
 }
@@ -100,12 +106,46 @@ function eventInfo(){
 	$id=filter($_REQUEST['eventid']);
 	$lng=filter($_REQUEST['lng']);
 	$lat=filter($_REQUEST['lat']);
-	$pub_event=$db->getRow("public_event",array('id'=>$id));//获取活动信息
+	$loginid=filter($_REQUEST['loginid']);
+	$pub_event=$db->getRow("public_event",array('id'=>$id),array('title','content','price','datetime','address','lng','lat'));//获取活动信息
 	$pub_event['distance']=(!empty($pub_event['lat'])&&!empty($pub_event['lng'])&&!empty($lng)&&!empty($lat))?getDistance($lat,$lng,$pub_event['lat'],$pub_event['lng']):lang_UNlOCATE;
+	//活动海报
 	$pub_event['photos']=$db->getAll("public_photo",array('public_event_id'=>$id));//活动海报
+	//获取搭伴用户
+	$groupusersql="select u.id as user_id,u.nick_name,u.user_name,u.photo_head from ".DB_PREFIX."public_event_together pet left join ".DB_PREFIX."user u on pet.user_id = u.id where pet.other_id is null order by id asc ";
+	$pub_event['groupusers']=$db->getAllBySql($groupusersql);
 	//活动用户及头像地址
 	$sql="select u.id as user_id,u.nick_name,u.user_name,up.path from ".DB_PREFIX."public_users pu left join ".DB_PREFIX."user u on pu.user_id = u.id left join ".DB_PREFIX."user_photo up on u.head_photo_id = up.id where pu.public_event_id=".$id;
-	$pub_event['user_count']=$db->getCountBySql($sql);//参与人数
+	$pub_event['user_count']=$db->getCountBySql($sql);//关注人数
 	$pub_event['users_photo']=$db->getAllBySql($sql);
+	//是否收藏
+	$pub_event['iscollect']=2;
+	if(!empty($id)&&!empty($loginid)){
+		if($db->getCount('public_users',array('user_id'=>$loginid,'public_event_id'=>$id))>0){
+			$pub_event['iscollect']=1;//已收藏
+		}
+	}
 	echo json_result($pub_event);
+}
+
+//报名求伴
+function joinEvent(){
+	global $db;
+	$id=filter($_REQUEST['eventid']);
+	$loginid=filter($_REQUEST['loginid']);
+	$db->create('public_event_together', array('public_event_id'=>$id,'user_id'=>$loginid));
+	echo json_result('success');
+}
+
+//对求伴者发起搭伴邀请
+function togetherEvent(){
+	global $db;
+	$id=filter($_REQUEST['eventid']);
+	$userid=filter($_REQUEST['userid']);
+	$loginid=filter($_REQUEST['loginid']);
+	$datetime=filter($_REQUEST['datetime']);
+	$address=filter($_REQUEST['address']);
+	$note=filter($_REQUEST['note']);
+	$db->create('public_event_together_others', array('public_event_id'=>$id,'user_id'=>$userid,'other_id'=>$loginid,'datetime'=>$datetime,'address'=>$address,'note'=>$note));
+	echo json_result('success');
 }

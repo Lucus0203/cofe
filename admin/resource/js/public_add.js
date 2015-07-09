@@ -73,16 +73,27 @@ function changeMap(map,point,marker,zoom){
 function checkFrom(){
 	var flag=true;
 	var title=$('input[name=title]').val();
-	var content=$('textarea[name=content]').val();
+	var created=$('input[name=created]').val();
+	var enddate=$('input[name=end_date]').val();
+	var content=$('#editor').val();
 	var msg='';
 	if($.trim(title)==''){
 		msg+='请填写活动标题\n';
 		flag=false;
 	}
-	if($.trim(content)==''){
-		msg+='请填写活动内容\n';
+
+	if($.trim(created)==''){
+		msg+='请填写开始时间\n';
 		flag=false;
 	}
+	if($.trim(enddate)==''){
+		msg+='请填写截止时间\n';
+		flag=false;
+	}
+//	if($.trim(content)==''){
+//		msg+='请填写活动内容\n';
+//		flag=false;
+//	}
 	if(!flag){
 		alert(msg);
 	}
