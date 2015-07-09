@@ -870,6 +870,7 @@ class FLEA_Db_TableDataGateway
         // 生成 SQL 语句
         $pkv = $row[$this->primaryKey];
         unset($row[$this->primaryKey]);
+        
         list($pairs, $values) = $this->dbo->getPlaceholderPair($row, $this->fields);
         $row[$this->primaryKey] = $pkv;
 
@@ -879,6 +880,7 @@ class FLEA_Db_TableDataGateway
 
             // 执行更新操作
             if (!$this->dbo->execute($sql, $values)) {
+            	echo 1;
                 $this->dbo->completeTrans(false);
                 return false;
             }
@@ -900,6 +902,7 @@ class FLEA_Db_TableDataGateway
                 }
             }
         }
+        echo 21;
 
         $this->_updateCounterCache($row);
 
