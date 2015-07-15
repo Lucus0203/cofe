@@ -46,35 +46,6 @@ function convertSign($clum){
 	return $str;
 }
 
-//留言板活动
-// function getEvents(){
-// 	global $db;
-// 	$lng=filter($_REQUEST['lng']);
-// 	$lat=filter($_REQUEST['lat']);
-// 	$page_no = isset ( $_GET ['page'] ) ? $_GET ['page'] : 1;
-// 	$page_size = PAGE_SIZE;
-// 	$start = ($page_no - 1) * $page_size;
-// 	$list=array();
-// 	用户活动
-// 	$beforeday=date("Y-m-d",strtotime("-2day",time()));
-// 	$sign1=convertSign('ue.title');
-// 	$sign2=convertSign('ue.address');
-// 	$uercount="select count(id) as num,user_event_id from ".DB_PREFIX."userevent_relation uer group by uer.user_event_id ";
-// 	$sql2="select null as public_event_id,ue.id as user_event_id,ue.title,ue.img,ue.address,ue.lng,ue.lat,uercount.num,ue.created,($sign1 + $sign2) as sign from ".DB_PREFIX."user_event ue
-// 	left join ($uercount) uercount on uercount.user_event_id = ue.id
-// 	where ue.allow = 1 and ue.status = 1 and datetime >= '$beforeday 00:00' order by sign desc,created desc,num desc";
-	
-// 	//$sql="select * from ( $sql1 union all $sql2 ) s order by created desc limit $start,$page_size";
-// 	$sql="select * from ( $sql2 ) s limit $start,$page_size";
-// 	$events=$db->getAllBySql($sql);
-// 	foreach ($events as $k=>$v){
-// 		$events[$k]['distance']=(!empty($v['lat'])&&!empty($v['lng'])&&!empty($lng)&&!empty($lat))?getDistance($lat,$lng,$v['lat'],$v['lng']):lang_UNlOCATE;
-// 	}
-// 	$list['events']=$events;
-	
-// 	echo json_result($list);
-// }
-
 //约会广场
 function getEvents(){
 	global $db;

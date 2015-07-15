@@ -95,7 +95,7 @@ function getVerificationCode(){
 	}
 	$sms=new Sms();
 	$sms->sendMsg("您本次验证码是:".$code."，欢迎您使用", $mobile);
-	echo json_result(array('success'=>"TRUE"));//array('code'=>$code)
+	echo json_result('success');//array('code'=>$code)
 	
 }
 //重置密码
@@ -131,7 +131,7 @@ function resetPassword(){
 		if($huserObj->duration){
 			$flag=$db->update('user', $pass ,array('mobile'=>$mobile,'captcha_code'=>$code));
 		}else{
-			echo json_result(null,'9','密码修改失败,请联系客服');
+			echo json_result(null,'101','密码修改失败,请联系客服');
 			return;
 		}
 	}else{
@@ -146,7 +146,7 @@ function resetPassword(){
 		$user['uuid']=$uuid;
 		$flag=$db->update('user', $user ,array('mobile'=>$mobile,'captcha_code'=>$code));
 	}
-	echo json_result(array('success'=>$flag));//成功
+	echo json_result('success');//成功
 }
 
 //注册
@@ -165,10 +165,6 @@ function register(){
 		return;
 	}
 	
-// 	if(trim($email)!=''&&!checkEmail($email)){
-// 		echo json_result(null,'4','邮箱格式不正确');
-// 		return;
-// 	}
 	if(trim($user_pass)==''){
 		echo json_result(null,'7','请填写密码');//请填写密码
 		return;
@@ -183,7 +179,7 @@ function register(){
 		echo json_result(null,'9','此手机号已经注册过');
 		return;
 	}
-	$user=array('user_password'=>md5($user_pass),'mobile'=>$mobile,'sex'=>'3','age'=>'','constellation'=>'保密','created'=>date("Y-m-d H:i:s"));
+	$user=array('user_name'=>$mobile,'user_password'=>md5($user_pass),'mobile'=>$mobile,'sex'=>'3','age'=>'','constellation'=>'保密','created'=>date("Y-m-d H:i:s"));
 	$HuanxinObj=Huanxin::getInstance();
 	$huserObj=$HuanxinObj->addNewAppUser(strtolower($mobile), md5($user_pass));
 	$uuid=$huserObj->entities[0]->uuid;
@@ -193,7 +189,11 @@ function register(){
 	}
 	$user['uuid']=$uuid;
 	$flag=$db->update('user', $user ,array('mobile'=>$mobile,'captcha_code'=>$code));
-	echo json_result(array('success'=>$flag));//成功
+	if($flag){
+		echo json_result('success');//成功
+	}else{
+		echo json_result(null,'101','注册失败,请联系客服');//失败
+	}
 }
 
 //登录
