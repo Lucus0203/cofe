@@ -1,9 +1,6 @@
 <?php
 $act=filter($_REQUEST['act']);
 switch ($act){
-	case 'recommendShops':
-		recommendShops();
-		break;
 	case 'nearbyShops':
 		nearbyShops();//附近店铺
 		break;
@@ -25,17 +22,11 @@ switch ($act){
 	case 'leaveMsg':
 		leaveMsg();//店铺留言
 		break;
+	case 'shopFeedback':
+		shopFeedback();//店铺反馈纠错
+		break;
 	default:
 		break;
-}
-
-//推荐的店铺
-function recommendShops(){
-	global $db;
-	$sql="select id,img from ".DB_PREFIX."shop where status=2 and recommend=1 and img <>'' and img is not null";
-	$sql.=" order by id desc";
-	$shops=$db->getAllBySql($sql);
-	echo json_result($shops);
 }
 
 //附近咖啡
@@ -46,7 +37,29 @@ function nearbyShops(){
 	$page_no = isset ( $_GET ['page'] ) ? $_GET ['page'] : 1;
 	$page_size = PAGE_SIZE;
 	$start = ($page_no - 1) * $page_size;
-	$sql="select * from ".DB_PREFIX."shop where status=2 ";
+	//是否营业中,1营业中,2休息
+	$isopensql=" if(holidayflag = '3' , 
+			if(locate(dayofweek(now())-1,holidays) > 0,
+				if(holidayhours2<holidayhours1,
+					if(holidayhours1 <= DATE_FORMAT(now(),'%H:%i') or holidayhours2 >= DATE_FORMAT(now(),'%H:%i'),1,2),
+					if(holidayhours1 <= DATE_FORMAT(now(),'%H:%i') and DATE_FORMAT(now(),'%H:%i') <= holidayhours2,1,2)
+				),
+			if(hours2 <= hours1,
+				if(hours1 <= DATE_FORMAT(now(),'%H:%i') or hours2 >= DATE_FORMAT(now(),'%H:%i'),1,2),
+				if(hours1 <= DATE_FORMAT(now(),'%H:%i') and DATE_FORMAT(now(),'%H:%i') <= hours2,1,2)
+			)),
+		if(holidayflag = '2',
+			if(locate(dayofweek(now())-1,holidays) = 0,
+				if(hours2<hours1,
+					if(hours1 <= DATE_FORMAT(now(),'%H:%i') or hours2 >= DATE_FORMAT(now(),'%H:%i'),1,2),
+					if(hours1 <= DATE_FORMAT(now(),'%H:%i') and DATE_FORMAT(now(),'%H:%i') <= hours2,1,2)
+				),
+			2),
+		if(hours2 <= hours1,
+			if(hours1 <= DATE_FORMAT(now(),'%H:%i') or hours2 >= DATE_FORMAT(now(),'%H:%i'),1,2),
+			if(hours1 <= DATE_FORMAT(now(),'%H:%i') and DATE_FORMAT(now(),'%H:%i') <= hours2,1,2)
+		))) as isopen ";
+	$sql="select id,title,img,lng,lat,".$isopensql." from ".DB_PREFIX."shop shop where status=2 ";
 	$sql.=(!empty($lng)&&!empty($lat))?" order by sqrt(power(lng-{$lng},2)+power(lat-{$lat},2)),id ":' order by recommend,id ';
 	
 	$sql .= " limit $start,$page_size";
@@ -110,80 +123,114 @@ function getShopByConditions(){
 	echo json_result($shops);
 }
 
-//收藏的店铺
-function favoriteShops(){
-	global $db;
-	$userid=filter($_REQUEST['userid']);
-	if(empty($userid)){
-		echo json_result(null,'21','用户未登录');
-		return;
-	}
-	$lng=filter($_REQUEST['lng']);
-	$lat=filter($_REQUEST['lat']);
-	$page_no = isset ( $_GET ['page'] ) ? $_GET ['page'] : 1;
-	$page_size = PAGE_SIZE;
-	$start = ($page_no - 1) * $page_size;
-	
-	$sql="select shop.id,shop.title,shop.subtitle,shop.address,shop.img,shopuser.shop_id,shop.lng,shop.lat from ".DB_PREFIX."shop shop left join ".DB_PREFIX."shop_users shopuser on shop.id=shopuser.shop_id where shopuser.user_id=".$userid." and status=2 ";
-	$sql.=(!empty($lng)&&!empty($lat))?" order by sqrt(power(lng-{$lng},2)+power(lat-{$lat},2))":'';
-	
-	$sql .= " limit $start,$page_size";
-	$shops=$db->getAllBySql($sql);
-	foreach ($shops as $k=>$v){
-		$shops[$k]['num']=$db->getCount('shop_users',array('shop_id'=>$v['shop_id']));
-		$shops[$k]['distance']=(!empty($v['lat'])&&!empty($v['lng'])&&!empty($lng)&&!empty($lat))?getDistance($lat,$lng,$v['lat'],$v['lng']):lang_UNlOCATE;
-	}
-	//echo json_result(array('shops'=>$shops));
-	echo json_result($shops);
-}
-
-//取消收藏的店铺
-function removeFavoriteShopById(){
-	global $db;
-	$userid=filter(!empty($_REQUEST['userid'])?$_REQUEST['userid']:'');
-	$shopid=filter(!empty($_REQUEST['shopid'])?$_REQUEST['shopid']:'');
-	if(empty($userid)){
-		echo json_result(null,'21','用户未登录');
-		return;
-	}
-	if(empty($shopid)){
-		echo json_result(null,'22','没有找到这个店铺');
-		return;
-	}
-	$up=array('user_id'=>$userid,'shop_id'=>$shopid);
-	$db->delete('shop_users', $up);
-	echo json_result(array('success'=>'TRUE'));
-	
-}
-
 //咖啡店铺详情
 function shopInfo(){
 	global $db;
 	$shopid=filter($_REQUEST['shopid']);
+	$loginid=filter($_REQUEST['loginid']);
 	$lng=filter($_REQUEST['lng']);
 	$lat=filter($_REQUEST['lat']);
-	$page_no = isset ( $_GET ['page'] ) ? $_GET ['page'] : 1;
-	$page_size = PAGE_SIZE;
-	$start = ($page_no - 1) * $page_size;
+	//$page_no = isset ( $_GET ['page'] ) ? $_GET ['page'] : 1;
+	//$page_size = PAGE_SIZE;
+	//$start = ($page_no - 1) * $page_size;
 	if(!empty($shopid)){
-		$shop=$db->getRow('shop',array('id'=>$shopid));
+		$shop=$db->getRow('shop',array('id'=>$shopid),array('title','tel','address','feature','introduction','hours','hours1','hours2','holidayflag','holidays','holidayhours1','holidayhours2','lng','lat'));
 		$shop['tel']=trim($shop['tel']);
 		$shop['distance']=(!empty($shop['lat'])&&!empty($shop['lng'])&&!empty($lng)&&!empty($lat))?getDistance($lat,$lng,$shop['lat'],$shop['lng']):lang_UNlOCATE;
-		$shop['menus']=$db->getAll('shop_menu',array('shop_id'=>$shopid),null," limit 4 ");
-		$bbs_sql="select up.path,u.nick_name,u.user_name,bbs.user_id,bbs.shop_id,CONCAT(bbs.num,'楼:',bbs.content) as content,bbs.created from ".DB_PREFIX."shop_bbs bbs left join ".DB_PREFIX."user u on u.id=bbs.user_id left join ".DB_PREFIX."user_photo up on up.id=u.head_photo_id where bbs.allow=1 and bbs.shop_id=$shopid";
-		$shop['bbsCount']=$db->getCountBySql($bbs_sql);
-		$bbs_sql.=" order by bbs.id desc limit $start,$page_size";
-		$shop['bbs']=$db->getAllBySql($bbs_sql);
+		$shop['menus']=$db->getAll('shop_menu',array('shop_id'=>$shopid,'status'=>2),array('title','img'));
 		$shop['introduction']=empty($shop['introduction'])?'        信息正在更新中...':$shop['introduction'];
 		//特色
 		$shop['features']=explode(',', $shop['feature']);
 		//店铺图片
-		$imgs=array();
-		$shopimgs=$db->getAll('shop_img',array('shop_id'=>$shopid));
-		foreach ($shopimgs as $im){
-			$imgs[]=$im['img'];
+		$shop['imgs']=$db->getAll('shop_img',array('shop_id'=>$shopid),array('img','width','height'));
+		
+		//营业时间
+		if(!empty($shop['hours1'])){
+			$hours=$shop['hours1'].'~'.$shop['hours2'];
+			$holiday="";
+			if($shop['holidayflag']!='1'){
+				if(strpos($shop['holidays'] , '1')!==false){
+					$holiday.='一';
+				}
+				if(strpos($shop['holidays'] , '2')!==false){
+					$holiday.= empty($holiday)?'二':',二';
+				}
+				if(strpos($shop['holidays'] , '3')!==false){
+					$holiday.= empty($holiday)?'三':',三';
+				}
+				if(strpos($shop['holidays'] , '4')!==false){
+					$holiday.= empty($holiday)?'四':',四';
+				}
+				if(strpos($shop['holidays'] , '5')!==false){
+					$holiday.= empty($holiday)?'五':',五';
+				}
+				if(strpos($shop['holidays'] , '6')!==false){
+					$holiday.= empty($holiday)?'六':',六';
+				}
+				if(strpos($shop['holidays'] , '0')!==false){
+					$holiday.= empty($holiday)?'日':',日';
+				}
+			}
+			if($shop['holidayflag']=='2'){
+				$holiday = !empty($holiday)?'  休息日:'.$holiday:'';
+			}elseif($shop['holidayflag']=='3'){
+				$holiday = !empty($holiday)?'  休息日:'.$holiday.' 时间:'.$shop['holidayhours1'].'~'.$shop['holidayhours2']:'';
+			}
 		}
-		$shop['imgs']=$imgs;
+		$shop['hours']=$hours.$holiday;
+		//是否营业中 1营业中2休息
+		if($shop['holidayflag']!=1){
+			if(strpos($shop['holidays'] , date("w"))!==false){
+				if($shop['holidayflag']==3){
+					$holidayhours1=$shop['holidayhours1'];
+					$holidayhours2=$shop['holidayhours2'];
+					if($holidayhours2<=$holidayhours1){
+						if($holidayhours1<=date("H:i")||date("H:i")<=$holidayhours2){
+							$shop['isopen']=1;
+						}else{
+							$shop['isopen']=2;
+						}
+					}else{
+						if($holidayhours1<=date("H:i")&&date("H:i")<=$holidayhours2){
+							$shop['isopen']=1;
+						}else{
+							$shop['isopen']=2;
+						}
+					}
+				}else{
+					$shop['isopen']=2;
+				}
+			}else{
+				$hours1=$shop['hours1'];
+				$hours2=$shop['hours2'];
+				if($hours2<=$hours1){
+					if($hours1<=date("H:i")||date("H:i")<=$hours2){
+						$shop['isopen']=1;
+					}else{
+						$shop['isopen']=2;
+					}
+				}else{
+					if($hours1<=date("H:i")&&date("H:i")<=$hours2){
+						$shop['isopen']=1;
+					}else{
+						$shop['isopen']=2;
+					}
+				}
+			}
+		}
+		//是否收藏
+		if($db->getCount('shop_users',array('user_id'=>$loginid,'shop_id'=>$shopid))>0){
+			$shop['iscollect']=1;//已收藏
+		}else{
+			$shop['iscollect']=2;//未收藏
+		}
+		
+		//$bbs_sql="select up.path,u.nick_name,u.user_name,bbs.user_id,bbs.shop_id,CONCAT(bbs.num,'楼:',bbs.content) as content,bbs.created from ".DB_PREFIX."shop_bbs bbs left join ".DB_PREFIX."user u on u.id=bbs.user_id left join ".DB_PREFIX."user_photo up on up.id=u.head_photo_id where bbs.allow=1 and bbs.shop_id=$shopid";
+		//$shop['bbsCount']=$db->getCountBySql($bbs_sql);
+		//$bbs_sql.=" order by bbs.id desc limit $start,$page_size";
+		//$shop['bbs']=$db->getAllBySql($bbs_sql);
+		
+		
 		echo json_result($shop);
 	}else{
 		echo json_result(null,'22','店铺不存在');
@@ -195,29 +242,72 @@ function shopInfo(){
 function favorites(){
 	global $db;
 	$shopid=filter($_REQUEST['shopid']);
-	$userid=filter($_REQUEST['userid']);
-	if(!empty($shopid)&&!empty($userid)){
-		if($db->getCount('shop_users',array('user_id'=>$userid,'shop_id'=>$shopid))==0){
-			$up=array('user_id'=>$userid,'shop_id'=>$shopid,'created'=>date("Y-m-d H:i:s"));
+	$loginid=filter($_REQUEST['loginid']);
+	if(!empty($shopid)&&!empty($loginid)){
+		if($db->getCount('shop_users',array('user_id'=>$loginid,'shop_id'=>$shopid))==0){
+			$up=array('user_id'=>$loginid,'shop_id'=>$shopid,'created'=>date("Y-m-d H:i:s"));
 			$db->create('shop_users', $up);
 		}
-		echo json_result(array('shopid'=>$shopid));
+		echo json_result('success');
 	}else{
 		echo json_result(null,'23','用户未登录或者该店铺已删除');
 	}
+}
+
+//取消收藏的店铺
+function removeFavoriteShopById(){
+	global $db;
+	$loginid=filter(!empty($_REQUEST['loginid'])?$_REQUEST['loginid']:'');
+	$shopid=filter(!empty($_REQUEST['shopid'])?$_REQUEST['shopid']:'');
+	if(!empty($shopid)&&!empty($loginid)){
+		$up=array('user_id'=>$loginid,'shop_id'=>$shopid);
+		$db->delete('shop_users', $up);
+		echo json_result('success');
+	}else{
+		echo json_result(null,'23','用户未登录或者该店铺已删除');
+	}
+
+}
+
+
+//收藏的店铺
+function favoriteShops(){
+	global $db;
+	$loginid=filter($_REQUEST['loginid']);
+	if(empty($loginid)){
+		echo json_result(null,'21','用户未登录');
+		return;
+	}
+	$lng=filter($_REQUEST['lng']);
+	$lat=filter($_REQUEST['lat']);
+	$page_no = isset ( $_GET ['page'] ) ? $_GET ['page'] : 1;
+	$page_size = PAGE_SIZE;
+	$start = ($page_no - 1) * $page_size;
+
+	$sql="select shop.id,shop.title,shop.subtitle,shop.address,shop.img,shopuser.shop_id,shop.lng,shop.lat from ".DB_PREFIX."shop shop left join ".DB_PREFIX."shop_users shopuser on shop.id=shopuser.shop_id where shopuser.user_id=".$loginid." and status=2 ";
+	$sql.=(!empty($lng)&&!empty($lat))?" order by sqrt(power(lng-{$lng},2)+power(lat-{$lat},2))":'';
+
+	$sql .= " limit $start,$page_size";
+	$shops=$db->getAllBySql($sql);
+	foreach ($shops as $k=>$v){
+		$shops[$k]['num']=$db->getCount('shop_users',array('shop_id'=>$v['shop_id']));
+		$shops[$k]['distance']=(!empty($v['lat'])&&!empty($v['lng'])&&!empty($lng)&&!empty($lat))?getDistance($lat,$lng,$v['lat'],$v['lng']):lang_UNlOCATE;
+	}
+	//echo json_result(array('shops'=>$shops));
+	echo json_result($shops);
 }
 
 //店铺留言
 function leaveMsg(){
 	global $db;
 	$shopid=filter($_REQUEST['shopid']);
-	$userid=filter($_REQUEST['userid']);
+	$loginid=filter($_REQUEST['loginid']);
 	$content=filterIlegalWord($_REQUEST['content']);
 	if(empty($shopid)){
 		echo json_result(null,'24','该店铺已删除');
 		return;
 	}
-	if(empty($userid)){
+	if(empty($loginid)){
 		echo json_result(null,'25','用户未登录');
 		return;
 	}
@@ -225,12 +315,27 @@ function leaveMsg(){
 		echo json_result(null,'26','留言内容为空');
 		return;
 	}
-	if($db->getCount('shop_bbs',array('user_id'=>$userid,'shop_id'=>$shopid))>0){
+	if($db->getCount('shop_bbs',array('user_id'=>$loginid,'shop_id'=>$shopid))>0){
 		echo json_result(null,'27','您已经评论过,非常感谢!');
 		return;
 	}
 	$num=$db->getCount('shop_bbs',array('shop_id'=>$shopid))+1;
-	$bbs=array('user_id'=>$userid,'shop_id'=>$shopid,'num'=>$num,'content'=>$content,'created'=>date("Y-m-d H:i:s"));
+	$bbs=array('user_id'=>$loginid,'shop_id'=>$shopid,'num'=>$num,'content'=>$content,'created'=>date("Y-m-d H:i:s"));
 	$db->create('shop_bbs', $bbs);
 	echo json_result($bbs);
 }
+
+//店铺反馈
+function shopFeedback(){
+	global $db;
+	$shopid=filter($_REQUEST['shopid']);
+	$loginid=filter($_REQUEST['loginid']);
+	$content=filterIlegalWord($_REQUEST['content']);
+	$feedback=array('shop_id'=>$shopid,'content'=>$content,'type'=>'shop','created'=>date("Y-m-d H:i:s"));
+	if(!empty($loginid)){
+		$feedback['user_id']=$loginid;
+	}
+	$db->create('feedback', $feedback);
+	echo json_result('success');
+}
+

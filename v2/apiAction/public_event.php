@@ -10,6 +10,9 @@ switch ($act){
 	case 'collectEvent'://收藏
 		collectEvent();
 		break;
+	case 'removeCollectEvent'://取消收藏
+		removeCollectEvent();
+		break;
 	case 'isCollect'://查看是否收藏
 		isCollect();
 		break;
@@ -18,6 +21,9 @@ switch ($act){
 		break;
 	case 'togetherEvent'://对求伴者发起搭伴邀请
 		togetherEvent();
+		break;
+	case 'eventFeedback';
+		eventFeedback();//活动反馈纠错
 		break;
 	default:
 		break;
@@ -82,6 +88,20 @@ function collectEvent(){
 		echo json_result(null,'20','用户未登录或者该活动已删除');
 	}
 
+}
+
+//取消收藏
+function removeCollectEvent(){
+	global $db;
+	$eventid=filter($_REQUEST['eventid']);
+	$loginid=filter($_REQUEST['loginid']);
+	if(!empty($eventid)&&!empty($loginid)){
+		$up=array('user_id'=>$loginid,'public_event_id'=>$eventid);
+		$db->delete('public_users', $up);
+		echo json_result('success');
+	}else{
+		echo json_result(null,'20','用户未登录或者该活动已删除');
+	}
 }
 
 //是否收藏
@@ -149,3 +169,18 @@ function togetherEvent(){
 	$db->create('public_event_together_others', array('public_event_id'=>$id,'user_id'=>$userid,'other_id'=>$loginid,'datetime'=>$datetime,'address'=>$address,'note'=>$note));
 	echo json_result('success');
 }
+
+//活动反馈纠错
+function eventFeedback(){
+	global $db;
+	$eventid=filter($_REQUEST['eventid']);
+	$loginid=filter($_REQUEST['loginid']);
+	$content=filterIlegalWord($_REQUEST['content']);
+	$feedback=array('public_event_id'=>$eventid,'content'=>$content,'type'=>'event','created'=>date("Y-m-d H:i:s"));
+	if(!empty($loginid)){
+		$feedback['user_id']=$loginid;
+	}
+	$db->create('feedback', $feedback);
+	echo json_result('success');
+}
+

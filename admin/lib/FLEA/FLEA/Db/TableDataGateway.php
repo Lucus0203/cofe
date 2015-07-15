@@ -902,7 +902,6 @@ class FLEA_Db_TableDataGateway
                 }
             }
         }
-        echo 21;
 
         $this->_updateCounterCache($row);
 

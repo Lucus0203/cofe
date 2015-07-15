@@ -160,10 +160,11 @@ class Controller_ShopMenu extends FLEA_Controller_Action {
 	function actionMenuPublic(){
 		$menuid=isset ( $_POST ['menuid'] ) ? $_POST ['menuid'] : '';
 		$public=isset ( $_POST ['public'] ) ? $_POST ['public'] : '';//1待售,2寄售中
-		$menu = $this->_shop_menu->findByField(array('id'=>$menuid));
+		//$menu = $this->_shop_menu->findByField(array('id'=>$menuid));
+		$menu['id']=$menuid;
 		$menu['status']=$public;
-		$this->_shop_menu->update($menu);
-		echo 1;
+		echo $this->_shop_menu->update($menu);
+		//echo 1;
 	}
 	
 	

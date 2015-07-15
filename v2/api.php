@@ -39,6 +39,9 @@ if(!empty($c)){
 		case 'base':
 			include 'apiAction/base.php';
 			break;
+		case 'order':
+			include 'apiAction/order.php';
+			break;
 		default:
 			break;
 	}
