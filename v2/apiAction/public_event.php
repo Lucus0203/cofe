@@ -41,12 +41,12 @@ function getEvents(){
 	
 	//$pucount="select count(id) as num,public_event_id from ".DB_PREFIX."public_users pu group by pu.public_event_id ";
 	if(!empty($loginid)){//已登录者
-		$sql="select pe.id,pe.title,pe.address,pe.datetime,if(pu.user_id is not null,1,2) as iscollect from ".DB_PREFIX."public_event pe 
+		$sql="select pe.id,pe.title,pe.img,pe.address,pe.datetime,if(pu.user_id is not null,1,2) as iscollect from ".DB_PREFIX."public_event pe 
 				left join ".DB_PREFIX."public_users pu on pe.id=pu.public_event_id and pu.user_id=$loginid 
 				where pe.isdelete = 0 and pe.ispublic=1 and (pe.end_date > '".date('Y-m-d H:i:s')."' or pe.end_date = '' or pe.end_date is null ) 
 			 	order by pu.user_id,pe.num asc";
 	}else{//未登录
-		$sql="select pe.id,pe.title,pe.address,pe.datetime from ".DB_PREFIX."public_event pe 
+		$sql="select pe.id,pe.title,pe.img,pe.address,pe.datetime from ".DB_PREFIX."public_event pe 
 				where pe.isdelete = 0 and pe.ispublic=1 and (pe.end_date > '".date('Y-m-d H:i:s')."' or pe.end_date = '' or pe.end_date is null ) 
 				order by pe.num asc";
 	}
