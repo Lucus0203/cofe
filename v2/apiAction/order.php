@@ -13,60 +13,43 @@ switch ($act){
 }
 //同步ping++支付,创建订单
 function pay(){
+	global $db;
 	$input_data = json_decode(file_get_contents('php://input'), true);
-	//$input_data['channel']='alipay';
+	//$input_data['channel']='alipay';//wx
 	//$input_data['amount']=101;
 	if (empty($input_data['channel']) || empty($input_data['amount'])) {
-	    exit();
+	    json_result(null,'110','支付方式未选择或金额不正确');
+		exit();
 	}
 	$channel = strtolower($input_data['channel']);
 	$amount = $input_data['amount'];
-	$orderNo = time();
-	
+	$orderNo = $input_data['loginid'].time();
+	$orderNo = $channel=='alipay'?'01'.$orderNo:'02'.$orderNo;	
+	$shop = $db->getRow('shop',array('id'=>$input_data['shop_id']));
+	$menus=array();
+	$menupriceids=$input_data['menu_price_ids'];
+	$menupriceids=explode(',' , $menupriceids);
+	$menubody='';
+	$totalamount=0;
+	foreach ($menupriceids as $pid){
+		$menuprice = $db->getRow('shop_menu_price',array('id'=>$pid));
+		$menu = $db->getRow('shop_menu',array('id'=>$menuprice['menu_id']));
+		$menubody .= ','.$menu['title'];
+		$totalamount+=$menuprice['price'];
+		$menus[]=$menu;
+	}
+	if($totalamount!=$amount){
+		json_result(null,'110','店家价格变更,请重新订单');
+		exit();
+	}
 	//$extra 在使用某些渠道的时候，需要填入相应的参数，其它渠道则是 array() .具体见以下代码或者官网中的文档。其他渠道时可以传空值也可以不传。
 	$extra = array();
-	switch ($channel) {
-	    //这里值列举了其中部分渠道的，具体的extra所需参数请参见官网中的 API 文档
-	    case 'alipay_wap':
-	        $extra = array(
-	            'success_url' => 'http://coffee15.com/success',
-	            'cancel_url' => 'http://coffee15.com/cancel'
-	        );
-	        break;
-	    case 'upmp_wap':
-	        $extra = array(
-	            'result_url' => 'http://coffee15.com/result?code='
-	        );
-	        break;
-	    case 'bfb_wap':
-	        $extra = array(
-	            'result_url' => 'http://coffee15.com/result?code='
-	        );
-	        break;
-	    case 'upacp_wap':
-	        $extra = array(
-	            'result_url' => 'http://coffee15.com/result?code='
-	        );
-	        break;
-	    case 'wx_pub':
-	        $extra = array(
-	            'open_id' => 'Openid'
-	        );
-	        break;
-	    case 'wx_pub_qr':
-	        $extra = array(
-	            'product_id' => 'Productid'
-	        );
-	        break;
-	
-	}
-	
 	\Pingpp\Pingpp::setApiKey('sk_test_SSm1OOvD8anLzLaHSOGmnzzP');
 	try {
 	    $ch = \Pingpp\Charge::create(
 	        array(
-	            "subject"   => "一杯咖啡",
-	            "body"      => "商品描述",
+	            "subject"   => "[咖啡约我]订单支付",
+	            "body"      => $shop['title'].$menubody,
 	            "amount"    => $amount,
 	            "order_no"  => $orderNo,
 	            "currency"  => "cny",
@@ -76,6 +59,13 @@ function pay(){
 	            "app"       => array("id" => "app_rLSuDGnvvj9S8Ouf")
 	        )
 	    );
+	    $order=array('user_id'=>$input_data['loginid'],'charge_id'=>$ch['charge_id'],'time_created'=>time(),'paid'=>false,
+	    'channel'=>$ch['channel'],'order_no'=>$ch['order_no'],'amount'=>$ch['amount'],'subject'=>$ch['subject'],'body'=>$ch['body'],'description'=>$ch['description'],'created'=>date('Y-m-d H:i:s'));
+	    $orderid=$db->create('order', $order);
+	    foreach ($menus as $m){
+	    	$od=array('order_id'=>$orderid,'user_id'=>$input_data['loginid'],'shop_id'=>$shop['id'],'name'=>$m['name'],'img'=>$m['img'],'price'=>$m['price'],'created'=>date("Y-m-d H:i:s"));
+	    	$db->create('order_detail', $od);
+	    }
 	    echo $ch;
 	} catch (\Pingpp\Error\Base $e) {
 	    header('Status: ' . $e->getHttpStatus());
