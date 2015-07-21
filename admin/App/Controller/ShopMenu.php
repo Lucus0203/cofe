@@ -147,8 +147,9 @@ class Controller_ShopMenu extends FLEA_Controller_Action {
 		$typies=isset ( $_POST ['typies'] ) ? $_POST ['typies'] : '';
 		$typies=explode(',' , $typies);
 		$this->_shop_menu_price->removeByConditions(array('menu_id'=>$menuid));
+                $menu=$this->_shop_menu->findByField('id',$menuid,null,"shop_id");
 		foreach ($prices as $k=>$p){
-			$mp=array('menu_id'=>$menuid,'price'=>$p,'type'=>$typies[$k]);
+			$mp=array('shop_id'=>$menu['shop_id'],'menu_id'=>$menuid,'price'=>$p,'type'=>$typies[$k]);
 			$this->_shop_menu_price->create($mp);
 		}
 		echo 1;

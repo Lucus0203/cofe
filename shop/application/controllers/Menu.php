@@ -111,7 +111,7 @@ class Menu extends CI_Controller {
 		if($menu['shop_id']==$loginInfo ['shop_id'] ){//属于本人的菜品
 			$this->menuprice_model->delByCond(array('menu_id'=>$menuid));
 			foreach ($prices as $k=>$p){
-				$mp=array('menu_id'=>$menuid,'price'=>$p,'type'=>$typies[$k]);
+				$mp=array('shop_id'=>$menu['shop_id'],'menu_id'=>$menuid,'price'=>$p,'type'=>$typies[$k]);
 				$this->menuprice_model->create($mp);
 			}
 			echo 1;
