@@ -13,6 +13,9 @@ class Controller_BusinessCircle extends FLEA_Controller_Action {
 	var $_address_city;
 	var $_address_province;
 	var $_address_town;
+	var $_shop_addcity;
+	var $_shop_addarea;
+	var $_shop_addcircle;
 	var $_business_circle;
 	
 	function __construct() {
@@ -23,6 +26,9 @@ class Controller_BusinessCircle extends FLEA_Controller_Action {
 		$this->_address_city = get_singleton ( "Model_AddressCity" );
 		$this->_address_province = get_singleton ( "Model_AddressProvince" );
 		$this->_address_town = get_singleton ( "Model_AddressTown" );
+		$this->_shop_addcity = get_singleton ( "Model_ShopAddcity" );
+		$this->_shop_addarea = get_singleton ( "Model_ShopAddarea" );
+		$this->_shop_addcircle = get_singleton ( "Model_ShopAddcircle" );
 		$this->_business_circle = get_singleton ( "Model_BusinessCircle" );
 		$this->_adminid = isset ( $_SESSION ['loginuserid'] ) ? $_SESSION ['loginuserid'] : "";
 		if(empty($_SESSION ['loginuserid'])){
@@ -53,9 +59,9 @@ class Controller_BusinessCircle extends FLEA_Controller_Action {
 			$conditions.=" and city.id =$city_id ";
 			$pageparm['city_id']=$city_id;
 		}
-		$sql="select province.name as province,city.name as city,circle.* from ".$prefix."business_circle circle 
-			left join ".$prefix."address_province province on circle.province_id=province.id
-			left join ".$prefix."address_city city on circle.city_id=city.id where ".$conditions;
+		$sql="select province.name as province,city.name as city,circle.* from ".$prefix."shop_addcircle circle 
+			left join ".$prefix."shop_addcity city on circle.city_id=city.id
+			left join ".$prefix."address_province province on city.province_id=province.id where ".$conditions;
 		$total=$this->_business_circle->findBySql("select count(*) as num from ($sql) s");
 		$total=@$total[0]['num'];
 		
@@ -79,9 +85,22 @@ class Controller_BusinessCircle extends FLEA_Controller_Action {
 	}
 	
 
-	function actionAdd(){ //添加商圈
+	function actionAddCity(){ //添加城市
 		$data=$_POST;
-		$data=$this->_business_circle->create($data);
+                $data['pinyin']=$this->_common->getFirstCharter($data['name']);
+		$data=$this->_shop_addcity->create($data);
+		redirect($_SERVER['HTTP_REFERER']);
+	}
+        
+	function actionAddArea(){ //添加区域
+		$data=$_POST;
+		$data=$this->_shop_addarea->create($data);
+		redirect($_SERVER['HTTP_REFERER']);
+	}
+        
+	function actionAddCircle(){ //添加商圈
+		$data=$_POST;
+		$data=$this->_shop_addcircle->create($data);
 		redirect($_SERVER['HTTP_REFERER']);
 	}
 	

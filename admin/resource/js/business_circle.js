@@ -15,15 +15,17 @@ $(function(){
 	});
 	$('.city_id').change(function(){
 		var index=$('.city_id').index($(this));
-		var cityApiURL=$('#cityApiURL').val();
-		var city_id=$(this).val();
-		$.ajax({
-			type:'get',
-			url:cityApiURL,
-			data:{'city_id':city_id},
-			success:function(res){
-				$('.town_id').eq(index).html('<option value="">选择</option>'+res);
-			}
-		})
+                if(index>0){
+                    var cityApiURL=$('#cityApiURL').val();
+                    var city_id=$(this).val();
+                    $.ajax({
+                            type:'get',
+                            url:cityApiURL,
+                            data:{'city_id':city_id},
+                            success:function(res){
+                                    $('.area_id').eq(index-1).html('<option value="">选择</option>'+res);
+                            }
+                    })
+                }
 	});
 });

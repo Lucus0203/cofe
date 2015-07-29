@@ -11,6 +11,9 @@ class Controller_Api extends FLEA_Controller_Action {
 	var $_address_city;
 	var $_address_province;
 	var $_address_town;
+	var $_shop_addcity;
+	var $_shop_addarea;
+	var $_shop_addcircle;
 
 	function __construct() {
 		$this->_common = get_singleton ( "Class_Common" );
@@ -19,6 +22,9 @@ class Controller_Api extends FLEA_Controller_Action {
 		$this->_address_city = get_singleton ( "Model_AddressCity" );
 		$this->_address_province = get_singleton ( "Model_AddressProvince" );
 		$this->_address_town = get_singleton ( "Model_AddressTown" );
+		$this->_shop_addcity = get_singleton ( "Model_ShopAddcity" );
+		$this->_shop_addarea = get_singleton ( "Model_ShopAddarea" );
+		$this->_shop_addcircle = get_singleton ( "Model_ShopAddcircle" );
 		$this->_adminid = isset ( $_SESSION ['loginuserid'] ) ? $_SESSION ['loginuserid'] : "";
 		if(empty($_SESSION ['loginuserid'])){
 			$url=url("Default","Login");
@@ -51,5 +57,32 @@ class Controller_Api extends FLEA_Controller_Action {
 		echo $str;
 		exit();
 	}
+        
+        //获取咖啡店城市
+	function actionGetShopCityByProvince() {
+		$province_id = isset ( $_GET ['province_id'] ) ? $this->_common->filter($_GET ['province_id']) : '';
+		//$prov=$this->_address_province->findByField('id',$province_id);
+		$city=$this->_shop_addcity->findAll(array('province_id'=>$province_id),'id asc');
+		$str="";
+		foreach ($city as $c){
+			$str.="<option value='".$c['id']."'>".$c['name']."</option>";
+		}
+		echo $str;
+		exit();
+	}
+        
+        //获取咖啡店区域
+	function actionGetShopAreaByCity() {
+		$city_id = isset ( $_GET ['city_id'] ) ? $this->_common->filter($_GET ['city_id']) : '';
+		//$prov=$this->_address_province->findByField('id',$province_id);
+		$city=$this->_shop_addarea->findAll(array('city_id'=>$city_id),'id asc');
+		$str="";
+		foreach ($city as $c){
+			$str.="<option value='".$c['id']."'>".$c['name']."</option>";
+		}
+		echo $str;
+		exit();
+	}
+        
 	
 }

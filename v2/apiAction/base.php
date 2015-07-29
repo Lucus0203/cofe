@@ -39,6 +39,8 @@ function getCityArea($return=false){
 			$sql="select c.id,c.name from ".DB_PREFIX."address_city c where c.province_id = {$p['id']} order by code asc ";
 			$city=$db->getAllBySql($sql);
 			foreach ($city as $ck=>$c){
+                                //$pinyinsql="update ".DB_PREFIX."address_city set pinyin='".getFirstCharter($c['name'])."' where id={$c['id']} ";
+                                //$db->getAllBySql($pinyinsql);
 				$sql="select t.id,t.name from ".DB_PREFIX."address_town t where t.city_id = {$c['id']} order by code asc ";
 				$town=$db->getAllBySql($sql);
 				$city[$ck]['town']=$town;
