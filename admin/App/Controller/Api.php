@@ -65,7 +65,7 @@ class Controller_Api extends FLEA_Controller_Action {
 		$city=$this->_shop_addcity->findAll(array('province_id'=>$province_id),'id asc');
 		$str="";
 		foreach ($city as $c){
-			$str.="<option value='".$c['id']."'>".$c['name']."</option>";
+			$str.="<option value='".$c['id']."'>".$c['name']."(".$c['code'].")</option>";
 		}
 		echo $str;
 		exit();
@@ -75,9 +75,21 @@ class Controller_Api extends FLEA_Controller_Action {
 	function actionGetShopAreaByCity() {
 		$city_id = isset ( $_GET ['city_id'] ) ? $this->_common->filter($_GET ['city_id']) : '';
 		//$prov=$this->_address_province->findByField('id',$province_id);
-		$city=$this->_shop_addarea->findAll(array('city_id'=>$city_id),'id asc');
+		$area=$this->_shop_addarea->findAll(array('city_id'=>$city_id),'id asc');
 		$str="";
-		foreach ($city as $c){
+		foreach ($area as $c){
+			$str.="<option value='".$c['id']."'>".$c['name']."</option>";
+		}
+		echo $str;
+		exit();
+	}
+        //获取咖啡店商圈
+	function actionGetShopCircleByCity() {
+		$area_id = isset ( $_GET ['area_id'] ) ? $this->_common->filter($_GET ['area_id']) : '';
+		//$prov=$this->_address_province->findByField('id',$province_id);
+		$circle=$this->_shop_addcircle->findAll(array('area_id'=>$area_id),'id asc');
+		$str="";
+		foreach ($circle as $c){
 			$str.="<option value='".$c['id']."'>".$c['name']."</option>";
 		}
 		echo $str;

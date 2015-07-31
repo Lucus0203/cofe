@@ -59,7 +59,8 @@ class Controller_BusinessCircle extends FLEA_Controller_Action {
 			$conditions.=" and city.id =$city_id ";
 			$pageparm['city_id']=$city_id;
 		}
-		$sql="select province.name as province,city.name as city,circle.* from ".$prefix."shop_addcircle circle 
+		$sql="select province.name as province,city.name as city,area.name as area,circle.* from ".$prefix."shop_addcircle circle 
+			left join ".$prefix."shop_addarea area on circle.area_id=area.id
 			left join ".$prefix."shop_addcity city on circle.city_id=city.id
 			left join ".$prefix."address_province province on city.province_id=province.id where ".$conditions;
 		$total=$this->_business_circle->findBySql("select count(*) as num from ($sql) s");
@@ -76,35 +77,57 @@ class Controller_BusinessCircle extends FLEA_Controller_Action {
 
 		$list=$this->_business_circle->findBySql($sql." order by circle.id desc limit $start,$page_size");
 		$provinces=$this->_address_province->findAll();
-		$prov=$this->_address_province->findByField('id',$province_id);
-		$city=$this->_address_city->findAll(array('provinceCode'=>$prov['code']));
-		$ctow=$this->_address_city->findByField('id',$city_id);
-		$towns=$this->_address_town->findAll(array('cityCode'=>$ctow['code']));
+		$city=$this->_shop_addcity->findAll(array('province_id'=>$province_id));
+                $area=$this->_shop_addarea->findAll(array('city_id'=>$city_id));
+		//$prov=$this->_address_province->findByField('id',$province_id);
+		//$city=$this->_address_city->findAll(array('provinceCode'=>$prov['code']));
+		//$ctow=$this->_address_city->findByField('id',$city_id);
+		//$towns=$this->_address_town->findAll(array('cityCode'=>$ctow['code']));
 		
-		$this->_common->show ( array ('main' => 'businessCircle/list.tpl','list'=>$list,'page'=>$page,'province_id'=>$province_id,'city_id'=>$city_id,'town_id'=>$town_id,'provinces'=>$provinces,'city'=>$city,'towns'=>$towns) );
+		$this->_common->show ( array ('main' => 'businessCircle/list.tpl','list'=>$list,'page'=>$page,'province_id'=>$province_id,'city_id'=>$city_id,'town_id'=>$town_id,'provinces'=>$provinces,'city'=>$city,'area'=>$area,'towns'=>$towns) );
 	}
 	
 
 	function actionAddCity(){ //添加城市
 		$data=$_POST;
-                $data['pinyin']=$this->_common->getFirstCharter($data['name']);
-		$data=$this->_shop_addcity->create($data);
+                foreach ($data['name'] as $n){
+                    if(!empty($n)){
+                        $obj=array('province_id'=>$data['province_id'],'name'=>$n);
+                        $obj['pinyin']=$this->_common->getFirstCharter($n);
+                        $geo=$this->_common->getLngFromBaidu($n);
+                        $cityCode=$this->_common->getCityCodeFromBaidu($geo['lng'], $geo['lat']);
+                        if(!empty($cityCode)){
+                            $obj['code']=$cityCode;
+                            $this->_shop_addcity->create($obj);
+                        }
+                    }
+                }
 		redirect($_SERVER['HTTP_REFERER']);
 	}
         
 	function actionAddArea(){ //添加区域
 		$data=$_POST;
-		$data=$this->_shop_addarea->create($data);
+                foreach ($data['name'] as $n){
+                    if(!empty($n)){
+                        $obj=array('province_id'=>$data['province_id'],'city_id'=>$data['city_id'],'name'=>$n);
+                        $this->_shop_addarea->create($obj);
+                    }
+                }
 		redirect($_SERVER['HTTP_REFERER']);
 	}
         
 	function actionAddCircle(){ //添加商圈
 		$data=$_POST;
-		$data=$this->_shop_addcircle->create($data);
+                foreach ($data['name'] as $n){
+                    if(!empty($n)){
+                        $obj=array('province_id'=>$data['province_id'],'city_id'=>$data['city_id'],'area_id'=>$data['area_id'],'name'=>$n);
+                        $this->_shop_addcircle->create($obj);
+                    }
+                }
 		redirect($_SERVER['HTTP_REFERER']);
 	}
 	
-	function actionEdit(){
+	function actionEdit(){//编辑商圈
 		$id=$this->_common->filter($_GET['id']);
 		if(empty($id)){
 			redirect($_SERVER['HTTP_REFERER']);
@@ -114,24 +137,90 @@ class Controller_BusinessCircle extends FLEA_Controller_Action {
 		$act=isset ( $_POST ['act'] ) ? $_POST ['act'] : '';
 		if($act=='edit'){
 			$data=$_POST;
-			$this->_business_circle->update($data);
+			$this->_shop_addcircle->update($data);
 			$msg="更新成功";
 		}
 		
-		$circle=$this->_business_circle->findByField('id',$id);
+		$circle=$this->_shop_addcircle->findByField('id',$id);
 		
 		$provinces=$this->_address_province->findAll();
-		$prov=$this->_address_province->findByField('id',$circle['province_id']);
-		$city=$this->_address_city->findAll(array('provinceCode'=>$prov['code']));
+                $city_data=$this->_shop_addcity->findByField('id',$circle['city_id']);
+		$city=$this->_shop_addcity->findAll(array('province_id'=>$city_data['province_id']));
+		$area=$this->_shop_addarea->findAll(array('city_id'=>$circle['city_id']));
 		
-		$this->_common->show ( array ('main' => 'businessCircle/edit.tpl','data'=>$circle,'provinces'=>$provinces,'city'=>$city,'towns'=>$towns,'msg'=>$msg) );
-		
+		$this->_common->show ( array ('main' => 'businessCircle/edit.tpl','data'=>$circle,'provinces'=>$provinces,'city_data'=>$city_data,'city'=>$city,'area'=>$area,'msg'=>$msg) );
 	}
-	
-	function actionDel(){//删除
+        
+        function actionEditCity(){//编辑城市
 		$id=$this->_common->filter($_GET['id']);
-		$this->_business_circle->removeByPkv($id);
-		redirect($_SERVER['HTTP_REFERER']);
+		$act=isset ( $_POST ['act'] ) ? $_POST ['act'] : '';
+		if($act=='edit'){
+			$data=$_POST;
+			$this->_shop_addcity->update($data);
+			$msg="更新成功";
+		}
+                $data=$this->_shop_addcity->findByField('id',$id);
+                $this->_common->show ( array ('main' => 'businessCircle/city_edit.tpl','data'=>$data,'msg'=>$msg) );
+        }
+        
+        function actionEditArea(){//编辑区域
+		$id=$this->_common->filter($_GET['id']);
+		$act=isset ( $_POST ['act'] ) ? $_POST ['act'] : '';
+		if($act=='edit'){
+			$data=$_POST;
+			$this->_shop_addarea->update($data);
+			$msg="更新成功";
+		}
+                $data=$this->_shop_addarea->findByField('id',$id);
+                $this->_common->show ( array ('main' => 'businessCircle/area_edit.tpl','data'=>$data,'msg'=>$msg) );
+        }
+	
+	function actionDel(){//删除商圈
+		$id=$this->_common->filter($_GET['id']);
+                //若有数据则不可删
+                if($this->_shop->findCount(array('addcity_id'=>$id))>0){
+                    redirect($_SERVER['HTTP_REFERER']);
+                }else{
+                    $this->_shop_addcircle->removeByPkv($id);
+                    redirect($_SERVER['HTTP_REFERER']);
+                }
+	}
+        
+        function actionDelCity(){//删除城市
+		$id=$this->_common->filter($_GET['id']);
+                //若有数据则不可删
+                if($this->_shop->findCount(array('addcity_id'=>$id))>0){
+                    echo 2;
+                    return;
+                }
+                if($this->_shop_addarea->findCount(array('city_id'=>$id))>0){
+                    echo 2;
+                    return;
+                }
+		if($this->_shop_addcity->removeByPkv($id)){
+                    echo 1;
+                }else{
+                    echo 2;
+                }
+	}
+        
+        function actionDelArea(){//删除区域
+		$id=$this->_common->filter($_GET['id']);
+                //若有数据则不可删
+                if($this->_shop->findCount(array('addarea_id'=>$id))>0){
+                    echo 2;
+                    return;
+                }
+                //若有数据则不可删
+                if($this->_shop_addcircle->findCount(array('area_id'=>$id))>0){
+                    echo 2;
+                    return;
+                }
+		if($this->_shop_addarea->removeByPkv($id)){
+                    echo 1;
+                }else{
+                    echo 2;
+                }
 	}
 	
 }

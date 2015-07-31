@@ -2,6 +2,10 @@
 <td valign="top" align="center">
          <input type="hidden" id="provinceApiURL" value="{url controller=Api action=GetShopCityByProvince}" />
          <input type="hidden" id="cityApiURL" value="{url controller=Api action=GetShopAreaByCity}" />
+         <input type="hidden" id="delCityURL" value="{url controller=BusinessCircle action=DelCity}" />
+         <input type="hidden" id="delAreaURL" value="{url controller=BusinessCircle action=DelArea}" />
+         <input type="hidden" id="editCityURL" value="{url controller=BusinessCircle action=EditCity}" />
+         <input type="hidden" id="editAreaURL" value="{url controller=BusinessCircle action=EditArea}" />
  	<div class="main_ta_box">
          <div class="hd_t">城市商圈</div>
          <form action="{url controller=BusinessCircle action=AddCity}" method="post">
@@ -21,9 +25,10 @@
                     </select>
                     </td>
                 <td>
-                        <input name="name" value="">
+                        <input name="name[]" value="" placeholder="城市">
+                        <input type="button" class="addone" value="再添加一条" />
                 </td>
-                <td><input class="cz_btn" type="submit" value="添加城市"></td></table>
+                <td><input class="cz_btn" type="submit" value="提交城市数据"></td></table>
          </form>
          <form action="{url controller=BusinessCircle action=AddArea}" method="post">
          <table class="hd_del_ta" border="0" cellpadding="0" cellspacing="1" width="97%" align="center" style="margin-bottom:30px;">
@@ -34,21 +39,27 @@
                 </colgroup>
          	<tr>
                     <td>
-                    <select class="province_id">
-                            <option value="">选择</option>
-                            {section name=sec loop=$provinces}
-                            <option value="{$provinces[sec].id}" {if $province_id eq $provinces[sec].id}selected{/if}>{$provinces[sec].name}</option>
+                        <select class="province_id">
+                                <option value="">选择</option>
+                                {section name=sec loop=$provinces}
+                                <option value="{$provinces[sec].id}" {if $province_id eq $provinces[sec].id}selected{/if}>{$provinces[sec].name}</option>
+                                {/section}
+                        </select>
+                        <select name="city_id" class="city_id">
+                                <option value="">选择</option>
+                            {section name=sec loop=$city}
+                            <option value="{$city[sec].id}" {if $city_id eq $city[sec].id}selected{/if}>{$city[sec].name}({$city[sec].code})</option>
                             {/section}
-                    </select>
-                    <select name="city_id" class="city_id">
-                            <option value="">选择</option>
-                    </select>
+                        </select>
+                        <input type="button" value="删除城市" id="delCity" />
+                        <input type="button" value="编辑城市" id="editCity" />
                     </td>
                     <td>
-                            <input name="name" value="">
+                            <input name="name[]" value="" placeholder="区域">
+                            <input type="button" class="addone" value="再添加一条" />
                     </td>
                     <td>
-                    <input class="cz_btn" type="submit" value="添加区域"></td></table>
+                    <input class="cz_btn" type="submit" value="提交区域数据"></td></table>
          </form>
          <form action="{url controller=BusinessCircle action=AddCircle}" method="post">
          <table class="hd_del_ta" border="0" cellpadding="0" cellspacing="1" width="97%" align="center" style="margin-bottom:30px;">
@@ -59,24 +70,33 @@
                 </colgroup>
          	<tr>
                     <td>
-                    <select class="province_id">
-                            <option value="">选择</option>
-                            {section name=sec loop=$provinces}
-                            <option value="{$provinces[sec].id}" {if $province_id eq $provinces[sec].id}selected{/if}>{$provinces[sec].name}</option>
+                        <select class="province_id">
+                                <option value="">选择</option>
+                                {section name=sec loop=$provinces}
+                                <option value="{$provinces[sec].id}" {if $province_id eq $provinces[sec].id}selected{/if}>{$provinces[sec].name}</option>
+                                {/section}
+                        </select>
+                        <select name="city_id" class="city_id">
+                                <option value="">选择</option>
+                            {section name=sec loop=$city}
+                            <option value="{$city[sec].id}" {if $city_id eq $city[sec].id}selected{/if}>{$city[sec].name}({$city[sec].code})</option>
                             {/section}
-                    </select>
-                    <select name="city_id" class="city_id">
-                            <option value="">选择</option>
-                    </select>
-                    <select name="area_id" class="area_id">
-                            <option value="">选择</option>
-                    </select>
+                        </select>
+                        <select name="area_id" class="area_id">
+                                <option value="">选择</option>
+                            {section name=sec loop=$area}
+                            <option value="{$area[sec].id}" {if $area_id eq $area[sec].id}selected{/if}>{$area[sec].name}</option>
+                            {/section}
+                        </select>
+                        <input type="button" value="删除区域" id="delArea" />
+                        <input type="button" value="编辑区域" id="editArea" />
                     </td>
                     <td>
-                            <input name="name" value="">
+                            <input name="name[]" value="" placeholder="商圈">
+                            <input type="button" class="addone" value="再添加一条" />
                     </td>
                     <td>
-                    <input class="cz_btn" type="submit" value="添加商圈"></td></table>
+                    <input class="cz_btn" type="submit" value="提交商圈数据"></td></table>
          </form>
          
          <form action="" method="get">
@@ -93,10 +113,16 @@
 				城市
 				<select name="city_id" class="city_id">
 					<option value="">选择</option>
+                                        {section name=sec loop=$city}
+                                        <option value="{$city[sec].id}" {if $city_id eq $city[sec].id}selected{/if}>{$city[sec].name}({$city[sec].code})</option>
+                                        {/section}
 				</select>
                                 区域
 				<select name="area_id" class="area_id">
 					<option value="">选择</option>
+                                        {section name=sec loop=$area}
+                                        <option value="{$area[sec].id}" {if $area_id eq $area[sec].id}selected{/if}>{$area[sec].name}</option>
+                                        {/section}
 				</select>
 				<input class="cz_btn" type="submit" value="查找"></div>
          </form>
@@ -107,10 +133,12 @@
 				<col width="15%">
 				<col width="15%">
 				<col width="15%">
+				<col width="15%">
 			</colgroup>
              <tr>
                  <th>省份</th>
                  <th>城市</th>
+                 <th>行政区</th>
                  <th>商圈</th>
                  <th>操作</th>
              </tr>
@@ -118,6 +146,7 @@
              <tr>
                  <td>{$list[sec].province}</td>
                  <td>{$list[sec].city}</td>
+                 <td>{$list[sec].area}</td>
                  <td class="hd_td_l">{$list[sec].name}</td>
                  <td style="word-break:keep-all;">
                  	<a href="{url controller=BusinessCircle action=Edit id=$list[sec].id}">编辑</a><a class="delBtn" href="{url controller=BusinessCircle action=Del id=$list[sec].id}">删除</a>

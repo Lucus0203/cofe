@@ -18,6 +18,9 @@ class Controller_Shop extends FLEA_Controller_Action {
 	var $_address_city;
 	var $_address_province;
 	var $_address_town;
+	var $_shop_addcity;
+	var $_shop_addarea;
+	var $_shop_addcircle;
 
 	function __construct() {
 		$this->_common = get_singleton ( "Class_Common" );
@@ -31,6 +34,9 @@ class Controller_Shop extends FLEA_Controller_Action {
 		$this->_address_city = get_singleton ( "Model_AddressCity" );
 		$this->_address_province = get_singleton ( "Model_AddressProvince" );
 		$this->_address_town = get_singleton ( "Model_AddressTown" );
+		$this->_shop_addcity = get_singleton ( "Model_ShopAddcity" );
+		$this->_shop_addarea = get_singleton ( "Model_ShopAddarea" );
+		$this->_shop_addcircle = get_singleton ( "Model_ShopAddcircle" );
 		$this->_adminid = isset ( $_SESSION ['loginuserid'] ) ? $_SESSION ['loginuserid'] : "";
 		$this->_tags=array('休闲小憩','情侣约会','随便吃吃','朋友聚餐','可以刷卡','有下午茶',
 							'家庭聚会','无线上网','供应早餐','有露天位','免费停车','有无烟区',
@@ -149,6 +155,18 @@ class Controller_Shop extends FLEA_Controller_Action {
 			$data ['holidays'] = implode(',', $data ['holidays']);
 			$data ['holidayhours1'] = $data ['holidayhours1'].':'.$data ['holidayminutes1'];
 			$data ['holidayhours2'] = $data ['holidayhours2'].':'.$data ['holidayminutes2'];
+                        if(empty($data['province_id']))
+                            $data['province_id']=NULL;
+                        if(empty($data['city_id']))
+                            $data['city_id']=NULL;
+                        if(empty($data['town_id']))
+                            $data['town_id']=NULL;
+                        if(empty($data['addcity_id']))
+                            $data['addcity_id']=NULL;
+                        if(empty($data['addarea_id']))
+                            $data['addarea_id']=NULL;
+                        if(empty($data['addcircle_id']))
+                            $data['addcircle_id']=NULL;
 			$id=$this->_shop->create($data);
 			
 			//更多店铺图片
@@ -210,6 +228,18 @@ class Controller_Shop extends FLEA_Controller_Action {
 			$data ['holidays'] = implode(',', $data ['holidays']);
 			$data ['holidayhours1'] = $data ['holidayhours1'].':'.$data ['holidayminutes1'];
 			$data ['holidayhours2'] = $data ['holidayhours2'].':'.$data ['holidayminutes2'];
+                        if(empty($data['province_id']))
+                            $data['province_id']=NULL;
+                        if(empty($data['city_id']))
+                            $data['city_id']=NULL;
+                        if(empty($data['town_id']))
+                            $data['town_id']=NULL;
+                        if(empty($data['addcity_id']))
+                            $data['addcity_id']=NULL;
+                        if(empty($data['addarea_id']))
+                            $data['addarea_id']=NULL;
+                        if(empty($data['addcircle_id']))
+                            $data['addcircle_id']=NULL;
 			$this->_shop->update($data);
 			$msg="更新成功!";
 		}
@@ -256,8 +286,12 @@ class Controller_Shop extends FLEA_Controller_Action {
 		$city=$this->_address_city->findAll(array('provinceCode'=>$prov['code']));
 		$ctow=$this->_address_city->findByField('id',$data['city_id']);//广州
 		$towns=$this->_address_town->findAll(array('cityCode'=>$ctow['code']),'code asc');
+                
+		$addcity=$this->_shop_addcity->findAll(array('province_id'=>$data['province_id']));
+		$addarea=$this->_shop_addarea->findAll(array('city_id'=>$data['addcity_id']));
+		$addcircle=$this->_shop_addcircle->findAll(array('area_id'=>$data['addarea_id']));
 		
-		$this->_common->show ( array ('main' => 'shop/shop_edit.tpl','data'=>$data,'menu'=>$menu,'shopimg'=>$shopimg,'msg'=>$msg,'tags'=>$tags,'provinces'=>$provinces,'city'=>$city,'towns'=>$towns) );
+		$this->_common->show ( array ('main' => 'shop/shop_edit.tpl','data'=>$data,'menu'=>$menu,'shopimg'=>$shopimg,'msg'=>$msg,'tags'=>$tags,'provinces'=>$provinces,'city'=>$city,'towns'=>$towns,'addcity'=>$addcity,'addarea'=>$addarea,'addcircle'=>$addcircle) );
 	}
 	
 	//上传店铺图片

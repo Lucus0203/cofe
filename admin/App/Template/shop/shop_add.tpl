@@ -5,6 +5,9 @@
  	<div class="main_ta_box">
          <input type="hidden" id="provinceApiURL" value="{url controller=Api action=GetCityByProvince}" />
          <input type="hidden" id="cityApiURL" value="{url controller=Api action=GetTownByCity}" />
+         <input type="hidden" id="addcityApiURL" value="{url controller=Api action=GetShopCityByProvince}" />
+         <input type="hidden" id="addareaApiURL" value="{url controller=Api action=GetShopAreaByCity}" />
+         <input type="hidden" id="addcircleApiURL" value="{url controller=Api action=GetShopCircleByCity}" />
          <div class="hd_t">添加店铺</div>
          <form action="" method="post" enctype="multipart/form-data" onsubmit="return checkFrom();">
          <input type="hidden" name="act" value="add" />
@@ -25,9 +28,14 @@
                  <td><input name="subtitle" type="text" value="" style="width:240px;"></td>
              </tr>
              <tr>
+                 <td style="text-align:center;">营业时间(旧版需要)</td>
+                 <td>
+                 	<input name="hours" type="text" value="" style="width:240px;">
+                 </td>
+             </tr>
+             <tr>
                  <td style="text-align:center;">营业时间</td>
                  <td>
-                 	<input name="hours" type="text" value="" style="width:240px;">(旧版需要)<br/>
                  	<select name="hours1" >
                  		{section name=loop loop=24}
                  		{if $smarty.section.loop.index lt 10}
@@ -114,24 +122,55 @@
                  <td><input name="tel" type="text" value="" style="width:240px;"></td>
              </tr>
              <tr>
-                 <td style="text-align:center;">城市区域</td>
+                 <td style="text-align:center;">城市区域<br/>(旧版或店家输入信息)</td>
                  <td>
-	                <select name="province_id" class="province_id">
-		                {section name=sec loop=$provinces}
-							<option value="{$provinces[sec].id}" {if 11 eq $provinces[sec].id}selected{/if}>{$provinces[sec].name}</option>
-						{/section}
-					</select>
-	                <select name="city_id" class="city_id">
-					<option value="">不限</option>
-						{section name=sec loop=$city}
-							<option value="{$city[sec].id}" {if 91 eq $city[sec].id}selected{/if}>{$city[sec].name}</option>
-						{/section}
-					</select>
-					<select name="town_id" class="town_id">
-						{section name=sec loop=$towns}
-							<option value="{$towns[sec].id}">{$towns[sec].name}</option>
-						{/section}
-					</select>
+                        <select class="province_id">
+                            <option value="">选择</option>
+                            {section name=sec loop=$provinces}
+                                    <option value="{$provinces[sec].id}" {if $data.province_id eq $provinces[sec].id}selected{/if}>{$provinces[sec].name}</option>
+                            {/section}
+                        </select>
+                        <select name="city_id" class="city_id">
+                            <option value="">选择</option>
+                            {section name=sec loop=$city}
+                                    <option value="{$city[sec].id}" {if $data.city_id eq $city[sec].id}selected{/if}>{$city[sec].name}</option>
+                            {/section}
+                        </select>
+                        <select name="town_id" class="town_id">
+                            <option value="">选择</option>
+                            {section name=sec loop=$towns}
+                                    <option value="{$towns[sec].id}" {if $data.town_id eq $towns[sec].id}selected{/if}>{$towns[sec].name}</option>
+                            {/section}
+                        </select>
+                 </td>
+             </tr>
+             <tr>
+                 <td style="text-align:center;">城市商圈<br/>(管理员设定)</td>
+                 <td>
+	                <select name="province_id" class="addprovince_id">
+                            <option value="">选择</option>
+                            {section name=sec loop=$provinces}
+                                    <option value="{$provinces[sec].id}" {if $data.province_id eq $provinces[sec].id}selected{/if}>{$provinces[sec].name}</option>
+                            {/section}
+                            </select>
+	                <select name="addcity_id" class="addcity_id">
+                            <option value="">选择</option>
+                            {section name=sec loop=$addcity}
+                                    <option value="{$addcity[sec].id}" {if $data.addcity_id eq $addcity[sec].id}selected{/if}>{$addcity[sec].name}</option>
+                            {/section}
+                        </select>
+                        <select name="addarea_id" class="addarea_id">
+                            <option value="">选择</option>
+                            {section name=sec loop=$addarea}
+                                    <option value="{$addarea[sec].id}" {if $data.addarea_id eq $addarea[sec].id}selected{/if}>{$addarea[sec].name}</option>
+                            {/section}
+                        </select>
+                        <select name="addcircle_id" class="addcircle_id">
+                            <option value="">选择</option>
+                            {section name=sec loop=$addcircle}
+                                    <option value="{$addcircle[sec].id}" {if $data.addcircle_id eq $addcircle[sec].id}selected{/if}>{$addcircle[sec].name}</option>
+                            {/section}
+                        </select>
                  </td>
              </tr>
              <tr>

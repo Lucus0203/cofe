@@ -5,14 +5,8 @@ $(function(){
 		}
 		return false;
 	});
-	$('a.pubBtn').click(function(){
-		if(confirm('确定允许吗?')){
-			window.location=$(this).attr('href');
-		}
-		return false;
-	});
-	$('a.depubBtn').click(function(){
-		if(confirm('确定不允许吗?')){
+	$('a.pubBtn,a.depubBtn').click(function(){
+		if(confirm('确定'+$(this).text()+'吗?')){
 			window.location=$(this).attr('href');
 		}
 		return false;
@@ -41,7 +35,7 @@ $(function(){
 			url:cityApiURL,
 			data:{'city_id':city_id},
 			success:function(res){
-				$('.town_id').eq(index).html('<option value="">选择</option>'+res);
+				$('.addcircle').eq(index).html('<option value="">选择</option>'+res);
 			}
 		})
 	});

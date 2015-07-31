@@ -8,6 +8,7 @@
     	<div class="main_l_menu"><a href="{url controller=UserEvent action=Index}">用户活动</a></div>
     	<div class="main_l_menu"><a href="{url controller=BusinessCircle action=Index}">城市商圈</a></div>
     	<div class="main_l_menu"><a href="{url controller=Master action=Index}">店家审核</a></div>
+        <div class="main_l_menu" style="margin-top:50px;"><a href="{url controller=Base action=Index}">基础数据</a></div>
         <div class="menu_b_box">
 	        <div class="main_l_menu"><a href="{url controller=User action=Feedback}">用户反馈</a></div>
 	        <div class="main_l_menu"><a href="{url controller=Index action=Banner}">首页滚动图</a></div>

@@ -241,3 +241,19 @@ ul.holidays li{
 	float:left;
 	margin-right:10px;
 }
+
+ul.base_data li{
+    display: block;
+    width:150px;
+    height:90px;
+    border:#000 solid 1px;
+    float:left;
+    margin:0 20px 0;
+    font-size:20px;
+    background-color: #5b401b;
+}
+ul.base_data li a{
+    color:#fff;
+    line-height: 90px;
+    vertical-align: middle;
+}
