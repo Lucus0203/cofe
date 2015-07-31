@@ -257,3 +257,13 @@ ul.base_data li a{
     line-height: 90px;
     vertical-align: middle;
 }
+ul.ultag{
+    display: block;
+    border: #000 solid 1px;
+    height:25px;
+    margin-bottom: 20px; 
+}
+ul.ultag li{
+    width: 20%;
+    float: left;
+}

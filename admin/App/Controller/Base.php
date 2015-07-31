@@ -8,6 +8,7 @@ class Controller_Base extends FLEA_Controller_Action {
 	var $_common;
 	var $_user;
 	var $_shop_tag;
+        var $_shop_tag_team;
 	var $_user_tag;
 	var $_topic;
 	var $_question;
@@ -19,6 +20,7 @@ class Controller_Base extends FLEA_Controller_Action {
 
 		$this->_user = get_singleton ( "Model_User" );
 		$this->_shop_tag = get_singleton ( "Model_BaseShopTag" );
+		$this->_shop_tag_team = get_singleton ( "Model_BaseShopTagTeam" );
 		$this->_user_tag = get_singleton ( "Model_BaseUserTag" );
 		$this->_topic = get_singleton ( "Model_BaseTopic" );
 		$this->_question = get_singleton ( "Model_BaseQuestion" );
@@ -73,12 +75,23 @@ class Controller_Base extends FLEA_Controller_Action {
          * 店铺特色标签
          */
 	function actionShopTag() {
-		$list=$this->_shop_tag->findAll();
-		$this->_common->show ( array ('main' => 'base/shoptag_list.tpl','list'=>$list) );
+		$config = FLEA::getAppInf ( 'dbDSN' );
+		$prefix = $config ['prefix'];
+                $sql="select tag.id,tag.name,team.name as team from ".$prefix."base_shop_tag tag left join ".$prefix."base_shop_tag_team team on tag.team_id=team.id order by tag.id desc";
+		$list=$this->_shop_tag->findBySql($sql);
+                $team=$this->_shop_tag_team->findAll();
+		$this->_common->show ( array ('main' => 'base/shoptag_list.tpl','list'=>$list,'team'=>$team) );
 	}
 	function actionAddShopTag() {
 		$data=$_POST;
-		$data=$this->_shop_tag->create($data);
+                if(!empty($data['team_id'])){
+                    $data=$this->_shop_tag->create($data);
+                }
+		redirect($_SERVER['HTTP_REFERER']);
+	}
+	function actionAddShopTagTeam() {
+		$data=$_POST;
+		$data=$this->_shop_tag_team->create($data);
 		redirect($_SERVER['HTTP_REFERER']);
 	}
         function actionEditShopTag(){

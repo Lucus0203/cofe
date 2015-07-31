@@ -190,9 +190,13 @@
              <tr>
                  <td style="text-align:center;">特色</td>
                  <td>
-                 	{section name=tag loop=$basetags}
-                 	<label><input name="tags[]" type="checkbox" value="{$basetags[tag].id}">{$basetags[tag].name}</label>&nbsp;
-                 	{/section}
+                    {section name=sec loop=$tagteam}
+                        <ul class="ultag">
+                        {section name=tag loop=$tagteam[sec].tags}
+                            <li><label><input name="tags[]" type="checkbox" value="{$tagteam[sec].tags[tag].id}">{$tagteam[sec].tags[tag].name}</label>&nbsp;</li>
+                        {/section}
+                        </ul>
+                    {/section}
                  </td>
              </tr>
              <tr>
