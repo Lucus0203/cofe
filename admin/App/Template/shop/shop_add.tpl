@@ -190,8 +190,8 @@
              <tr>
                  <td style="text-align:center;">特色</td>
                  <td>
-                 	{section name=tag loop=$tags}
-                 	<label><input name="features[]" type="checkbox" value="{$tags[tag]}" {if $tags[tag] eq '休闲小憩' or $tags[tag] eq '情侣约会' or $tags[tag] eq '随便吃吃'}checked{/if}>{$tags[tag]}</label>&nbsp;
+                 	{section name=tag loop=$basetags}
+                 	<label><input name="tags[]" type="checkbox" value="{$basetags[tag].id}">{$basetags[tag].name}</label>&nbsp;
                  	{/section}
                  </td>
              </tr>

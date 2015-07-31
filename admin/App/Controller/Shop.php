@@ -21,6 +21,8 @@ class Controller_Shop extends FLEA_Controller_Action {
 	var $_shop_addcity;
 	var $_shop_addarea;
 	var $_shop_addcircle;
+        var $_base_shop_tag;
+        var $_shop_tag;
 
 	function __construct() {
 		$this->_common = get_singleton ( "Class_Common" );
@@ -37,6 +39,8 @@ class Controller_Shop extends FLEA_Controller_Action {
 		$this->_shop_addcity = get_singleton ( "Model_ShopAddcity" );
 		$this->_shop_addarea = get_singleton ( "Model_ShopAddarea" );
 		$this->_shop_addcircle = get_singleton ( "Model_ShopAddcircle" );
+		$this->_base_shop_tag = get_singleton ( "Model_BaseShopTag" );
+		$this->_shop_tag = get_singleton ( "Model_ShopTag" );
 		$this->_adminid = isset ( $_SESSION ['loginuserid'] ) ? $_SESSION ['loginuserid'] : "";
 		$this->_tags=array('休闲小憩','情侣约会','随便吃吃','朋友聚餐','可以刷卡','有下午茶',
 							'家庭聚会','无线上网','供应早餐','有露天位','免费停车','有无烟区',
@@ -82,6 +86,10 @@ class Controller_Shop extends FLEA_Controller_Action {
 		$province_id = isset ( $_GET ['province_id'] ) ? $this->_common->filter($_GET ['province_id']) : '';
 		$city_id = isset ( $_GET ['city_id'] ) ? $this->_common->filter($_GET ['city_id']) : '';
 		$town_id = isset ( $_GET ['town_id'] ) ? $this->_common->filter($_GET ['town_id']) : '';
+		$addprovince_id = isset ( $_GET ['addprovince_id'] ) ? $this->_common->filter($_GET ['addprovince_id']) : '';
+		$addcity_id = isset ( $_GET ['addcity_id'] ) ? $this->_common->filter($_GET ['addcity_id']) : '';
+		$addarea_id = isset ( $_GET ['addarea_id'] ) ? $this->_common->filter($_GET ['addarea_id']) : '';
+		$addcircle_id = isset ( $_GET ['addcircle_id'] ) ? $this->_common->filter($_GET ['addcircle_id']) : '';
 
 		$conditions=array();
 		if(!empty($title)){
@@ -100,6 +108,21 @@ class Controller_Shop extends FLEA_Controller_Action {
 			$conditions['town_id']=$town_id;
 			$pageparm['town_id']=$town_id;
 		}
+		if(!empty($addprovince_id)){
+			$pageparm['addprovince_id']=$province_id;
+		}
+		if(!empty($addcity_id)){
+			$conditions['addcity_id']=$addcity_id;
+			$pageparm['addcity_id']=$addcity_id;
+		}
+		if(!empty($addarea_id)){
+			$conditions['addarea_id']=$addarea_id;
+			$pageparm['addarea_id']=$addarea_id;
+		}
+		if(!empty($addcircle_id)){
+			$conditions['addcircle_id']=$addcircle_id;
+			$pageparm['addcircle_id']=$addcircle_id;
+		}
 
 		$total=$this->_shop->findCount($conditions);
 
@@ -112,7 +135,7 @@ class Controller_Shop extends FLEA_Controller_Action {
 		$page = $pages->page ();
 		$start = ($page_no - 1) * $page_size;
 
-		$list=$this->_shop->findAll($conditions," recommend,id desc limit $start,$page_size");
+		$list=$this->_shop->findAll($conditions," status desc , recommend,id desc limit $start,$page_size");
 
 		
 		$provinces=$this->_address_province->findAll();
@@ -120,7 +143,11 @@ class Controller_Shop extends FLEA_Controller_Action {
 		$city=$this->_address_city->findAll(array('provinceCode'=>$prov['code']));
 		$ctow=$this->_address_city->findByField('id',$city_id);
 		$towns=$this->_address_town->findAll(array('cityCode'=>$ctow['code']));
-		$this->_common->show ( array ('main' => 'shop/shop_list.tpl','list'=>$list,'page'=>$page,'title'=>$title,'province_id'=>$province_id,'city_id'=>$city_id,'town_id'=>$town_id,'provinces'=>$provinces,'city'=>$city,'towns'=>$towns) );
+                
+		$addcity=$this->_shop_addcity->findAll(array('province_id'=>$addprovince_id));
+                $addarea=$this->_shop_addarea->findAll(array('city_id'=>$addcity_id));
+                $addcircle=$this->_shop_addcircle->findAll(array('area_id'=>$addarea_id));
+		$this->_common->show ( array ('main' => 'shop/shop_list.tpl','list'=>$list,'page'=>$page,'title'=>$title,'province_id'=>$province_id,'city_id'=>$city_id,'town_id'=>$town_id,'addprovince_id'=>$addprovince_id,'addcity_id'=>$addcity_id,'addarea_id'=>$addarea_id,'addcircle_id'=>$addcircle_id,'provinces'=>$provinces,'city'=>$city,'towns'=>$towns,'addcity'=>$addcity,'addarea'=>$addarea,'addcircle'=>$addcircle) );
 	}
 
 	function actionAdd(){
@@ -147,9 +174,7 @@ class Controller_Shop extends FLEA_Controller_Action {
 				$data['lng']=$lng['lng'];
 				$data['lat']=$lng['lat'];
 			}
-			//特色
-			$feats=implode(",", $data['features']);
-			$data['feature']=$feats;
+                        
 			$data ['hours1'] = $data ['hours1'].':'.$data ['minutes1'];
 			$data ['hours2'] = $data ['hours2'].':'.$data ['minutes2'];
 			$data ['holidays'] = implode(',', $data ['holidays']);
@@ -169,6 +194,11 @@ class Controller_Shop extends FLEA_Controller_Action {
                             $data['addcircle_id']=NULL;
 			$id=$this->_shop->create($data);
 			
+			//特色
+                        foreach ($data['tags'] as $tag_id){
+                            $tag=array('shop_id'=>$id,'tag_id'=>$tag_id);
+                            $this->_shop_tag->create($tag);
+                        }
 			//更多店铺图片
 // 			$imgs=$Upload->uploadFiles('shop_img');
 // 			if($imgs['status']==1){
@@ -204,8 +234,9 @@ class Controller_Shop extends FLEA_Controller_Action {
 		$city=$this->_address_city->findAll(array('provinceCode'=>$prov['code']));
 		$ctow=$this->_address_city->findByField('id',91);//广州
 		$towns=$this->_address_town->findAll(array('cityCode'=>$ctow['code']),'code asc');
+                $basetags=$this->_base_shop_tag->findAll();
 		
-		$this->_common->show ( array ('main' => 'shop/shop_add.tpl','tags'=>$this->_tags,'provinces'=>$provinces,'city'=>$city,'towns'=>$towns) );
+		$this->_common->show ( array ('main' => 'shop/shop_add.tpl','tags'=>$this->_tags,'basetags'=>$basetags,'provinces'=>$provinces,'city'=>$city,'towns'=>$towns) );
 	}
 	
 	function actionEdit(){
@@ -240,6 +271,13 @@ class Controller_Shop extends FLEA_Controller_Action {
                             $data['addarea_id']=NULL;
                         if(empty($data['addcircle_id']))
                             $data['addcircle_id']=NULL;
+                        
+                        //特色
+                        $this->_shop_tag->removeByConditions(array('shop_id'=>$id));
+                        foreach ($data['tags'] as $tag_id){
+                            $tag=array('shop_id'=>$id,'tag_id'=>$tag_id);
+                            $this->_shop_tag->create($tag);
+                        }
 			$this->_shop->update($data);
 			$msg="更新成功!";
 		}
@@ -290,8 +328,17 @@ class Controller_Shop extends FLEA_Controller_Action {
 		$addcity=$this->_shop_addcity->findAll(array('province_id'=>$data['province_id']));
 		$addarea=$this->_shop_addarea->findAll(array('city_id'=>$data['addcity_id']));
 		$addcircle=$this->_shop_addcircle->findAll(array('area_id'=>$data['addarea_id']));
+                $shoptags=$this->_shop_tag->findAll(array('shop_id'=>$id));
+                $basetags=$this->_base_shop_tag->findAll();
+                foreach ($basetags as $key=>$t){
+                    foreach ($shoptags as $st){
+                        if($st['tag_id']==$t['id']){
+                            $basetags[$key]['checked']=1;
+                        }
+                    }
+                }
 		
-		$this->_common->show ( array ('main' => 'shop/shop_edit.tpl','data'=>$data,'menu'=>$menu,'shopimg'=>$shopimg,'msg'=>$msg,'tags'=>$tags,'provinces'=>$provinces,'city'=>$city,'towns'=>$towns,'addcity'=>$addcity,'addarea'=>$addarea,'addcircle'=>$addcircle) );
+		$this->_common->show ( array ('main' => 'shop/shop_edit.tpl','data'=>$data,'menu'=>$menu,'shopimg'=>$shopimg,'msg'=>$msg,'tags'=>$tags,'shoptags'=>$shoptags,'basetags'=>$basetags,'provinces'=>$provinces,'city'=>$city,'towns'=>$towns,'addcity'=>$addcity,'addarea'=>$addarea,'addcircle'=>$addcircle) );
 	}
 	
 	//上传店铺图片

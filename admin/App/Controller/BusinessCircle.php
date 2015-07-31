@@ -233,6 +233,33 @@ class Controller_BusinessCircle extends FLEA_Controller_Action {
             }
             redirect($_SERVER['HTTP_REFERER']);
         }
+        
+        //导出商圈
+        function actionDownCsv(){
+            $config = FLEA::getAppInf ( 'dbDSN' );
+            $PREFIX = $config ['prefix'];
+            $sql = "SELECT circle.name as circle,area.name as area,city.name as city,city.code as city_code 
+                                                        FROM {$PREFIX}shop_addcircle AS circle
+							LEFT JOIN {$PREFIX}shop_addarea AS area ON circle.`area_id`=area.`id` 
+							LEFT JOIN {$PREFIX}shop_addcity AS city ON circle.`city_id`=city.`id` 
+							";
+		$sql .= ' ORDER BY circle.`id` ';
+		$result = $this->_shop_addcircle->findBySql ( $sql );
+		$data_csv .= "序号,城市,城市编号,区域,商圈" . base64_decode ( "DQo=" );
+		$data_csv = mb_convert_encoding ( $data_csv, 'GBK', 'UTF-8' );
+		$no = 0;
+		for($i = 0; $i < count ( $result ); $i ++) {
+                        $str = ++ $no . "," . $result [$i] ['city'] . "," . $result [$i] ['city_code'] . "," . $result [$i] ['area'] . "," . $result [$i] ['circle'] . "" . base64_decode ( "DQo=" );
+                        $str = mb_convert_encoding ( $str, 'GBK', 'UTF-8' );
+                        $data_csv .= $str;
+		}
+		$filename = "商圈数据" . date ( 'YmdHis' ) . '.csv';
+		header ( "Cache-Control: public" );
+		header ( 'Content-type: application/vnd.ms-excel' );
+		header ( "Content-Disposition: attachment; filename=" . $filename );
+		echo $data_csv;
+		return;
+        }
 	
 }
 

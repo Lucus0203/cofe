@@ -39,4 +39,48 @@ $(function(){
 			}
 		})
 	});
+        
+	$('.addprovince_id').change(function(){
+		var index=$('.addprovince_id').index($(this));
+		var provinceURL=$('#addcityApiURL').val();
+		var pro_id=$(this).val();
+		$.ajax({
+			type:'get',
+			url:provinceURL,
+			data:{'province_id':pro_id},
+			success:function(res){
+				$('.addcity_id').eq(index).html('<option value="">选择</option>'+res);
+				$('.addarea_id').eq(index).html('<option value="">选择</option>');
+				$('.addcircle').eq(index).html('<option value="">选择</option>');
+			}
+		})
+	});
+	$('.addcity_id').change(function(){
+		var index=$('.addcity_id').index($(this));
+		var cityApiURL=$('#addareaApiURL').val();
+		var city_id=$(this).val();
+		$.ajax({
+			type:'get',
+			url:cityApiURL,
+			data:{'city_id':city_id},
+			success:function(res){
+				$('.addarea_id').eq(index).html('<option value="">选择</option>'+res);
+				$('.addcircle').eq(index).html('<option value="">选择</option>');
+			}
+		})
+	});
+	$('.addarea_id').change(function(){
+		var index=$('.addarea_id').index($(this));
+		var cityApiURL=$('#addcircleApiURL').val();
+		var area_id=$(this).val();
+		$.ajax({
+			type:'get',
+			url:cityApiURL,
+			data:{'area_id':area_id},
+			success:function(res){
+				$('.addcircle_id').eq(index).html('<option value="">选择</option>'+res);
+			}
+		})
+	});
+        
 });

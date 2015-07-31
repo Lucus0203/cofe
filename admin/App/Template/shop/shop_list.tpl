@@ -3,12 +3,15 @@
  	<div class="main_ta_box">
          <input type="hidden" id="provinceApiURL" value="{url controller=Api action=GetCityByProvince}" />
          <input type="hidden" id="cityApiURL" value="{url controller=Api action=GetTownByCity}" />
+         <input type="hidden" id="addcityApiURL" value="{url controller=Api action=GetShopCityByProvince}" />
+         <input type="hidden" id="addareaApiURL" value="{url controller=Api action=GetShopAreaByCity}" />
+         <input type="hidden" id="addcircleApiURL" value="{url controller=Api action=GetShopCircleByCity}" />
          <div class="hd_t">咖啡店铺</div>
          <form action="" method="get">
          <input type="hidden" name="controller" value="Shop" />
          <input type="hidden" name="action" value="Index" />
          <div class="hd_t1">
-         	<select name="province_id" class="province_id">
+         	旧版:<select name="province_id" class="province_id">
 				<option value="">不限</option>
 				{section name=sec loop=$provinces}
 				<option value="{$provinces[sec].id}" {if $province_id eq $provinces[sec].id}selected{/if}>{$provinces[sec].name}</option>
@@ -27,6 +30,30 @@
 				{/section}
 			</select>
 			&nbsp;
+                新版:<select name="addprovince_id" class="addprovince_id">
+				<option value="">不限</option>
+				{section name=sec loop=$provinces}
+				<option value="{$provinces[sec].id}" {if $addprovince_id eq $provinces[sec].id}selected{/if}>{$provinces[sec].name}</option>
+				{/section}
+			</select>
+			<select name="addcity_id" class="addcity_id">
+				<option value="">不限</option>
+				{section name=sec loop=$addcity}
+				<option value="{$addcity[sec].id}" {if $addcity_id eq $addcity[sec].id}selected{/if}>{$addcity[sec].name}({$addcity[sec].code})</option>
+				{/section}
+			</select>
+			<select name="addarea_id" class="addarea_id">
+                                <option value="">不限</option>
+                                {section name=sec loop=$addarea}
+                                <option value="{$addarea[sec].id}" {if $addarea_id eq $addarea[sec].id}selected{/if}>{$addarea[sec].name}</option>
+                                {/section}
+                        </select>
+			<select name="addcircle_id" class="addcircle_id">
+                                <option value="">不限</option>
+                                {section name=sec loop=$addcircle}
+                                <option value="{$addcircle[sec].id}" {if $addcircle_id eq $addcircle[sec].id}selected{/if}>{$addcircle[sec].name}</option>
+                                {/section}
+                        </select>
 			关键字<input class="cz_input" type="text" name="title" value="{$title}"><input class="cz_btn" type="submit" value="查找"></div>
          </form>
          <table class="hd_ta" border="0" cellpadding="0" cellspacing="1" width="97%" align="center">

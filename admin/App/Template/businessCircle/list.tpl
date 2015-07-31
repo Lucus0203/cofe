@@ -98,7 +98,7 @@
                     <td>
                     <input class="cz_btn" type="submit" value="提交商圈数据"></td></table>
          </form>
-         
+         <p style="text-align: left;padding: 0 0 0 20px;font-size: 15px;"><a href="{url controller=BusinessCircle action=DownCsv}">导出csv</a></p>
          <form action="" method="get">
          <input type="hidden" name="controller" value="BusinessCircle" />
          <input type="hidden" name="action" value="Index" />
