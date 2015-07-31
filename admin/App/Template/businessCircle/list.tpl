@@ -140,6 +140,7 @@
                  <th>城市</th>
                  <th>行政区</th>
                  <th>商圈</th>
+                 <th>热门</th>
                  <th>操作</th>
              </tr>
              {section name=sec loop=$list}
@@ -147,9 +148,12 @@
                  <td>{$list[sec].province}</td>
                  <td>{$list[sec].city}</td>
                  <td>{$list[sec].area}</td>
-                 <td class="hd_td_l">{$list[sec].name}</td>
+                 <td>{$list[sec].name}</td>
+                 <td>{if $list[sec].type eq 1}普通{else}热门{/if}</td>
                  <td style="word-break:keep-all;">
                  	<a href="{url controller=BusinessCircle action=Edit id=$list[sec].id}">编辑</a><a class="delBtn" href="{url controller=BusinessCircle action=Del id=$list[sec].id}">删除</a>
+                        <br/>
+                        {if $list[sec].type eq 1}<a href="{url controller=BusinessCircle action=HotCircle id=$list[sec].id type=2}">推荐热门</a>{else}<a href="{url controller=BusinessCircle action=HotCircle id=$list[sec].id type=1}">改为普通</a>{/if}
                  </td>
              </tr>
              {/section}

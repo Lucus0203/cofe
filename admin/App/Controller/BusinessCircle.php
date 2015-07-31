@@ -222,6 +222,17 @@ class Controller_BusinessCircle extends FLEA_Controller_Action {
                     echo 2;
                 }
 	}
+        
+        //热门商圈
+        function actionHotCircle(){
+            $id=$this->_common->filter($_GET['id']);
+            $type=$this->_common->filter($_GET['type']);
+            if(!empty($id)&&!empty($type)){
+                $data=array('id'=>$id,'type'=>$type);
+                $this->_shop_addcircle->update($data);
+            }
+            redirect($_SERVER['HTTP_REFERER']);
+        }
 	
 }
 
