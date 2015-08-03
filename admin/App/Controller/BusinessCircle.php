@@ -48,6 +48,8 @@ class Controller_BusinessCircle extends FLEA_Controller_Action {
 		$page_size = 20;
 		$province_id = isset ( $_GET ['province_id'] ) ? $this->_common->filter($_GET ['province_id']) : '';
 		$city_id = isset ( $_GET ['city_id'] ) ? $this->_common->filter($_GET ['city_id']) : '';
+		$area_id = isset ( $_GET ['area_id'] ) ? $this->_common->filter($_GET ['area_id']) : '';
+		$keyword = isset ( $_GET ['keyword'] ) ? $this->_common->filter($_GET ['keyword']) : '';
 
 		$pageparm = array ();
 		$conditions = ' 1=1 ';
@@ -58,6 +60,14 @@ class Controller_BusinessCircle extends FLEA_Controller_Action {
 		if(!empty($city_id)){
 			$conditions.=" and city.id =$city_id ";
 			$pageparm['city_id']=$city_id;
+		}
+		if(!empty($area_id)){
+			$conditions.=" and area.id =$area_id ";
+			$pageparm['area_id']=$area_id;
+		}
+		if(!empty($keyword)){
+			$conditions.=" and circle.name like '%$keyword%' ";
+			$pageparm['keyword']=$keyword;
 		}
 		$sql="select province.name as province,city.name as city,area.name as area,circle.* from ".$prefix."shop_addcircle circle 
 			left join ".$prefix."shop_addarea area on circle.area_id=area.id
@@ -79,12 +89,8 @@ class Controller_BusinessCircle extends FLEA_Controller_Action {
 		$provinces=$this->_address_province->findAll();
 		$city=$this->_shop_addcity->findAll(array('province_id'=>$province_id));
                 $area=$this->_shop_addarea->findAll(array('city_id'=>$city_id));
-		//$prov=$this->_address_province->findByField('id',$province_id);
-		//$city=$this->_address_city->findAll(array('provinceCode'=>$prov['code']));
-		//$ctow=$this->_address_city->findByField('id',$city_id);
-		//$towns=$this->_address_town->findAll(array('cityCode'=>$ctow['code']));
 		
-		$this->_common->show ( array ('main' => 'businessCircle/list.tpl','list'=>$list,'page'=>$page,'province_id'=>$province_id,'city_id'=>$city_id,'town_id'=>$town_id,'provinces'=>$provinces,'city'=>$city,'area'=>$area,'towns'=>$towns) );
+		$this->_common->show ( array ('main' => 'businessCircle/list.tpl','list'=>$list,'page'=>$page,'province_id'=>$province_id,'city_id'=>$city_id,'area_id'=>$area_id,'keyword'=>$keyword,'provinces'=>$provinces,'city'=>$city,'area'=>$area,'towns'=>$towns) );
 	}
 	
 

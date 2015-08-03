@@ -124,6 +124,7 @@
                                         <option value="{$area[sec].id}" {if $area_id eq $area[sec].id}selected{/if}>{$area[sec].name}</option>
                                         {/section}
 				</select>
+                                <input name="keyword" type="text" value="{$keyword}" />
 				<input class="cz_btn" type="submit" value="查找"></div>
          </form>
          
