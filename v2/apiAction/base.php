@@ -60,8 +60,8 @@ function getShopCity(){
 //获取筛选商圈
 function getShopCityAreaCircle(){
 	global $db;
-	$cityCode=filter(!empty($_REQUEST['cityCode'])?$_REQUEST['cityCode']:'');
-        $city=$db->getRow('shop_addcity',array('code'=>$cityCode));
+	$city_code=filter(!empty($_REQUEST['city_code'])?$_REQUEST['city_code']:'');
+        $city=$db->getRow('shop_addcity',array('code'=>$city_code));
         if(empty($city['id'])){
                 echo json_result(null, '1', '抱歉,您的城市数据还在完善中,请定位到其他城市');
         }else{

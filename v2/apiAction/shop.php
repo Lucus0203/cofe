@@ -37,6 +37,7 @@ function nearbyShops(){
 	global $db;
 	$lng=filter($_REQUEST['lng']);
 	$lat=filter($_REQUEST['lat']);
+	$city_code=filter($_REQUEST['city_code']);
 	$page_no = isset ( $_GET ['page'] ) ? $_GET ['page'] : 1;
 	$page_size = PAGE_SIZE;
 	$start = ($page_no - 1) * $page_size;
@@ -63,8 +64,12 @@ function nearbyShops(){
 			if(hours1 <= DATE_FORMAT(now(),'%H:%i') and DATE_FORMAT(now(),'%H:%i') <= hours2,1,2)
 		))) as isopen ";
 	$sql="select id,title,img,lng,lat,".$isopensql." from ".DB_PREFIX."shop shop where status=2 ";
-	$sql.=(!empty($lng)&&!empty($lat))?" order by sqrt(power(lng-{$lng},2)+power(lat-{$lat},2)),id ":' order by recommend,id ';
-	
+        if(!empty($city_code)){
+                $city=$db->getRow('shop_addcity',array('code'=>$city_code));
+                $sql.=(!empty($city['id']))?" addcity_id={$city['id']} ":'';
+        }else{
+                $sql.=(!empty($lng)&&!empty($lat))?" order by sqrt(power(lng-{$lng},2)+power(lat-{$lat},2)),id ":' order by recommend,id ';
+        }
 	$sql .= " limit $start,$page_size";
 	$shops=$db->getAllBySql($sql);
 	foreach ($shops as $k=>$v){
