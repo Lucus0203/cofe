@@ -25,6 +25,9 @@ switch ($act){
 	case 'shopFeedback':
 		shopFeedback();//店铺反馈纠错
 		break;
+	case 'isCollect'://查看是否收藏
+		isCollect();
+		break;
 	default:
 		break;
 }
@@ -295,6 +298,22 @@ function favoriteShops(){
 	}
 	//echo json_result(array('shops'=>$shops));
 	echo json_result($shops);
+}
+
+//是否收藏
+function isCollect(){
+	global $db;
+	$shopid=filter($_REQUEST['shopid']);
+	$loginid=filter($_REQUEST['loginid']);
+	if(!empty($shopid)&&!empty($loginid)){
+		if($db->getCount('shop_user',array('user_id'=>$loginid,'shop_id'=>$shopid))>0){
+			echo json_result('1');//已收藏
+		}else{
+			echo json_result('2');//未收藏
+		}
+	}else{
+		echo json_result(null,'20','用户未登录或者该店铺已删除');
+	}
 }
 
 //店铺留言
