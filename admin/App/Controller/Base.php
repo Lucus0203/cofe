@@ -107,6 +107,7 @@ class Controller_Base extends FLEA_Controller_Action {
 			$msg="更新成功";
 		}
 		$usertag=$this->_shop_tag->findByField('id',$id);
+                $team=$this->
 		
 		$this->_common->show ( array ('main' => 'base/shoptag_edit.tpl','data'=>$usertag,'msg'=>$msg) );
 		
