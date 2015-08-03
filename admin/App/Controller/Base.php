@@ -9,6 +9,7 @@ class Controller_Base extends FLEA_Controller_Action {
 	var $_user;
 	var $_shop_tag;
         var $_shop_tag_team;
+        var $_user_tag_team;
 	var $_user_tag;
 	var $_topic;
 	var $_question;
@@ -22,6 +23,7 @@ class Controller_Base extends FLEA_Controller_Action {
 		$this->_shop_tag = get_singleton ( "Model_BaseShopTag" );
 		$this->_shop_tag_team = get_singleton ( "Model_BaseShopTagTeam" );
 		$this->_user_tag = get_singleton ( "Model_BaseUserTag" );
+		$this->_user_tag_team = get_singleton ( "Model_BaseUserTagTeam" );
 		$this->_topic = get_singleton ( "Model_BaseTopic" );
 		$this->_question = get_singleton ( "Model_BaseQuestion" );
 		$this->_user_event_bbs = get_singleton ( "Model_UserEventBbs" );
@@ -40,12 +42,21 @@ class Controller_Base extends FLEA_Controller_Action {
          * 用户标签开始
          */
 	function actionUserTag() {
-		$list=$this->_user_tag->findAll();
-		$this->_common->show ( array ('main' => 'base/usertag_list.tpl','list'=>$list) );
+            $config = FLEA::getAppInf ( 'dbDSN' );
+		$prefix = $config ['prefix'];
+                $sql="select tag.id,tag.name,team.name as team from ".$prefix."base_user_tag tag left join ".$prefix."base_user_tag_team team on tag.team_id=team.id order by tag.id desc";
+		$list=$this->_user_tag->findBySql($sql);
+                $team=$this->_user_tag_team->findAll();
+		$this->_common->show ( array ('main' => 'base/usertag_list.tpl','list'=>$list,'team'=>$team) );
 	}
 	function actionAddUserTag() {
 		$data=$_POST;
 		$data=$this->_user_tag->create($data);
+		redirect($_SERVER['HTTP_REFERER']);
+	}
+	function actionAddUserTagTeam() {
+		$data=$_POST;
+		$data=$this->_user_tag_team->create($data);
 		redirect($_SERVER['HTTP_REFERER']);
 	}
         function actionEditUserTag(){
@@ -61,8 +72,9 @@ class Controller_Base extends FLEA_Controller_Action {
 			$msg="更新成功";
 		}
 		$usertag=$this->_user_tag->findByField('id',$id);
+                $team=$this->_user_tag_team->findAll();
 		
-		$this->_common->show ( array ('main' => 'base/usertag_edit.tpl','data'=>$usertag,'msg'=>$msg) );
+		$this->_common->show ( array ('main' => 'base/usertag_edit.tpl','data'=>$usertag,'team'=>$team,'msg'=>$msg) );
 		
 	}
         function actionDelUserTag(){//删除

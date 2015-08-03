@@ -14,6 +14,16 @@
                  <td class="hd_ta_t" colspan="2">编辑标签</td>
              </tr>
              <tr>
+                 <td style="text-align:center;">分组</td>
+                 <td>
+                     <select name="team_id">
+                         {section name=sec loop=$team}
+                         <option value="{$team[sec].id}" {if $data.team_id eq $team[sec].id}selected{/if}>{$team[sec].name}</option>
+                         {/section}
+                     </select>
+                 </td>
+             </tr>
+             <tr>
                  <td style="text-align:center;">名称</td>
                  <td><input name="name" type="text" value="{$data.name}" style="width:240px;"></td>
              </tr>
