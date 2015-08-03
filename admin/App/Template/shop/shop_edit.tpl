@@ -229,11 +229,13 @@
                  <td>
                      
                     {section name=sec loop=$tagteam}
+                        <div class="tabox border{$smarty.section.sec.index}"><p>{$tagteam[sec].name}:</p>
                         <ul class="ultag">
                         {section name=tag loop=$tagteam[sec].tags}
                             <li><label><input name="tags[]" type="checkbox" value="{$tagteam[sec].tags[tag].id}" {if $tagteam[sec].tags[tag].checked eq 1}checked{/if}>{$tagteam[sec].tags[tag].name}</label>&nbsp;</li>
                         {/section}
                         </ul>
+                        </div>
                     {/section}
                  </td>
              </tr>

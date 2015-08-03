@@ -259,11 +259,29 @@ ul.base_data li a{
 }
 ul.ultag{
     display: block;
-    border: #000 solid 1px;
-    height:25px;
-    margin-bottom: 20px; 
+    margin-bottom: 10px; 
+    overflow: auto;
 }
 ul.ultag li{
     width: 20%;
     float: left;
+}
+.tabox{
+    margin:10px 10px;
+    clear:both;
+}
+.tabox p{
+    margin-bottom:5px;
+}
+.border0{
+    border: #977342 solid 1px;
+}
+.border1{
+    border: #337FE5 solid 1px;
+}
+.border2{
+    border: #f0c040 solid 1px;
+}
+.border3{
+    border: #9a9afb solid 1px;
 }
