@@ -49,6 +49,7 @@ class Controller_BusinessCircle extends FLEA_Controller_Action {
 		$province_id = isset ( $_GET ['province_id'] ) ? $this->_common->filter($_GET ['province_id']) : '';
 		$city_id = isset ( $_GET ['city_id'] ) ? $this->_common->filter($_GET ['city_id']) : '';
 		$area_id = isset ( $_GET ['area_id'] ) ? $this->_common->filter($_GET ['area_id']) : '';
+		$type = isset ( $_GET ['type'] ) ? $this->_common->filter($_GET ['type']) : '';
 		$keyword = isset ( $_GET ['keyword'] ) ? $this->_common->filter($_GET ['keyword']) : '';
 
 		$pageparm = array ();
@@ -64,6 +65,10 @@ class Controller_BusinessCircle extends FLEA_Controller_Action {
 		if(!empty($area_id)){
 			$conditions.=" and area.id =$area_id ";
 			$pageparm['area_id']=$area_id;
+		}
+		if(!empty($type)){
+			$conditions.=" and type =$type ";
+			$pageparm['type']=$type;
 		}
 		if(!empty($keyword)){
 			$conditions.=" and circle.name like '%$keyword%' ";
@@ -90,7 +95,7 @@ class Controller_BusinessCircle extends FLEA_Controller_Action {
 		$city=$this->_shop_addcity->findAll(array('province_id'=>$province_id));
                 $area=$this->_shop_addarea->findAll(array('city_id'=>$city_id));
 		
-		$this->_common->show ( array ('main' => 'businessCircle/list.tpl','list'=>$list,'page'=>$page,'province_id'=>$province_id,'city_id'=>$city_id,'area_id'=>$area_id,'keyword'=>$keyword,'provinces'=>$provinces,'city'=>$city,'area'=>$area,'towns'=>$towns) );
+		$this->_common->show ( array ('main' => 'businessCircle/list.tpl','list'=>$list,'page'=>$page,'province_id'=>$province_id,'city_id'=>$city_id,'area_id'=>$area_id,'type'=>$type,'keyword'=>$keyword,'provinces'=>$provinces,'city'=>$city,'area'=>$area,'towns'=>$towns) );
 	}
 	
 

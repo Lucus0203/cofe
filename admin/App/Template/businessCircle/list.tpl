@@ -124,6 +124,12 @@
                                         <option value="{$area[sec].id}" {if $area_id eq $area[sec].id}selected{/if}>{$area[sec].name}</option>
                                         {/section}
 				</select>
+                                城市热门
+				<select name="type" class="type_id">
+					<option value="">选择</option>
+					<option value="1" {if $type eq 1}selected{/if} >普通</option>
+					<option value="2" {if $type eq 2}selected{/if} >热门</option>
+				</select>
                                 <input name="keyword" type="text" value="{$keyword}" />
 				<input class="cz_btn" type="submit" value="查找"></div>
          </form>
@@ -141,7 +147,7 @@
                  <th>城市</th>
                  <th>行政区</th>
                  <th>商圈</th>
-                 <th>热门</th>
+                 <th>城市热门</th>
                  <th>操作</th>
              </tr>
              {section name=sec loop=$list}
@@ -154,7 +160,7 @@
                  <td style="word-break:keep-all;">
                  	<a href="{url controller=BusinessCircle action=Edit id=$list[sec].id}">编辑</a><a class="delBtn" href="{url controller=BusinessCircle action=Del id=$list[sec].id}">删除</a>
                         <br/>
-                        {if $list[sec].type eq 1}<a href="{url controller=BusinessCircle action=HotCircle id=$list[sec].id type=2}">推荐热门</a>{else}<a href="{url controller=BusinessCircle action=HotCircle id=$list[sec].id type=1}">改为普通</a>{/if}
+                        {if $list[sec].type eq 1}<a href="{url controller=BusinessCircle action=HotCircle id=$list[sec].id type=2}">推荐城市热门</a>{else}<a href="{url controller=BusinessCircle action=HotCircle id=$list[sec].id type=1}">改为普通</a>{/if}
                  </td>
              </tr>
              {/section}

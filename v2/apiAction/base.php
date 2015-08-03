@@ -66,7 +66,7 @@ function getShopCityAreaCircle(){
                 echo json_result(null, '1', '抱歉,您的城市数据还在完善中,请定位到其他城市');
         }else{
                 $data['city_id']=$city['id'];
-                $data['hotarea']=$db->getAll('shop_addcircle',array('city_id'=>$city['id']),array('id as circle_id','name'));//热门商圈
+                $data['hotarea']=$db->getAll('shop_addcircle',array('city_id'=>$city['id'],'type'=>2),array('id as circle_id','name'));//热门商圈
                 $area=$db->getAll('shop_addarea',array('city_id'=>$city['id']),array('id as area_id','name'));
                 foreach ($area as $k=>$a){
                         $circle=$db->getAll('shop_addcircle',array('area_id'=>$a['area_id']),array('id as circle_id','name'));//区域商圈
