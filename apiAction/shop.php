@@ -44,7 +44,7 @@ function nearbyShops(){
 	$lng=filter($_REQUEST['lng']);
 	$lat=filter($_REQUEST['lat']);
 	$page_no = isset ( $_GET ['page'] ) ? $_GET ['page'] : 1;
-	$page_size = 20;
+	$page_size = PAGE_SIZE;
 	$start = ($page_no - 1) * $page_size;
 	$sql="select * from ".DB_PREFIX."shop where status=2 ";
 	$sql.=(!empty($lng)&&!empty($lat))?" order by sqrt(power(lng-{$lng},2)+power(lat-{$lat},2)),id ":' order by recommend,id ';
