@@ -13,6 +13,18 @@ switch ($act){
 	case 'getShopCityAreaCircle'://获取筛选商圈
 		getShopCityAreaCircle();
 		break;
+	case 'getShopTag'://获取店铺标签数据
+		getShopTag();
+		break;
+        case 'getUserTag'://获取人物个性标签
+                getUserTag();
+                break;
+        case 'getTopic'://获取话题
+                getTopic();
+                break;
+        case 'getQuestion'://获取问题
+                getQuestion();
+                break;
 	case 'getCountryCityArea':
 		getCountryCityArea();//获取全国区域数据
 		break;
@@ -66,20 +78,57 @@ function getShopCityAreaCircle(){
                 echo json_result(null, '1', '抱歉,您的城市数据还在完善中,请定位到其他城市');
         }else{
                 $data['city_id']=$city['id'];
-                $data['hotarea']=$db->getAll('shop_addcircle',array('city_id'=>$city['id'],'type'=>2),array('id as circle_id','name'));//热门商圈
+                $data['citycircle']=$db->getAll('shop_addcircle',array('city_id'=>$city['id'],'type'=>2),array('id as circle_id','name'));//热门商圈
+                $areadata=array();
                 $area=$db->getAll('shop_addarea',array('city_id'=>$city['id']),array('id as area_id','name'));
                 foreach ($area as $k=>$a){
                         $circle=$db->getAll('shop_addcircle',array('area_id'=>$a['area_id']),array('id as circle_id','name'));//区域商圈
                         if(count($circle)>0){
                                 $a['circle']=$circle;
-                                $data[]=$a;
+                                $areadata[]=$a;
                         }
                 }
+                $data['area']=$areadata;
                 echo json_result($data);
         }
         
 }
 
+//获取店铺标签数据
+function getShopTag(){
+	global $db;
+        $team=$db->getAll('base_shop_tag_team',array(),array('id as team_id','name as team'));
+        foreach ($team as $k=>$v){
+                $tags=$db->getAll('base_shop_tag',array('team_id'=>$v['team_id']),array('id as tag_id','name as tag_name'));
+                $team[$k]['tags']=$tags;
+        }
+        echo json_result($team);
+}
+
+//获取人物个性标签
+function getUserTag(){
+        global $db;
+        $team=$db->getAll('base_user_tag_team',array(),array('id as team_id','name as team'));
+        foreach ($team as $k=>$v){
+                $tags=$db->getAll('base_user_tag',array('team_id'=>$v['team_id']),array('id as tag_id','name as tag_name'));
+                $team[$k]['tags']=$tags;
+        }
+        echo json_result($team);
+}
+
+//话题数据
+function getTopic(){
+        global $db;
+        $data = $db->getAll('base_topic',array(),array()," order by recommend desc ");
+        echo json_result($data);
+}
+
+//问题数据
+function getQuestion(){
+        global $db;
+        $data = $db->getAll('base_question',array(),array()," order by recommend desc ");
+        echo json_result($data);
+}
 
 //获取全国区域数据
 function getCountryCityArea($return=false){
