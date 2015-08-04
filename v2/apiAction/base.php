@@ -57,7 +57,7 @@ function getShopCity(){
         $data=array();
 	$sql="select id,name,pinyin,code from ".DB_PREFIX."shop_addcity city where 1=1 ";
 	
-	$z='a';
+	$z='A';
 	for($i=1;$i<=26;$i++){
 		$s=$sql." and pinyin='{$z}' ORDER BY convert(name using gbk) ";
                 if($db->getCountBySql($s)>0){
