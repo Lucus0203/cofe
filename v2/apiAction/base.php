@@ -33,7 +33,15 @@ switch ($act){
 }
 //获取版本
 function getVer(){
-	echo json_result(array('ver'=>'1.0'));
+	echo json_result(
+                array('HotShopCity'=>'1.0',
+                    'ShopCity'=>'1.0',
+                    'ShopCityAreaCircle'=>'1.0',
+                    'ShopTag'=>'1.0',
+                    'UserTag'=>'1.0',
+                    'Topic'=>'1.0',
+                    'Question'=>'1.0'
+                    ));
 }
 
 //获取热门城市
@@ -72,25 +80,30 @@ function getShopCity(){
 //获取筛选商圈
 function getShopCityAreaCircle(){
 	global $db;
-	$city_code=filter(!empty($_REQUEST['city_code'])?$_REQUEST['city_code']:'');
-        $city=$db->getRow('shop_addcity',array('code'=>$city_code));
-        if(empty($city['id'])){
-                echo json_result(null, '1', '抱歉,您的城市数据还在完善中,请定位到其他城市');
-        }else{
-                $data['city_id']=$city['id'];
-                $data['citycircle']=$db->getAll('shop_addcircle',array('city_id'=>$city['id'],'type'=>2),array('id as circle_id','name'));//热门商圈
-                $areadata=array();
-                $area=$db->getAll('shop_addarea',array('city_id'=>$city['id']),array('id as area_id','name'));
-                foreach ($area as $k=>$a){
-                        $circle=$db->getAll('shop_addcircle',array('area_id'=>$a['area_id']),array('id as circle_id','name'));//区域商圈
-                        if(count($circle)>0){
-                                $a['circle']=$circle;
-                                $areadata[]=$a;
+	$circlefile=APP_DIR. '/upload/city_circle.db';
+	$circledata = file_get_contents($circlefile);
+        $data=array();
+	if(empty($circledata)){
+                $city=$db->getAll('shop_addcity',array(),array('id as city_id','code as city_code'));
+		foreach ($city as $ck=>$c){
+                        $areadata['citycircle']=$db->getAll('shop_addcircle',array('city_id'=>$c['city_id'],'type'=>2),array('id as circle_id','name as circle'));//热门商圈
+                        $area=$db->getAll('shop_addarea',array('city_id'=>$c['city_id']),array('id as area_id','name as area'));
+			foreach ($area as $ak=>$a){
+				$circle=$db->getAll('shop_addcircle',array('area_id'=>$a['area_id']),array('id as circle_id','name as circle'));//区域商圈
+                                if(count($circle)>0){
+                                        $area[$ak]['circle']=$circle;
+                                }
+			}
+                        $areadata['area']=$area;
+                        if(!empty($areadata['citycircle'])||!empty($areadata['area'])){
+                                $data[$c['city_code']]=$areadata;
                         }
-                }
-                $data['area']=$areadata;
-                echo json_result($data);
-        }
+		}
+		$circledata=json_result($data);
+		//file_put_contents($circlefile, $circledata);
+	}
+	
+        echo $circledata;
         
 }
 
