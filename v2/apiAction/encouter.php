@@ -58,6 +58,7 @@ function deposit(){
                 $data['price1']=$menuprice['price'];
                 $menu=$db->getRow('shop_menu',array('id'=>$menuprice['menu_id']));
                 $data['product1']=$menu['title'];
+                $data['product_img1']=$menu['img'];
         }
         switch ($type){
                 case 2://缘分咖啡
@@ -80,6 +81,7 @@ function deposit(){
                                 $data['price2']=$menuprice['price'];
                                 $menu=$db->getRow('shop_menu',array('id'=>$menuprice['menu_id']));
                                 $data['product2']=$menu['title'];
+                                $data['product_img2']=$menu['img'];
                         }
                         break;
                 case 4://传递
@@ -87,6 +89,26 @@ function deposit(){
                                 echo json_result(null,'9','请输入你的话题');return ;
                         }else{
                                 $data['topic']=$topic;
+                        }
+                        break;
+                case 5://上传三张图片
+                        $flag=false;
+                        $upload=new UpLoad();
+                        $folder="upload/encouterPhoto/";
+                        if (! file_exists ( $folder )) {
+                                mkdir ( $folder, 0777 );
+                        }
+                        $upload->setDir($folder.date("Ymd")."/");
+                        $upload->setPrefixName('user'.$userid);
+                        $file=$upload->uploadFiles('photos');//$_File['photo'.$i]
+                        if($file['status']!=0&&$file['status']!=1){
+                                echo json_result(null,'701',$file['errMsg']);return;
+                        }
+                        if($file['status']==1){
+                                $flag=true;
+                        }
+                        if(!$flag){
+                                echo json_result(null,'11','请上传至少一张图片');return;
                         }
                         break;
                 default :
@@ -99,36 +121,16 @@ function deposit(){
         }
         $data['created']=date("Y-m-d H:i:s");
         $encouterid=$db->create('encouter',$data);
-        //上传三张图片
-        if($type==5){
-                $flag=false;
-                $upload=new UpLoad();
-                $folder="upload/encouterPhoto/";
-                if (! file_exists ( $folder )) {
-                        mkdir ( $folder, 0777 );
-                }
-                $upload->setDir($folder.date("Ymd")."/");
-                $upload->setPrefixName('user'.$userid);
-                $file=$upload->uploadFiles('photos');//$_File['photo'.$i]
-                if($file['status']!=0&&$file['status']!=1){
-                        echo json_result(null,'701',$file['errMsg']);return;
-                }
-                if($file['status']==1){
-                        foreach ($file['filepaths'] as $path){
-                                $photo['img']=APP_SITE.$path;
-                                $photo['user_id']=$userid;
-                                $photo['encouter_id']=$encouterid;
-                                $photo['created']=date("Y-m-d H:i:s");
-                                $db->create('encounter_img', $photo);
-                                $flag=true;
-                        }
-                }
-                if(!$flag){
-                        echo json_result(null,'11','请上传至少一张图片');return;
+        if($type==5&&$flag){//插入图片数据
+                foreach ($file['filepaths'] as $path){
+                        $photo['img']=APP_SITE.$path;
+                        $photo['user_id']=$userid;
+                        $photo['encouter_id']=$encouterid;
+                        $photo['created']=date("Y-m-d H:i:s");
+                        $db->create('encounter_img', $photo);
                 }
         }
-        
-        echo json_result(array('success'=>'TRUE'));
+        echo json_result(array('encouter_id'=>$encouterid));
         
 }
 
@@ -145,27 +147,25 @@ function nearCafe(){
 	$page_size = PAGE_SIZE;
 	$start = ($page_no - 1) * $page_size;
 	
-	$sql="select encouter.id,user.head_photo as img,shop.lng,shop.lat "
+	$sql="select encouter.id,encouter.user_id,user.head_photo as img "
                 . "from ".DB_PREFIX."encouter encouter "
                 . "left join ".DB_PREFIX."shop shop on encouter.shop_id=shop.id "
                 . "left join ".DB_PREFIX."user user on encouter.user_id=user.id "
-                . "left join ".DB_PREFIX."user_tag tag on user.id=tag.user_id where encouter.status=1 group by encouter.user_id ";
-        echo $sql;
+                . "left join ".DB_PREFIX."user_tag user_tag on user.id=user_tag.user_id where encouter.status=1 ";
         if(!empty($city_code)){
                 $city=$db->getRow('shop_addcity',array('code'=>$city_code));
                 $sql.=(!empty($city['id']))?" and addcity_id={$city['id']} ":'';
         }
         $sql.=(!empty($area_id))?" and addarea_id={$area_id} ":'';
         $sql.=(!empty($circle_id))?" and addcircle_id={$circle_id} ":'';
-        $sql.=(!empty($keyword))?" and ( INSTR(title,'".addslashes($keyword)."') or INSTR(subtitle,'".addslashes($keyword)."') or INSTR(address,'".addslashes($keyword)."') ) ":'';
-        $sql.=(!empty($tag_ids))?" and shop_tag.tag_id in ({$tag_ids}) ":'';
+        $sql.=(!empty($tag_ids))?" and user_tag.tag_id in ({$tag_ids}) ":'';
+        $sql.=(!empty($type))?" and encouter.type = ({$type}) ":'';
         
         $sql.=(!empty($lng)&&!empty($lat))?" order by sqrt(power(lng-{$lng},2)+power(lat-{$lat},2)),id ":' order by id ';
 	$sql .= " limit $start,$page_size";
-	$shops=$db->getAllBySql($sql);
-	foreach ($shops as $k=>$v){
-		$shops[$k]['distance']=(!empty($v['lat'])&&!empty($v['lng'])&&!empty($lng)&&!empty($lat))?getDistance($lat,$lng,$v['lat'],$v['lng']):lang_UNlOCATE;
-	}
+        $sql="select * from ($sql) s group by s.user_id";
+        
+	$data=$db->getAllBySql($sql);
 	//echo json_result(array('shops'=>$shops));
-	echo json_result($shops);
+	echo json_result($data);
 }
