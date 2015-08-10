@@ -11,6 +11,9 @@ switch ($act){
         case 'cafeInfo':
                 cafeInfo();
                 break;
+        case 'receive':
+                receive();
+                break;
 	default:
 		break;
 }
@@ -168,7 +171,8 @@ function nearCafe(){
                 . "from ".DB_PREFIX."encouter encouter "
                 . "left join ".DB_PREFIX."shop shop on encouter.shop_id=shop.id "
                 . "left join ".DB_PREFIX."user user on encouter.user_id=user.id "
-                . "left join ".DB_PREFIX."user_tag user_tag on user.id=user_tag.user_id where encouter.status=1 ";
+                . "left join ".DB_PREFIX."user_tag user_tag on user.id=user_tag.user_id "
+                . "where encouter.status=1 or status=4 ";//1待付款2待领取3已领取4等候待付款5等候已付款
         if(!empty($city_code)){
                 $city=$db->getRow('shop_addcity',array('code'=>$city_code));
                 $sql.=(!empty($city['id']))?" and addcity_id={$city['id']} ":'';
@@ -191,8 +195,40 @@ function nearCafe(){
 function cafeInfo(){
         global $db;
         $id = filter($_REQUEST['id']);
-        $sql = "select encouter.id as encouter_id,user.head_photo,user.nick_name,encouter.shop_id,shop.title,encouter.product1,encouter.product_img1,encouter.price1,encouter.product2,encouter.product_img2,encouter.price2,encouter.msg,encouter.question,encouter.topic from ".DB_PREFIX."encouter encouter "
-                . "left join ".DB_PREFIX."user user on encouter.user_id.user.id "
-                . "left join ".DB_PREFIX."shop shop on encouter.shop_id shop.id ";
-        $data=$db->getAllBySql($sql);
+        $sql = "select encouter.id as encouter_id,encouter.type,encouter.user_id,user.head_photo,user.nick_name,encouter.shop_id,shop.title as shop_title,shop.lng,shop.lat,encouter.days,encouter.product1 as cafe1,encouter.product_img1 as cafe_img1,encouter.price1,encouter.product2 as cafe2,encouter.product_img2 as cafe_img2,encouter.price2,encouter.msg,encouter.question,encouter.topic from ".DB_PREFIX."encouter encouter "
+                . "left join ".DB_PREFIX."user user on encouter.user_id=user.id "
+                . "left join ".DB_PREFIX."shop shop on encouter.shop_id=shop.id "
+                . "where encouter.id = {$id}";
+        $data=$db->getRowBySql($sql);
+        $tagsql="select tag.name from ".DB_PREFIX."encouter_usertag usertag "
+                . "left join ".DB_PREFIX."base_user_tag tag on usertag.tag_id=tag.id "
+                . "where usertag.encouter_id={$id}";
+        $data['tags']=$db->getAllBySql($tagsql);
+        $data['user_imgs']=$db->getAll('encouter_img',array('encouter_id'=>$id),array('img'));
+        echo json_result($data);
+}
+
+//领取咖啡
+function receive(){
+       global $db;
+       $userid=filter(!empty($_REQUEST['loginid'])?$_REQUEST['loginid']:'');
+       $encouterid=filter(!empty($_REQUEST['encouterid'])?$_REQUEST['encouterid']:'');
+       $msg=filter(!empty($_REQUEST['msg'])?$_REQUEST['msg']:'');
+       $encouter=$db->getRow('encouter',array('id'=>$encouterid));
+       $type=$encouter['type'];//1爱心2缘分3约会4传递5等候
+       $to_user=$encouter['user_id'];
+       switch ($type){
+               case 1:
+                       break;
+               case 2:
+                       break;
+               case 3:
+                       break;
+               case 4:
+                       break;
+               case 5:
+                       break;
+               default :
+                       break;
+       }
 }

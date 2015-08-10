@@ -156,7 +156,11 @@ function shopInfo(){
 		$shop['menus']=$db->getAll('shop_menu',array('shop_id'=>$shopid,'status'=>2),array('title','img'));
 		$shop['introduction']=empty($shop['introduction'])?'        信息正在更新中...':$shop['introduction'];
 		//特色
-		$shop['features']=explode(',', $shop['feature']);
+                $shoptagsql="select base_tag.name from ".DB_PREFIX."shop_tag tag left join ".DB_PREFIX."base_shop_tag base_tag  on tag.tag_id = base_tag.id where tag.shop_id={$shopid} ";
+		$features=$db->getAllBySql($shoptagsql);
+                foreach ($features as $f){
+                        $shop['features'][]=$f['name'];
+                }
 		//店铺图片
 		$shop['imgs']=$db->getAll('shop_img',array('shop_id'=>$shopid),array('img','width','height'));
 		

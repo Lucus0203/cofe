@@ -185,6 +185,12 @@ class db {
 			return @$row['count'];
 		}
 	}
+        
+        //执行sql语句
+        public function excuteSql($sql){
+                self::$sql = $sql;
+                $result = mysqli_query ($this->conn, self::$sql );
+        }
 	
 	
 	public static function getLastSql() {
