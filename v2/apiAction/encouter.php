@@ -8,6 +8,9 @@ switch ($act){
 	case 'nearCafe'://附近邂逅咖啡
 		nearCafe();
 		break;
+        case 'cafeInfo':
+                cafeInfo();
+                break;
 	default:
 		break;
 }
@@ -24,6 +27,7 @@ function deposit(){
 	$question=filter(!empty($_REQUEST['question'])?$_REQUEST['question']:'');
 	$topic=filter(!empty($_REQUEST['topic'])?$_REQUEST['topic']:'');
 	$msg=filter(!empty($_REQUEST['msg'])?$_REQUEST['msg']:'');
+	$tag_ids=filter(!empty($_REQUEST['tag_ids'])?$_REQUEST['tag_ids']:'');
         
         $data=array();
         if(empty($userid)){
@@ -121,7 +125,19 @@ function deposit(){
         }
         $data['created']=date("Y-m-d H:i:s");
         $encouterid=$db->create('encouter',$data);
-        if($type==5&&$flag){//插入图片数据
+        //插入人物标签
+        if(!empty($tag_ids)){
+                $tags=explode(",", $tag_ids);
+                $tgsql="";
+                foreach ($tags as $tg){
+                        $tgsql.=",(NULL, '".$encouterid."', '".$tg."')";
+                }
+                $tgsql =  substr($tgsql, 1);
+                $insertTag="INSERT INTO cofe_encouter_usertag (`id`, `encouter_id`, `tag_id`) VALUES {$tgsql};";
+                $db->excuteSql($insertTag);
+        }
+        //插入图片数据
+        if($type==5&&$flag){
                 foreach ($file['filepaths'] as $path){
                         $photo['img']=APP_SITE.$path;
                         $photo['user_id']=$userid;
@@ -134,6 +150,7 @@ function deposit(){
         
 }
 
+//附近的邂逅咖啡
 function nearCafe(){
         global $db;
 	$lng=filter($_REQUEST['lng']);
@@ -147,7 +164,7 @@ function nearCafe(){
 	$page_size = PAGE_SIZE;
 	$start = ($page_no - 1) * $page_size;
 	
-	$sql="select encouter.id,encouter.user_id,user.head_photo as img "
+	$sql="select encouter.id,encouter.user_id,encouter.type,user.head_photo as img "
                 . "from ".DB_PREFIX."encouter encouter "
                 . "left join ".DB_PREFIX."shop shop on encouter.shop_id=shop.id "
                 . "left join ".DB_PREFIX."user user on encouter.user_id=user.id "
@@ -168,4 +185,14 @@ function nearCafe(){
 	$data=$db->getAllBySql($sql);
 	//echo json_result(array('shops'=>$shops));
 	echo json_result($data);
+}
+
+//查看邂逅咖啡信息
+function cafeInfo(){
+        global $db;
+        $id = filter($_REQUEST['id']);
+        $sql = "select encouter.id as encouter_id,user.head_photo,user.nick_name,encouter.shop_id,shop.title,encouter.product1,encouter.product_img1,encouter.price1,encouter.product2,encouter.product_img2,encouter.price2,encouter.msg,encouter.question,encouter.topic from ".DB_PREFIX."encouter encouter "
+                . "left join ".DB_PREFIX."user user on encouter.user_id.user.id "
+                . "left join ".DB_PREFIX."shop shop on encouter.shop_id shop.id ";
+        $data=$db->getAllBySql($sql);
 }

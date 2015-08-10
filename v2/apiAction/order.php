@@ -105,7 +105,6 @@ function webhooks(){
                 $order_no=$event->data->object->order_no;//订单号
                 $amount=$event->data->object->amount;//订单金额
                 $time_paid=$event->data->object->time_paid;//支付时间戳
-                $circlefile=APP_DIR. '/upload/order_no.db';
                 if($paid){
                         $orderCondition=array('order_no'=>$order_no);
                         $order = $db->getRow('order',$orderCondition);
