@@ -1,5 +1,8 @@
 <?php
 require_once APP_DIR.DS.'apiLib'.DS.'ext'.DS.'Upload.php';
+require_once APP_DIR.DS.'apiLib'.DS.'ext'.DS.'Huanxin.php';
+require_once APP_DIR.DS.'apiLib'.DS.'ext'.DS.'Sms.php';
+require_once APP_DIR.DS.'apiLib'.DS.'ext'.DS.'Umeng.php';
 $act=filter($_REQUEST['act']);
 switch ($act){
 	case 'deposit'://寄存咖啡
@@ -8,10 +11,10 @@ switch ($act){
 	case 'nearCafe'://附近邂逅咖啡
 		nearCafe();
 		break;
-        case 'cafeInfo':
+        case 'cafeInfo'://咖啡详情
                 cafeInfo();
                 break;
-        case 'receive':
+        case 'receive'://领取咖啡
                 receive();
                 break;
 	default:
@@ -172,7 +175,7 @@ function nearCafe(){
                 . "left join ".DB_PREFIX."shop shop on encouter.shop_id=shop.id "
                 . "left join ".DB_PREFIX."user user on encouter.user_id=user.id "
                 . "left join ".DB_PREFIX."user_tag user_tag on user.id=user_tag.user_id "
-                . "where encouter.status=1 or status=4 ";//1待付款2待领取3已领取4等候待付款5等候已付款
+                . "where encouter.status=1 or status=4 ";//1待付款2待领取3待到店领取4已领走4等候待付款5等候待到店领取6等候已领走
         if(!empty($city_code)){
                 $city=$db->getRow('shop_addcity',array('code'=>$city_code));
                 $sql.=(!empty($city['id']))?" and addcity_id={$city['id']} ":'';
@@ -216,19 +219,81 @@ function receive(){
        $msg=filter(!empty($_REQUEST['msg'])?$_REQUEST['msg']:'');
        $encouter=$db->getRow('encouter',array('id'=>$encouterid));
        $type=$encouter['type'];//1爱心2缘分3约会4传递5等候
-       $to_user=$encouter['user_id'];
+       //$encouter['status'] 1待付款 2待领取 3待到店领取 4已领走 4等候待付款 5等候待到店领取 6等候已领走
+       if($encouter['status']==1){
+         echo json_result(null,'2','这杯咖啡正在等待付款中');
+         return;
+       }elseif($encouter['status']!=2){
+         echo json_result(null,'3','很抱歉您晚了一步');
+         return;
+       }
        switch ($type){
-               case 1:
+               case 1://爱心
+                       $isreceived=true;
+                       $db->excuteSql("begin;");//使用事务查询状态并改变
+                       $encouter=$db->getRow('encouter',array('id'=>$encouterid));
+                       if($encouter['status']==2){
+                               $isreceived=false;
+                               $receive=array('from_user'=>$userid,'encouter_id'=>$encouterid,'type'=>$encouter['type'],'msg'=>$msg,'to_user'=>$encouter['user_id'],'verifycode'=>encouterVerify($db->getCount('encouter_receive',array('from_user'=>$userid))),'status'=>2,'created'=>date("Y-m-d H:i:s"));
+                               $db->create('encouter_receive',$receive);
+                               $db->update('encouter',array('status'=>3),array('id'=>$encouterid));
+                       }
+                       $db->excuteSql("commit;");
+                       if($isreceived){
+                               echo json_result(null,'3','很抱歉您晚了一步');
+                               return;
+                       }else{
+                                //领取成功
+                               if($userid!=$encouter['user_id']){
+                                        $from=$db->getRow('user',array('id'=>$userid));
+                                        $to=$db->getRow('user',array('id'=>$encouter['user_id']));
+                                        //发送环信消息
+                                        $HuanxinObj=Huanxin::getInstance();
+                                        $huserObj=$HuanxinObj->sendmsgToUser($from['mobile'],$to['mobile'],'我领取了你的咖啡,很高兴认识你~');
+                                        $huserObj=$HuanxinObj->sendmsgToUser($to['mobile'],$from['mobile'],'很高兴认识你~');
+                               }
+                               //发送短息
+                               $shop=$db->getRow('shop',array('id'=>$encouter['shop_id']));
+                               $sms=new Sms();
+                               $sms->sendMsg("您的".$encouter['product1']."的验证码是:".$receive['verifycode'].",请尽快到<".$shop['title'].">领取!感谢是爱心的第一步~欢迎使用", $from['mobile']);
+                               echo json_result(array('verifycode'=>$receive['verifycode']));
+                               return;
+                       }
                        break;
-               case 2:
+               case 2://缘分
+                       $receive=array('from_user'=>$userid,'encouter_id'=>$encouterid,'type'=>$encouter['type'],'msg'=>$msg,'to_user'=>$encouter['user_id'],'status'=>1,'created'=>date("Y-m-d H:i:s"));
+                       $db->create('encouter_receive',$receive);
+//                       $IOSumeng=new Umeng('IOS');
+//                       $IOSumeng->sendIOSCustomizedcast("invitation", $encouter['user_id'], '有人想领取您的咖啡,等待您的回复',array('notify'=>'encouter'));
+
+                       echo json_result(array('success'=>'TRUE'));
+                       return;
                        break;
-               case 3:
+               case 3://3约会
+                        $choice_menu=filter(!empty($_REQUEST['choice_menu'])?$_REQUEST['choice_menu']:'');
+                       if(empty($choice_menu)){
+                              echo json_result(null,'4','请选择一杯咖啡');
+                              return; 
+                       }
+                        $datetime=filter(!empty($_REQUEST['datetime'])?$_REQUEST['datetime']:'');
+                       if(empty($datetime)){
+                              echo json_result(null,'5','请选择应约时间');
+                              return; 
+                       }
+                        $receive=array('from_user'=>$userid,'encouter_id'=>$encouterid,'type'=>$encouter['type'],'msg'=>$msg,'to_user'=>$encouter['user_id'],'status'=>1,'datetime'=>$datetime,'choice_menu'=>$choice_menu,'created'=>date("Y-m-d H:i:s"));
+                        $db->create('encouter_receive',$receive);
+//                       $IOSumeng=new Umeng('IOS');
+//                       $IOSumeng->sendIOSCustomizedcast("invitation", $encouter['user_id'], '有人想领取您的咖啡,等待您的回复',array('notify'=>'encouter'));
+
+                       echo json_result(array('success'=>'TRUE'));
+                       return;
                        break;
-               case 4:
+               case 4://4传递
                        break;
-               case 5:
+               case 5://5等候 为Ta买单
                        break;
                default :
                        break;
        }
+       $db->getLastSql();
 }

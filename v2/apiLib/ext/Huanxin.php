@@ -98,6 +98,17 @@ Class Huanxin {
 		return $this->postCurl ( $url, '', $header, $type = "GET" );
 		//return $this->getJsonData("https://a1.easemob.com/zcsy/coffee/users/{$login}/blocks/users");
 	}
+        //发送消息给用户
+        function sendmsgToUser($from,$to,$msg){
+		$data=array('target_type'=>'users',
+                    'target'=>array($to),
+                    'msg'=>array('type'=>'txt','msg'=>$msg),
+                    'from'=>$from);
+		$url = $this->url . "messages";
+		$access_token = $this->getToken ();
+		$header [] = 'Authorization: Bearer ' . $access_token;
+		return $this->postCurl ( $url, $data, $header, $type = "POST" );
+        }
 	
 	/**
 	 * CURL Post

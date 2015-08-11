@@ -238,5 +238,9 @@ function getFirstCharter($str){
 	return '';
 }
 
+function encouterVerify($num){
+        return $num.rand(100000, 999999);
+}
+
 
 ?>
