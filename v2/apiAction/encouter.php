@@ -341,10 +341,11 @@ function permit() {
                 return;
         }
         $db->excute('begin');
-        $db->update('encouter_receive',array('status'=>2),array('id'=>$receiveid));//可领取
+        $db->update('encouter_receive',array('status'=>2),array('id'=>$receiveid,'verifycode'=>encouterVerify($db->getCount('encouter_receive', array('from_user' => $userid)))));//可领取
         $db->update('encouter_receive',array('status'=>3),array('id <> '.$receiveid));//拒绝其他
         $db->update('encouter',array('status'=>3),array('id'=>$receive['encouter_id']));//待到店领取
         $db->excute('commit');
+        $receive=$db->getRow('encouter_receive',array('id'=>$receiveid));
         sendNotifyMsgByPermiter($userid, $receive['from_user'], $encouter['type'], $encouter, $receive);
         
         echo json_result(array('success' => 'TRUE'));

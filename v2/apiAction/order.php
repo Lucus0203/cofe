@@ -278,7 +278,10 @@ function updateOrderEncouter($order){
                         break;
                 case 4://传递
                         if(!empty($encouter['prev_encouter_id'])){
-                                
+                               $prev_encouter=$db->getRow('encouter',array('id'=>$encouter['prev_encouter_id'])); 
+                               $encouter;
+                               $order;
+                               $encouter_receive;
                         }
                         break;
                 case 5://等候
