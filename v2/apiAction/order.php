@@ -24,6 +24,7 @@ function pay() {
         $channel = !empty($input_data['channel']) ? strtolower(filter($input_data['channel'])) : '';
         $encouterid = !empty($input_data['encouterid']) ? filter($input_data['encouterid']) : '';
         $loginid = !empty($input_data['loginid']) ? filter($input_data['loginid']) : '';
+        $receiveid = !empty($input_data['receiveid']) ? filter($input_data['receiveid']) : '';
         $encouter = $db->getRow('encouter', array('id' => $encouterid));
         $shop = $db->getRow('shop', array('id' => $encouter['shop_id']));
         if (empty($channel)) {
@@ -51,7 +52,7 @@ function pay() {
                                         json_result(null, '203', '您的订单无需再支付');return;
                                 }  
                         }else{
-                                $prev_encouter=$db->getRow('encouter',array('id'=>$id));
+                                $prev_encouter=$db->getRow('encouter',array('id'=>$encouter['prev_encouter_id']));
                                 if($prev_encouter['lock']!=1){
                                         $remenus=floor((time()-strtotime($prev_encouter['update'])) / 60);
                                         if($remenus<8){//8分钟锁定
@@ -59,24 +60,24 @@ function pay() {
                                         }
                                 }
                                 if($prev_encouter['status']!=2){
-                                        json_result(null, '205', '很抱歉,这杯咖啡已由他人接力');return;
+                                        json_result(null, '205', '很抱歉您晚了一步,这杯咖啡已由他人接力');return;
                                 }
-                                $db->update('encouter',array('lock'=>2,'updated'=>date("Y-m-d H:i:s")),array('id'=>$encouterid));//锁定支付
+                                $db->update('encouter',array('lock'=>2,'updated'=>date("Y-m-d H:i:s")),array('id'=>$encouter['prev_encouter_id']));//锁定支付
                         }
                         break;
                 case 5://等候
                         if($encouter['lock']!=1){
                                 $remenus=floor((time()-strtotime($encouter['update'])) / 60);
                                 if($remenus<8){//8分钟锁定
-                                        json_result(null, '204', '这杯咖啡正在等待他人操作,请稍后再来尝试');return;
+                                        json_result(null, '206', '这杯咖啡正在等待他人操作,请稍后再来尝试');return;
                                 }
                         }
                         if($encouter['status']!=5){
                                 $paid_order=$db->getRow('order',array('encouter_id'=>$encouterid,'paid'=>1));
                                 if($paid_order['user_id']!=$loginid){
-                                        json_result(null, '205', '很抱歉,您晚了一步');return;
+                                        json_result(null, '207', '很抱歉您晚了一步,这杯咖啡已由他人买单');return;
                                 }else{
-                                        json_result(null, '206', '您的订单无需再次支付');return;
+                                        json_result(null, '203', '您的订单无需再次支付');return;
                                 }
                         }
                         $db->update('encouter',array('lock'=>2,'updated'=>date("Y-m-d H:i:s")),array('id'=>$encouterid));//锁定支付
@@ -112,6 +113,9 @@ function pay() {
                         )
                 );
                 $order = array('encouter_id' => $encouter['id'], 'user_id' => $loginid, 'shop_id' => $encouter['shop_id'], 'time_created' => $ch['created'], 'paid' => 2, 'channel' => $ch['channel'], 'order_no' => $ch['order_no'], 'amount' => floor($ch['amount'] / 100), 'subject' => $ch['subject'], 'body' => $ch['body'], 'description' => $ch['description'], 'created' => date('Y-m-d H:i:s'));
+                if(!empty($receiveid)){
+                        $order['encouter_receive_id']=$receiveid;
+                }
                 $orderid = $db->create('order', $order);
                 for ($i = 1; $i <= 2; $i++) {
                         if (!empty($encouter['product' . $i])) {
@@ -172,7 +176,7 @@ function secondPay(){
                                 if($prev_encouter['status']!=2){
                                         json_result(null, '207', '很抱歉,这杯咖啡已由他人接力');return;
                                 }
-                                $db->update('encouter',array('lock'=>2,'updated'=>date("Y-m-d H:i:s")),array('id'=>$encouterid));//锁定支付
+                                $db->update('encouter',array('lock'=>2,'updated'=>date("Y-m-d H:i:s")),array('id'=>$encouter['prev_encouter_id']));//锁定支付
                         }
                         break;
                 case 5://等候
@@ -183,7 +187,7 @@ function secondPay(){
                                 }
                         }
                         if($encouter['status']!=5){
-                                $paid_order=$db->getRow('order',array('encouter_id'=>$encouterid,'paid'=>1));
+                                $paid_order=$db->getRow('order',array('encouter_id'=>$old_order['encouter_id'],'paid'=>1));
                                 if($paid_order['user_id']!=$loginid){
                                         json_result(null, '209', '很抱歉,您晚了一步');return;
                                 }else{
@@ -253,7 +257,6 @@ function webhooks() {
                                 $order = $db->getRow('order', $orderCondition);
                                 $db->update('order', array('charge_id' => $chargeid, 'paid' => 1,'pay_amount'=>$amount, 'time_paid' => $time_paid), $orderCondition);
                                 updateOrderEncouter($order);
-                                $db->update('encouter', array('status' => 3), array('id' => $order['encouter_id']));
                         }
                         header($_SERVER['SERVER_PROTOCOL'] . ' 200 OK');
                         break;
@@ -267,53 +270,48 @@ function webhooks() {
         }
 }
 
+//领取者付款时数据同步
 function updateOrderEncouter($order){
+        global $db;
         $encouter=$db->getRow('encouter',array('id'=>$order['encouter_id']));
         //$encouter['status'] 1待付款 2待领取 3待到店领取 4已领走 5等候待付款 6等候待到店领取 7等候已领走
+        $db->excuteSql("begin;"); //使用事务查询状态并改变
         switch ($encouter['type']) {
                 case 1://爱心
                 case 2://缘分
                 case 3://约会
-                        $db->update('encouter', array('status' => 3), array('id' => $order['encouter_id']));
+                        $db->update('encouter', array('status' => 2), array('id' => $order['encouter_id']));
                         break;
                 case 4://传递
+                        $receiveid=$encouter['prev_encouter_receive_id'];
                         if(!empty($encouter['prev_encouter_id'])){
-                               $prev_encouter=$db->getRow('encouter',array('id'=>$encouter['prev_encouter_id'])); 
-                               $encouter;
-                               $order;
-                               $encouter_receive;
+                               //可到店领取
+                               $db->update('encouter', array('lock' => 1,'status' => 3), array('id' => $encouter['prev_encouter_id']));
+                               //其他用户的订单失效
+                               $db->update('order', array('status'=>2), array('id <> ' .$order['id'],'encouter_id'=>$encouter['prev_encouter_id']));
+                               //可领取
+                               $db->update('encouter_receive',array('status'=>2),array('id'=>$receiveid));
                         }
+                        $db->update('encouter', array('status' => 2), array('id' => $order['encouter_id']));
                         break;
                 case 5://等候
-                        //if()
+                        $receiveid=$order['encouter_receive_id'];
+                        //可到店领取
+                        $db->update('encouter', array('status' => 6), array('id' => $order['encouter_id']));
+                        //其他用户的订单失效
+                        $db->update('order', array('status'=>2), array('id <> ' .$order['id'],'encouter_id'=>$order['encouter_id']));
+                        //可领取
+                        $db->update('encouter_receive', array('status'=>2), array('id'=>$order['encouter_receive_id']));
                         break;
 
                 default:
                         break;
         }
-}
-
-//领取者领取成功发送消息
-function sendNotifyMsgByReceive($fromid, $toid, $type, $encouter, $receive) {
-        switch ($type) {
-                case 4:
-                        $from = $db->getRow('user', array('id' => $fromid));
-                        $to = $db->getRow('user', array('id' => $toid));
-                        if ($fromid != $toid) {
-                                //发送环信消息
-                                $HuanxinObj = Huanxin::getInstance();
-                                $huserObj = $HuanxinObj->sendmsgToUser($from['mobile'], $to['mobile'], '我领到了你的咖啡,很高兴认识你~');
-                                $huserObj = $HuanxinObj->sendmsgToUser($to['mobile'], $from['mobile'], '很高兴认识你~');
-                        }
-                        //发送短息
-                        $shop = $db->getRow('shop', array('id' => $encouter['shop_id']));
-                        $sms = new Sms();
-                        $sms->sendMsg("您参与的爱心咖啡<" . $encouter['product1'] . ">验证码是:" . $receive['verifycode'] . ",请尽快到<" . $shop['title'] . ">领取!感谢是爱心的第一步~欢迎使用", $from['mobile']);
-                        break;
-                case 5:
-                        break;
-
-                default:
-                        break;
+        $db->excuteSql("commit;");
+        if(!empty($receiveid)){
+                sendNotifyMsgByReceive($receiveid);//领取成功发送消息
         }
 }
+
+//通知消息
+require_once APP_DIR . DS . 'encouter_notifymsg.php';;

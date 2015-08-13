@@ -36,6 +36,8 @@ function deposit() {
         $msg = filter(!empty($_REQUEST['msg']) ? $_REQUEST['msg'] : '');
         $tag_ids = filter(!empty($_REQUEST['tag_ids']) ? $_REQUEST['tag_ids'] : '');
         $prev_encouter_id = filter(!empty($_REQUEST['prev_encouter_id']) ? $_REQUEST['prev_encouter_id'] : '');
+        $prev_encouter_receive_id = filter(!empty($_REQUEST['receive_id']) ? $_REQUEST['receive_id'] : '');
+        
 
 
         $data = array();
@@ -106,7 +108,7 @@ function deposit() {
                                 $data['product_img2'] = $menu['img'];
                         }
                         break;
-                case 4://传递
+                case 4://传递 寄存结束传递
                         if (empty($topic)) {
                                 echo json_result(null, '9', '请输入你的话题');
                                 return;
@@ -118,6 +120,7 @@ function deposit() {
                                 $prev_encouter = $db->getRow('encouter', array('id' => $prev_encouter_id), array('transfer_num'));
                                 $data['transfer_num'] = $prev_encouter['transfer_num'] + 1;
                                 $data['prev_encouter_id'] = $prev_encouter_id;
+                                $data['prev_encouter_receive_id'] = $prev_encouter_receive_id;
                         }
                         break;
                 case 5://上传三张图片
@@ -249,29 +252,19 @@ function receive() {
                         $encouter = $db->getRow('encouter', array('id' => $encouterid));
                         if ($encouter['status'] == 2) {
                                 $isreceived = false;
-                                $receive = array('from_user' => $userid, 'encouter_id' => $encouterid, 'type' => $encouter['type'], 'msg' => $msg, 'to_user' => $encouter['user_id'], 'verifycode' => encouterVerify($db->getCount('encouter_receive', array('from_user' => $userid))), 'status' => 2, 'created' => date("Y-m-d H:i:s"));
-                                $db->create('encouter_receive', $receive);
+                                $receive = array('from_user' => $userid, 'encouter_id' => $encouterid, 'type' => $encouter['type'], 'msg' => $msg, 'to_user' => $encouter['user_id'], 'status' => 2, 'created' => date("Y-m-d H:i:s"));
+                                $receiveid=$db->create('encouter_receive', $receive);
                                 $db->update('encouter', array('status' => 3), array('id' => $encouterid));
                         }
                         $db->excuteSql("commit;");
                         if ($isreceived) {
                                 echo json_result(null, '3', '很抱歉您晚了一步');
                                 return;
-                        } else {
-
-                                //领取成功发送消息
-                                sendNotifyMsgByReceive($fromid, $toid, $type, $encouter, $receive);
-                                echo json_result(array('verifycode' => $receive['verifycode']));
-                                return;
                         }
                         break;
                 case 2://缘分
                         $receive = array('from_user' => $userid, 'encouter_id' => $encouterid, 'type' => $encouter['type'], 'msg' => $msg, 'to_user' => $encouter['user_id'], 'status' => 1, 'created' => date("Y-m-d H:i:s"));
-                        $db->create('encouter_receive', $receive);
-                        //发送通知等待寄存者回复授权
-                        sendNotifyMsgByReceive($fromid, $toid, $type, $encouter, $receive);
-                        echo json_result(array('success' => 'TRUE'));
-                        return;
+                        $receiveid=$db->create('encouter_receive', $receive);
                         break;
                 case 3://3约会
                         $choice_menu = filter(!empty($_REQUEST['choice_menu']) ? $_REQUEST['choice_menu'] : '');
@@ -285,27 +278,21 @@ function receive() {
                                 return;
                         }
                         $receive = array('from_user' => $userid, 'encouter_id' => $encouterid, 'type' => $encouter['type'], 'msg' => $msg, 'to_user' => $encouter['user_id'], 'status' => 1, 'datetime' => $datetime, 'choice_menu' => $choice_menu, 'created' => date("Y-m-d H:i:s"));
-                        $db->create('encouter_receive', $receive);
-                        //发送通知等待寄存者回复授权
-                        sendNotifyMsgByReceive($fromid, $toid, $type, $encouter, $receive);
-                        echo json_result(array('success' => 'TRUE'));
-                        return;
+                        $receiveid=$db->create('encouter_receive', $receive);
                         break;
-                case 4://4传递
-                        if(!empty($encouter['prev_encouter_id'])){
-                                $prev_encouter=$db->getRow('encouter',array('id'=>$encouter['prev_encouter_id']));
-                                if($prev_encouter['lock']!=1){
-                                        $remenus=floor((time()-strtotime($prev_encouter['update'])) / 60);
-                                        if($remenus<8){//8分钟锁定
-                                                json_result(null, '206', '这杯咖啡正在等待他人操作,请稍后再来尝试');return;
-                                        }
-                                }
-                                if($prev_encouter['status']!=2){
-                                        json_result(null, '207', '很抱歉,这杯咖啡已由他人接力');return;
+                case 4://4传递-----开始传递
+                        $encouter=$db->getRow('encouter',array('id'=>$encouterid));
+                        if($encouter['lock']!=1){
+                                $remenus=floor((time()-strtotime($encouter['update'])) / 60);
+                                if($remenus<8){//8分钟锁定
+                                        json_result(null, '206', '这杯咖啡正在等待他人操作,请稍后再来尝试');return;
                                 }
                         }
+                        if($encouter['status']!=2){
+                                json_result(null, '207', '很抱歉,这杯咖啡已由他人接力');return;
+                        }
                         $receive = array('from_user' => $userid, 'encouter_id' => $encouterid, 'type' => $encouter['type'], 'to_user' => $encouter['user_id'], 'status' => 4, 'created' => date("Y-m-d H:i:s"));
-                        $db->create('encouter_receive', $receive);
+                        $receiveid=$db->create('encouter_receive', $receive);
                         break;
                 case 5://5等候 为Ta买单
                         if($encouter['lock']!=1){
@@ -318,11 +305,15 @@ function receive() {
                                 json_result(null, '209', '很抱歉,您晚了一步');return;
                         }
                         $receive = array('from_user' => $userid, 'encouter_id' => $encouterid, 'type' => $encouter['type'], 'to_user' => $encouter['user_id'], 'status' => 4, 'created' => date("Y-m-d H:i:s"));
-                        $db->create('encouter_receive', $receive);
+                        $receiveid=$db->create('encouter_receive', $receive);
                         break;
                 default :
                         break;
         }
+        //发送通知等待寄存者回复授权
+        $receive=$db->getRow('encouter_receive',array('id'=>$receiveid));
+        sendNotifyMsgByReceive($receiveid);
+        echo json_result(array('receive' => $receive));
 }
 
 //寄存者授权 type 2缘分 3约会
@@ -341,78 +332,14 @@ function permit() {
                 return;
         }
         $db->excute('begin');
-        $db->update('encouter_receive',array('status'=>2),array('id'=>$receiveid,'verifycode'=>encouterVerify($db->getCount('encouter_receive', array('from_user' => $userid)))));//可领取
-        $db->update('encouter_receive',array('status'=>3),array('id <> '.$receiveid));//拒绝其他
+        $db->update('encouter_receive',array('status'=>2),array('id'=>$receiveid));//可领取
+        $db->update('encouter_receive',array('status'=>3),array('id <> '.$receiveid,'encouter_id'=>$receive['encouter_id']));//拒绝其他
         $db->update('encouter',array('status'=>3),array('id'=>$receive['encouter_id']));//待到店领取
         $db->excute('commit');
-        $receive=$db->getRow('encouter_receive',array('id'=>$receiveid));
-        sendNotifyMsgByPermiter($userid, $receive['from_user'], $encouter['type'], $encouter, $receive);
-        
+        //发送授权通知
+        sendNotifyMsgByPermiter($receiveid);
         echo json_result(array('success' => 'TRUE'));
         
 }
-
-//领取者领取成功发送消息
-function sendNotifyMsgByReceive($fromid, $toid, $type, $encouter, $receive) {
-        switch ($type) {
-                case 1://爱心
-                        $from = $db->getRow('user', array('id' => $fromid));
-                        $to = $db->getRow('user', array('id' => $toid));
-                        if ($fromid != $toid) {
-                                //发送环信消息
-                                $HuanxinObj = Huanxin::getInstance();
-                                $huserObj = $HuanxinObj->sendmsgToUser($from['mobile'], $to['mobile'], '我领到了你的咖啡,很高兴认识你~');
-                                $huserObj = $HuanxinObj->sendmsgToUser($to['mobile'], $from['mobile'], '很高兴认识你~');
-                        }
-                        //发送短息
-                        $shop = $db->getRow('shop', array('id' => $encouter['shop_id']));
-                        $sms = new Sms();
-                        $sms->sendMsg("您参与的爱心咖啡<" . $encouter['product1'] . ">验证码是:" . $receive['verifycode'] . ",请尽快到<" . $shop['title'] . ">领取!感谢是爱心的第一步~欢迎使用", $from['mobile']);
-                        break;
-                case 2://缘分
-                case 3://约会
-//                       $IOSumeng=new Umeng('IOS');
-//                       $IOSumeng->sendIOSCustomizedcast("invitation", $encouter['user_id'], '有人想领取您的咖啡,等待您的回复',array('notify'=>'encouter'));
-                        break;
-
-                default:
-                        break;
-        }
-}
-
-//寄存者授权成功发送消息
-function sendNotifyMsgByPermiter($fromid, $toid, $type, $encouter, $receive) {
-        switch ($type) {
-                case 2://缘分
-                        $from = $db->getRow('user', array('id' => $fromid));
-                        $to = $db->getRow('user', array('id' => $toid));
-                        if ($fromid != $toid) {
-                                //发送环信消息
-                                $HuanxinObj = Huanxin::getInstance();
-                                $huserObj = $HuanxinObj->sendmsgToUser($from['mobile'], $to['mobile'], '咖啡已经送达给你喽,很高兴认识你~');
-                                $huserObj = $HuanxinObj->sendmsgToUser($to['mobile'], $from['mobile'], '谢谢你的咖啡,很高兴认识你~');
-                        }
-                        //发送短息
-                        $shop = $db->getRow('shop', array('id' => $encouter['shop_id']));
-                        $sms = new Sms();
-                        $sms->sendMsg("您参与的缘分咖啡<" . $encouter['product1'] . ">验证码是:" . $receive['verifycode'] . ",请尽快到<" . $shop['title'] . ">领取!问答是一种形式，遇见是一次缘分~欢迎使用", $to['mobile']);
-                        break;
-                case 3://约会
-                        $from = $db->getRow('user', array('id' => $fromid));
-                        $to = $db->getRow('user', array('id' => $toid));
-                        if ($fromid != $toid) {
-                                //发送环信消息
-                                $HuanxinObj = Huanxin::getInstance();
-                                $huserObj = $HuanxinObj->sendmsgToUser($from['mobile'], $to['mobile'], '咖啡已经送达给你喽,很期待认识你,不见不散~');
-                                $huserObj = $HuanxinObj->sendmsgToUser($to['mobile'], $from['mobile'], '谢谢你的咖啡,很期待认识你,不见不散~');
-                        }
-                        //发送短息
-                        $product=($receive['choice_menu']==2)?$encouter['product2']:$encouter['product1'];//获取的咖啡
-                        $shop = $db->getRow('shop', array('id' => $encouter['shop_id']));
-                        $sms = new Sms();
-                        $sms->sendMsg("您参与的约会咖啡<" . $product . ">验证码是:" . $receive['verifycode'] . ",请尽快到<" . $shop['title'] . ">领取!邂逅一个人，可以温暖一生~欢迎使用", $to['mobile']);
-                        break;
-                default:
-                        break;
-        }
-}
+//通知消息
+require_once APP_DIR . DS . 'encouter_notifymsg.php';;
