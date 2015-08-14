@@ -1,5 +1,4 @@
 <?php
-
 require_once APP_DIR . DS . 'apiLib' . DS . 'ext' . DS . 'Upload.php';
 require_once APP_DIR . DS . 'apiLib' . DS . 'ext' . DS . 'Huanxin.php';
 require_once APP_DIR . DS . 'apiLib' . DS . 'ext' . DS . 'Sms.php';
