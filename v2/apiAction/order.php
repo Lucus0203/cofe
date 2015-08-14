@@ -1,8 +1,8 @@
 <?php
-
 require_once APP_DIR . DS . 'apiLib' . DS . 'ext' . DS . 'Pingxx' . DS . 'init.php';
 require_once APP_DIR . DS . 'apiLib' . DS . 'ext' . DS . 'Huanxin.php';
 require_once APP_DIR . DS . 'apiLib' . DS . 'ext' . DS . 'Sms.php';
+require_once APP_DIR . DS . 'apiAction' . DS . 'encouter_notifymsg.php';//通知消息
 $act = filter($_REQUEST['act']);
 switch ($act) {
         case 'pay':
@@ -312,6 +312,3 @@ function updateOrderEncouter($order){
                 sendNotifyMsgByReceive($receiveid);//领取成功发送消息
         }
 }
-
-//通知消息
-require_once APP_DIR . DS . 'encouter_notifymsg.php';;

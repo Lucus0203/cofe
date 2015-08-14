@@ -1,9 +1,10 @@
 <?php
-
 require_once APP_DIR . DS . 'apiLib' . DS . 'ext' . DS . 'Upload.php';
 require_once APP_DIR . DS . 'apiLib' . DS . 'ext' . DS . 'Huanxin.php';
 require_once APP_DIR . DS . 'apiLib' . DS . 'ext' . DS . 'Sms.php';
 require_once APP_DIR . DS . 'apiLib' . DS . 'ext' . DS . 'Umeng.php';
+require_once APP_DIR . DS . 'apiAction' . DS . 'encouter_notifymsg.php';//通知消息
+
 $act = filter($_REQUEST['act']);
 switch ($act) {
         case 'deposit'://寄存咖啡
@@ -18,8 +19,84 @@ switch ($act) {
         case 'receive'://领取咖啡
                 receive();
                 break;
+        case 'shopList':
+                shopList();
+                break;
+        case 'menuList':
+                menuList();
+                break;
         default:
                 break;
+}
+
+
+//寄存咖啡店列表
+function shopList(){
+        global $db;
+	$lng=filter($_REQUEST['lng']);
+	$lat=filter($_REQUEST['lat']);
+	$city_code=filter($_REQUEST['city_code']);
+	$page_no = isset ( $_GET ['page'] ) ? $_GET ['page'] : 1;
+	$page_size = PAGE_SIZE;
+	$start = ($page_no - 1) * $page_size;
+	//是否营业中,1营业中,2休息
+	$sql="select shop.id,title,img,holidayflag,hours1,hours2,holidays,holidayhours1,holidayhours2,lng,lat from ".DB_PREFIX."shop shop left join ".DB_PREFIX."shop_tag shop_tag on shop_tag.shop_id=shop.id where status=2 ";
+        if(!empty($city_code)){
+                $city=$db->getRow('shop_addcity',array('code'=>$city_code));
+                $sql.=(!empty($city['id']))?" and addcity_id={$city['id']} ":'';
+        }
+        $sql.=(!empty($lng)&&!empty($lat))?" order by sqrt(power(lng-{$lng},2)+power(lat-{$lat},2)),id ":' order by id ';
+	$sql .= " limit $start,$page_size";
+	$shops=$db->getAllBySql($sql);
+	foreach ($shops as $k=>$v){
+                if(strpos(1,$v['holidays'])!==false){
+                     $holidays.='一';
+                }
+                if(strpos(2,$v['holidays'])!==false){
+                     $holidays.='二';
+                }
+                if(strpos(3,$v['holidays'])!==false){
+                     $holidays.='三';
+                }
+                if(strpos(4,$v['holidays'])!==false){
+                     $holidays.='四';
+                }
+                if(strpos(5,$v['holidays'])!==false){
+                     $holidays.='五';
+                }
+                if(strpos(6,$v['holidays'])!==false){
+                     $holidays.='六';
+                }
+                if(strpos(0,$v['holidays'])!==false){
+                     $holidays.='日';
+                }
+                if($v['holidayflag']=='1'){//无休
+                        $shops[$k]['hours']=$v['hours1'].'~'.$v['hours2'];
+                }elseif ($v['holidayflag']=='2') {//休息日
+                        $shops[$k]['hours']=$v['hours1'].'~'.$v['hours2'];
+                        $shops[$k]['hours'].='<br/>休息日:';
+                        $shops[$k]['hours'].=$holidays;
+                }else{//休息日营业
+                        $shops[$k]['hours']='平日:'.$v['hours1'].'~'.$v['hours2'];
+                        $shops[$k]['hours'].='<br/>'.$holidays.':';
+                        $shops[$k]['hours'].=$v['holidayhours1'].'~'.$v['holidayhours2'];
+                }
+		$shops[$k]['distance']=(!empty($v['lat'])&&!empty($v['lng'])&&!empty($lng)&&!empty($lat))?getDistance($lat,$lng,$v['lat'],$v['lng']):lang_UNlOCATE;
+	}
+	//echo json_result(array('shops'=>$shops));
+	echo json_result($shops);
+}
+
+//咖啡店菜品列表
+function menuList(){
+        global $db;
+	$shopid=filter($_REQUEST['shopid']);
+        $sql="select menu_id,title,img,min(menu_price.price) as price_min,max(menu_price.price) as price_max from ".DB_PREFIX."shop_menu_price menu_price left join ".DB_PREFIX."shop_menu menu on menu.id=menu_price.menu_id where menu.shop_id={$shopid} and menu.status = 2 group by menu_price.menu_id ";
+        $menus=$db->getAllBySql($sql);
+        foreach ($menus as $k=>$m){
+                $menus[$k]['prices']=$db->getAll('shop_menu_price',array('menu_id'=>$m['menu_id']),array('id menuprice_id','type','price'));
+        }
+        echo json_result($menus);
 }
 
 //寄存/等候咖啡
@@ -29,6 +106,7 @@ function deposit() {
         $type = filter(!empty($_REQUEST['type']) ? $_REQUEST['type'] : ''); //1爱心2缘分3约会4传递5等候
         $shopid = filter(!empty($_REQUEST['shopid']) ? $_REQUEST['shopid'] : '');
         $days = filter(!empty($_REQUEST['days']) ? $_REQUEST['days'] : '');
+        $people_num = filter(!empty($_REQUEST['people_num']) ? $_REQUEST['people_num'] : '');
         $menuprice1_id = filter(!empty($_REQUEST['menuprice1_id']) ? $_REQUEST['menuprice1_id'] : '');
         $menuprice2_id = filter(!empty($_REQUEST['menuprice2_id']) ? $_REQUEST['menuprice2_id'] : '');
         $question = filter(!empty($_REQUEST['question']) ? $_REQUEST['question'] : '');
@@ -59,7 +137,7 @@ function deposit() {
         } else {
                 $data['shop_id'] = $shopid;
         }
-        if (empty($days)) {
+        if ($type!=4&&empty($days)) {
                 echo json_result(null, '5', '请选择寄存天数');
                 return;
         } else {
@@ -109,18 +187,26 @@ function deposit() {
                         }
                         break;
                 case 4://传递 寄存结束传递
-                        if (empty($topic)) {
-                                echo json_result(null, '9', '请输入你的话题');
-                                return;
-                        } else {
-                                $data['topic'] = $topic;
-                        }
                         $data['transfer_num'] = 1;
                         if (!empty($prev_encouter_id)) {
                                 $prev_encouter = $db->getRow('encouter', array('id' => $prev_encouter_id), array('transfer_num'));
                                 $data['transfer_num'] = $prev_encouter['transfer_num'] + 1;
                                 $data['prev_encouter_id'] = $prev_encouter_id;
                                 $data['prev_encouter_receive_id'] = $prev_encouter_receive_id;
+                                $data['people_num'] = $prev_encouter['people_num'];
+                        }else{
+                                if (empty($people_num)) {
+                                        echo json_result(null, '9', '请选择想要传递的人数');
+                                        return;
+                                } else {
+                                        $data['people_num'] = $people_num;
+                                }
+                                if (empty($topic)) {
+                                        echo json_result(null, '10', '请输入你的话题');
+                                        return;
+                                } else {
+                                        $data['topic'] = $topic;
+                                }
                         }
                         break;
                 case 5://上传三张图片
@@ -341,5 +427,3 @@ function permit() {
         echo json_result(array('success' => 'TRUE'));
         
 }
-//通知消息
-require_once APP_DIR . DS . 'encouter_notifymsg.php';;

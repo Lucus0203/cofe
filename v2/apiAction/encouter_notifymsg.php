@@ -1,5 +1,4 @@
 <?php
-
 //领取者领取成功发送消息
 function sendNotifyMsgByReceive($receiveid) {
         global $db;
