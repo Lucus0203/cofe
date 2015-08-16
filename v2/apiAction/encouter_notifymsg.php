@@ -50,6 +50,7 @@ function sendNotifyMsgByReceive($receiveid) {
                                 $huserObj = $HuanxinObj->sendmsgToUser($from['mobile'], $to['mobile'], '你等的咖啡我买了,很高兴认识你~');
                                 $huserObj = $HuanxinObj->sendmsgToUser($to['mobile'], $from['mobile'], '我领到了你的咖啡,很高兴认识你~');
                         }
+                        $db->update('encouter',array('verifycode'=>$verifycode),array('id'=>$receive['encouter_id']));
                         //发送短息
                         $shop = $db->getRow('shop', array('id' => $encouter['shop_id']));
                         $sms = new Sms();

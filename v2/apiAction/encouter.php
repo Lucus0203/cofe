@@ -402,7 +402,7 @@ function receive() {
         echo json_result(array('receive' => $receive));
 }
 
-//寄存者授权 type 2缘分 3约会
+//寄存者同意 type 2缘分 3约会
 function permit() {
         global $db;
         $userid = filter(!empty($_REQUEST['loginid']) ? $_REQUEST['loginid'] : '');

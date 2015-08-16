@@ -275,6 +275,7 @@ function updateOrderEncouter($order){
         global $db;
         $encouter=$db->getRow('encouter',array('id'=>$order['encouter_id']));
         //$encouter['status'] 1待付款 2待领取 3待到店领取 4已领走 5等候待付款 6等候待到店领取 7等候已领走
+        //$receive['status'] 1等待回复2可领取3被拒绝4等候待支付5等候已支付
         $db->excuteSql("begin;"); //使用事务查询状态并改变
         switch ($encouter['type']) {
                 case 1://爱心
@@ -301,7 +302,7 @@ function updateOrderEncouter($order){
                         //其他用户的订单失效
                         $db->update('order', array('status'=>2), array('id <> ' .$order['id'],'encouter_id'=>$order['encouter_id']));
                         //可领取
-                        $db->update('encouter_receive', array('status'=>2), array('id'=>$order['encouter_receive_id']));
+                        $db->update('encouter_receive', array('status'=>5), array('id'=>$order['encouter_receive_id']));
                         break;
 
                 default:
