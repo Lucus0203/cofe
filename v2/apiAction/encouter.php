@@ -113,6 +113,7 @@ function deposit() {
         $topic = filter(!empty($_REQUEST['topic']) ? $_REQUEST['topic'] : '');
         $msg = filter(!empty($_REQUEST['msg']) ? $_REQUEST['msg'] : '');
         $tag_ids = filter(!empty($_REQUEST['tag_ids']) ? $_REQUEST['tag_ids'] : '');
+        $tag_sex = filter(!empty($_REQUEST['tag_sex']) ? $_REQUEST['tag_sex'] : '');
         $prev_encouter_id = filter(!empty($_REQUEST['prev_encouter_id']) ? $_REQUEST['prev_encouter_id'] : '');
         $prev_encouter_receive_id = filter(!empty($_REQUEST['receive_id']) ? $_REQUEST['receive_id'] : '');
         
@@ -158,6 +159,9 @@ function deposit() {
                 $menu = $db->getRow('shop_menu', array('id' => $menuprice['menu_id']));
                 $data['product1'] = $menu['title'];
                 $data['product_img1'] = $menu['img'];
+        }
+        if(!empty($tag_sex)){
+                $data['tag_sex']=$tag_sex;
         }
         switch ($type) {
                 case 2://缘分咖啡
