@@ -113,6 +113,7 @@ function sendNotifyMsgByPermiter($receiveid) {
         }
 }
 
+//领取凭证码
 function encouterVerify($type='encouter_receive',$user){
         global $db;
         if($type=='encouter'){
