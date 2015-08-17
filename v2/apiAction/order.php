@@ -252,10 +252,11 @@ function webhooks() {
                         $order_no = $event->data->object->order_no; //订单号
                         $amount = $event->data->object->amount; //订单金额
                         $time_paid = $event->data->object->time_paid; //支付时间戳
+                        $transaction_no = $event->data->object->transaction_no; //支付渠道返回流水号
                         if ($paid) {
                                 $orderCondition = array('order_no' => $order_no);
                                 $order = $db->getRow('order', $orderCondition);
-                                $db->update('order', array('charge_id' => $chargeid, 'paid' => 1,'pay_amount'=>$amount, 'time_paid' => $time_paid), $orderCondition);
+                                $db->update('order', array('charge_id' => $chargeid, 'paid' => 1,'pay_amount'=>$amount, 'time_paid' => $time_paid,'transaction_no'=>$transaction_no), $orderCondition);
                                 updateOrderEncouter($order);
                         }
                         header($_SERVER['SERVER_PROTOCOL'] . ' 200 OK');
@@ -282,6 +283,9 @@ function updateOrderEncouter($order){
                 case 2://缘分
                 case 3://约会
                         $db->update('encouter', array('status' => 2), array('id' => $order['encouter_id']));
+                        //其他订单失效
+                        $updateOrderSql="update ".DB_PREFIX."order set status='2' where id <> ".$order['id']." and encouter_id = ".$order['encouter_id'];
+                        $db->excuteSql($updateOrderSql);
                         break;
                 case 4://传递
                         $receiveid=$encouter['prev_encouter_receive_id'];
@@ -289,7 +293,9 @@ function updateOrderEncouter($order){
                                //可到店领取
                                $db->update('encouter', array('lock' => 1,'status' => 3), array('id' => $encouter['prev_encouter_id']));
                                //其他用户的订单失效
-                               $db->update('order', array('status'=>2), array('id <> ' .$order['id'],'encouter_id'=>$encouter['prev_encouter_id']));
+                               $updateOrderSql="update ".DB_PREFIX."order order left join ".DB_PREFIX."encouter encouter set order.status='2' where order.id <> ".$order['id']." and encouter.prev_encouter_id = ".$encouter['prev_encouter_id'];
+                               $db->excuteSql($updateOrderSql);
+                               //$db->update('order', array('status'=>2), array('id <> ' .$order['id'],'encouter_id'=>$encouter['prev_encouter_id']));
                                //可领取
                                $db->update('encouter_receive',array('status'=>2),array('id'=>$receiveid));
                         }
@@ -300,7 +306,8 @@ function updateOrderEncouter($order){
                         //可到店领取
                         $db->update('encouter', array('status' => 6), array('id' => $order['encouter_id']));
                         //其他用户的订单失效
-                        $db->update('order', array('status'=>2), array('id <> ' .$order['id'],'encouter_id'=>$order['encouter_id']));
+                        $updateOrderSql="update ".DB_PREFIX."order set status='2' where id <> ".$order['id']." and encouter_id = ".$order['encouter_id'];
+                        $db->excuteSql($updateOrderSql);
                         //可领取
                         $db->update('encouter_receive', array('status'=>5), array('id'=>$order['encouter_receive_id']));
                         break;

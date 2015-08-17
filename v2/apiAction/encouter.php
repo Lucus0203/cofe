@@ -25,6 +25,9 @@ switch ($act) {
         case 'menuList':
                 menuList();
                 break;
+        case 'permit':
+                permit();
+                break;
         default:
                 break;
 }
@@ -116,7 +119,7 @@ function deposit() {
         $tag_sex = filter(!empty($_REQUEST['tag_sex']) ? $_REQUEST['tag_sex'] : '');
         $prev_encouter_id = filter(!empty($_REQUEST['prev_encouter_id']) ? $_REQUEST['prev_encouter_id'] : '');
         $prev_encouter_receive_id = filter(!empty($_REQUEST['receive_id']) ? $_REQUEST['receive_id'] : '');
-        
+        //status 1待付款2待领取3待到店领取4已领走5等候待付款6等候待到店领取7等候已领走
 
 
         $data = array();
@@ -234,11 +237,12 @@ function deposit() {
                                 echo json_result(null, '11', '请上传至少一张图片');
                                 return;
                         }
-                        $data['status']=4;
+                        $data['status']=5;//等候待付款
                         break;
                 default :
                         break;
         }
+        
         if (empty($msg)) {
                 echo json_result(null, '10', '请输入你的寄语');
                 return;
@@ -277,6 +281,7 @@ function nearCafe() {
         $lng = filter($_REQUEST['lng']);
         $lat = filter($_REQUEST['lat']);
         $city_code = filter($_REQUEST['city_code']);
+        $sex = filter($_REQUEST['sex']);
         $area_id = filter($_REQUEST['area_id']);
         $circle_id = filter($_REQUEST['circel_id']);
         $tag_ids = filter($_REQUEST['tag_ids']);
@@ -290,20 +295,20 @@ function nearCafe() {
                 . "left join " . DB_PREFIX . "shop shop on encouter.shop_id=shop.id "
                 . "left join " . DB_PREFIX . "user user on encouter.user_id=user.id "
                 . "left join " . DB_PREFIX . "user_tag user_tag on user.id=user_tag.user_id "
-                . "where encouter.status=2 or status=4 "; //1待付款2待领取3待到店领取4已领走4等候待付款5等候待到店领取6等候已领走
+                . "where encouter.status=2 or encouter.status=5 "; //1待付款2待领取3待到店领取4已领走4等候待付款5等候待到店领取6等候已领走
         if (!empty($city_code)) {
                 $city = $db->getRow('shop_addcity', array('code' => $city_code));
                 $sql.=(!empty($city['id'])) ? " and addcity_id={$city['id']} " : '';
         }
         $sql.=(!empty($area_id)) ? " and addarea_id={$area_id} " : '';
         $sql.=(!empty($circle_id)) ? " and addcircle_id={$circle_id} " : '';
+        $sql.=(!empty($sex)) ? " and tag_sex={$sex} " : '';
         $sql.=(!empty($tag_ids)) ? " and user_tag.tag_id in ({$tag_ids}) " : '';
         $sql.=(!empty($type)) ? " and encouter.type = ({$type}) " : '';
 
-        $sql.=(!empty($lng) && !empty($lat)) ? " order by sqrt(power(lng-{$lng},2)+power(lat-{$lat},2)),id " : ' order by id ';
+        $sql.=(!empty($lng) && !empty($lat)) ? " order by sqrt(power(shop.lng-{$lng},2)+power(shop.lat-{$lat},2)),id " : ' order by id ';
         $sql .= " limit $start,$page_size";
         $sql = "select * from ($sql) s group by s.user_id";
-
         $data = $db->getAllBySql($sql);
         //echo json_result(array('shops'=>$shops));
         echo json_result($data);
@@ -313,7 +318,7 @@ function nearCafe() {
 function cafeInfo() {
         global $db;
         $id = filter($_REQUEST['id']);
-        $sql = "select encouter.id as encouter_id,encouter.type,encouter.user_id,user.head_photo,user.nick_name,encouter.shop_id,shop.title as shop_title,shop.lng,shop.lat,encouter.days,encouter.product1 as cafe1,encouter.product_img1 as cafe_img1,encouter.price1,encouter.product2 as cafe2,encouter.product_img2 as cafe_img2,encouter.price2,encouter.msg,encouter.question,encouter.topic from " . DB_PREFIX . "encouter encouter "
+        $sql = "select encouter.id as encouter_id,encouter.type,encouter.user_id,user.head_photo,user.nick_name,encouter.shop_id,shop.title as shop_title,shop.lng,shop.lat,encouter.days,encouter.product1 as cafe1,encouter.product_img1 as cafe_img1,encouter.price1,encouter.product2 as cafe2,encouter.product_img2 as cafe_img2,encouter.price2,encouter.msg,encouter.question,encouter.topic,encouter.tag_sex from " . DB_PREFIX . "encouter encouter "
                 . "left join " . DB_PREFIX . "user user on encouter.user_id=user.id "
                 . "left join " . DB_PREFIX . "shop shop on encouter.shop_id=shop.id "
                 . "where encouter.id = {$id}";
@@ -322,6 +327,9 @@ function cafeInfo() {
                 . "left join " . DB_PREFIX . "base_user_tag tag on usertag.tag_id=tag.id "
                 . "where usertag.encouter_id={$id}";
         $data['tags'] = $db->getAllBySql($tagsql);
+        if(!empty($data['tag_sex'])){
+                $data['tags'][]['name']=$data['tag_sex']==1?'帅哥':'美女';
+        }
         $data['user_imgs'] = $db->getAll('encouter_img', array('encouter_id' => $id), array('img'));
         echo json_result($data);
 }
@@ -335,11 +343,16 @@ function receive() {
         $encouter = $db->getRow('encouter', array('id' => $encouterid));
         $type = $encouter['type']; //1爱心2缘分3约会4传递5等候
         //$encouter['status'] 1待付款 2待领取 3待到店领取 4已领走 5等候待付款 6等候待到店领取 7等候已领走
+        if(empty($userid)){
+                echo json_result(null,'2','请您先登录');return;
+        }
+        if(empty($encouterid)){
+                echo json_result(null,'3','请求参数错误');return;
+        }
         switch ($type) {
                 case 1://爱心
                         $isreceived = true;
                         $db->excuteSql("begin;"); //使用事务查询状态并改变
-                        $encouter = $db->getRow('encouter', array('id' => $encouterid));
                         if ($encouter['status'] == 2) {
                                 $isreceived = false;
                                 $receive = array('from_user' => $userid, 'encouter_id' => $encouterid, 'type' => $encouter['type'], 'msg' => $msg, 'to_user' => $encouter['user_id'], 'status' => 2, 'created' => date("Y-m-d H:i:s"));
@@ -348,30 +361,47 @@ function receive() {
                         }
                         $db->excuteSql("commit;");
                         if ($isreceived) {
-                                echo json_result(null, '3', '很抱歉您晚了一步');
+                                echo json_result(null, '203', '很抱歉您晚了一步');
                                 return;
                         }
                         break;
                 case 2://缘分
+                        if ($encouter['status'] != 2) {
+                                echo json_result(null, '203', '很抱歉您晚了一步');return;
+                        }
+                        if (empty($msg)){
+                                echo json_result(null, '210', '请输入您的答案');return;
+                        }
+                        if($db->getCount('encouter_receive',array('encouter_id'=>$encouterid,'from_user'=>$userid,'status'=>1))>0){
+                                echo json_result(null, '211', '您已经领取过了,请等待回复');return;
+                        }
                         $receive = array('from_user' => $userid, 'encouter_id' => $encouterid, 'type' => $encouter['type'], 'msg' => $msg, 'to_user' => $encouter['user_id'], 'status' => 1, 'created' => date("Y-m-d H:i:s"));
                         $receiveid=$db->create('encouter_receive', $receive);
                         break;
                 case 3://3约会
+                        if ($encouter['status'] != 2) {
+                                echo json_result(null, '203', '很抱歉您晚了一步');return;
+                        }
                         $choice_menu = filter(!empty($_REQUEST['choice_menu']) ? $_REQUEST['choice_menu'] : '');
                         if (empty($choice_menu)) {
-                                echo json_result(null, '4', '请选择一杯咖啡');
+                                echo json_result(null, '204', '请选择一杯咖啡');
                                 return;
                         }
                         $datetime = filter(!empty($_REQUEST['datetime']) ? $_REQUEST['datetime'] : '');
                         if (empty($datetime)) {
-                                echo json_result(null, '5', '请选择应约时间');
+                                echo json_result(null, '205', '请选择应约时间');
                                 return;
+                        }
+                        if($db->getCount('encouter_receive',array('encouter_id'=>$encouterid,'from_user'=>$userid,'status'=>1))>0){
+                                echo json_result(null, '211', '您已经领取过了,请等待回复');return;
                         }
                         $receive = array('from_user' => $userid, 'encouter_id' => $encouterid, 'type' => $encouter['type'], 'msg' => $msg, 'to_user' => $encouter['user_id'], 'status' => 1, 'datetime' => $datetime, 'choice_menu' => $choice_menu, 'created' => date("Y-m-d H:i:s"));
                         $receiveid=$db->create('encouter_receive', $receive);
                         break;
                 case 4://4传递-----开始传递
-                        $encouter=$db->getRow('encouter',array('id'=>$encouterid));
+                        if ($encouter['status'] != 2) {
+                                echo json_result(null, '203', '很抱歉您晚了一步');return;
+                        }
                         if($encouter['lock']!=1){
                                 $remenus=floor((time()-strtotime($encouter['update'])) / 60);
                                 if($remenus<8){//8分钟锁定
@@ -385,6 +415,9 @@ function receive() {
                         $receiveid=$db->create('encouter_receive', $receive);
                         break;
                 case 5://5等候 为Ta买单
+                        if ($encouter['status'] != 5) {
+                                echo json_result(null, '203', '很抱歉您晚了一步');return;
+                        }
                         if($encouter['lock']!=1){
                                 $remenus=floor((time()-strtotime($encouter['update'])) / 60);
                                 if($remenus<8){//8分钟锁定
@@ -402,8 +435,11 @@ function receive() {
         }
         //发送通知等待寄存者回复授权
         $receive=$db->getRow('encouter_receive',array('id'=>$receiveid));
+        if(empty($receive)){
+                echo json_result(null,'4','数据返回错误');return;
+        }
         sendNotifyMsgByReceive($receiveid);
-        echo json_result(array('receive' => $receive));
+        echo json_result(array('success' => 'TRUE'));
 }
 
 //寄存者同意 type 2缘分 3约会
@@ -414,18 +450,20 @@ function permit() {
         $receive=$db->getRow('encouter_receive',array('id'=>$receiveid));
         $encouter=$db->getRow('encouter',array('id'=>$receive['encouter_id']));
         if($encouter['status']!=2){
-                echo json_result(null, '2', '寄存咖啡状态错误');
+                echo json_result(null, '2', '寄存咖啡已同意');
                 return;
         }
         if($encouter['user_id']!=$userid){
                 echo json_result(null, '3', '非本人寄存的咖啡');
                 return;
         }
-        $db->excute('begin');
+        $db->excuteSql('begin');
         $db->update('encouter_receive',array('status'=>2),array('id'=>$receiveid));//可领取
-        $db->update('encouter_receive',array('status'=>3),array('id <> '.$receiveid,'encouter_id'=>$receive['encouter_id']));//拒绝其他
+        //拒绝其他
+        $updateOrderSql="update ".DB_PREFIX."encouter_receive set status = 3 where id <> ".$receiveid." and encouter_id = ".$receive['encouter_id'];
+        $db->excuteSql($updateOrderSql);
         $db->update('encouter',array('status'=>3),array('id'=>$receive['encouter_id']));//待到店领取
-        $db->excute('commit');
+        $db->excuteSql('commit');
         //发送授权通知
         sendNotifyMsgByPermiter($receiveid);
         echo json_result(array('success' => 'TRUE'));
