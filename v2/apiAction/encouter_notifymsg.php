@@ -60,6 +60,8 @@ function sendNotifyMsgByReceive($receiveid) {
                 default:
                         break;
         }
+        //互加好友
+        makefriend($receiveid);
 }
 
 //寄存者授权成功发送消息
@@ -111,6 +113,8 @@ function sendNotifyMsgByPermiter($receiveid) {
                 default:
                         break;
         }
+        //互加好友
+        makefriend($receiveid);
 }
 
 //领取凭证码
@@ -122,4 +126,24 @@ function encouterVerify($type='encouter_receive',$user){
                 $num=$db->getCount('encouter_receive', array('from_user' => $user));
         }
         return $num.$user.rand(10000, 99999);
+}
+
+//互加好友
+function makefriend($receiveid){
+        global $db;
+        $receive=$db->getRow('encouter_receive',array('id'=>$receiveid));
+        $from_user=$receive['from_user'];
+        $to_user=$receive['to_user'];
+	if($db->getCount('user_relation',array('user_id'=>$from_user,'relation_id'=>$to_user))==0){//没关注
+		$nickname=$db->getRow('user',array('id'=>$to_user),array('nick_name','pinyin'));
+                $rinfo=array('user_id'=>$from_user,'relation_id'=>$to_user,'status'=>1,'relation_name'=>$nickname['nick_name'],'relation_pinyin'=>$nickname['pinyin']);
+		$db->create('user_relation', $rinfo);//关注
+	}
+	if($db->getCount('user_relation',array('user_id'=>$to_user,'relation_id'=>$from_user))==0){//没关注
+		$nickname=$db->getRow('user',array('id'=>$from_user),array('nick_name','pinyin'));
+                $rinfo=array('user_id'=>$to_user,'relation_id'=>$from_user,'status'=>1,'relation_name'=>$nickname['nick_name'],'relation_pinyin'=>$nickname['pinyin']);
+		$db->create('user_relation', $rinfo);//关注
+	}
+        
+        
 }

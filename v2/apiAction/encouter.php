@@ -196,11 +196,18 @@ function deposit() {
                 case 4://传递 寄存结束传递
                         $data['transfer_num'] = 1;
                         if (!empty($prev_encouter_id)) {
-                                $prev_encouter = $db->getRow('encouter', array('id' => $prev_encouter_id), array('transfer_num'));
+                                if($db->getCount('encouter',array('id'=>$prev_encouter_id))==0){
+                                        echo json_result(null, '11', '参数错误,请返回上一步');return;
+                                }
+                                if($db->getCount('encouter_receive',array('id'=>$prev_encouter_receive_id,'from_user'=>$userid))==0){
+                                        echo json_result(null, '12', '您未点击开始传递按钮,请返回上一步');return;
+                                }
+                                $prev_encouter = $db->getRow('encouter', array('id' => $prev_encouter_id), array('transfer_num','people_num','topic'));
                                 $data['transfer_num'] = $prev_encouter['transfer_num'] + 1;
                                 $data['prev_encouter_id'] = $prev_encouter_id;
                                 $data['prev_encouter_receive_id'] = $prev_encouter_receive_id;
                                 $data['people_num'] = $prev_encouter['people_num'];
+                                $data['topic'] = $prev_encouter['topic'];
                         }else{
                                 if (empty($people_num)) {
                                         echo json_result(null, '9', '请选择想要传递的人数');
@@ -343,6 +350,7 @@ function receive() {
         $encouter = $db->getRow('encouter', array('id' => $encouterid));
         $type = $encouter['type']; //1爱心2缘分3约会4传递5等候
         //$encouter['status'] 1待付款 2待领取 3待到店领取 4已领走 5等候待付款 6等候待到店领取 7等候已领走
+        //$receive['status']  1等待回复 2可领取 3被拒绝 4传递待支付 5传递已支付 6等候待支付 7等候已支付
         if(empty($userid)){
                 echo json_result(null,'2','请您先登录');return;
         }
@@ -364,6 +372,7 @@ function receive() {
                                 echo json_result(null, '203', '很抱歉您晚了一步');
                                 return;
                         }
+                        sendNotifyMsgByReceive($receiveid);//通知领取
                         break;
                 case 2://缘分
                         if ($encouter['status'] != 2) {
@@ -377,6 +386,7 @@ function receive() {
                         }
                         $receive = array('from_user' => $userid, 'encouter_id' => $encouterid, 'type' => $encouter['type'], 'msg' => $msg, 'to_user' => $encouter['user_id'], 'status' => 1, 'created' => date("Y-m-d H:i:s"));
                         $receiveid=$db->create('encouter_receive', $receive);
+                        sendNotifyMsgByReceive($receiveid);//通知等候
                         break;
                 case 3://3约会
                         if ($encouter['status'] != 2) {
@@ -397,38 +407,51 @@ function receive() {
                         }
                         $receive = array('from_user' => $userid, 'encouter_id' => $encouterid, 'type' => $encouter['type'], 'msg' => $msg, 'to_user' => $encouter['user_id'], 'status' => 1, 'datetime' => $datetime, 'choice_menu' => $choice_menu, 'created' => date("Y-m-d H:i:s"));
                         $receiveid=$db->create('encouter_receive', $receive);
+                        sendNotifyMsgByReceive($receiveid);//通知等候
                         break;
                 case 4://4传递-----开始传递
                         if ($encouter['status'] != 2) {
                                 echo json_result(null, '203', '很抱歉您晚了一步');return;
                         }
-                        if($encouter['lock']!=1){
-                                $remenus=floor((time()-strtotime($encouter['update'])) / 60);
-                                if($remenus<8){//8分钟锁定
+                        if($encouter['paylock']!=1){
+                                $remenus=floor((time()-strtotime($encouter['updated'])) / 60);
+                                if($remenus<3){//8分钟锁定
                                         json_result(null, '206', '这杯咖啡正在等待他人操作,请稍后再来尝试');return;
                                 }
                         }
                         if($encouter['status']!=2){
                                 json_result(null, '207', '很抱歉,这杯咖啡已由他人接力');return;
                         }
-                        $receive = array('from_user' => $userid, 'encouter_id' => $encouterid, 'type' => $encouter['type'], 'to_user' => $encouter['user_id'], 'status' => 4, 'created' => date("Y-m-d H:i:s"));
-                        $receiveid=$db->create('encouter_receive', $receive);
+                        if($db->getCount('encouter_receive',array('encouter_id'=>$encouterid,'from_user'=>$userid))==0){
+                                $receive = array('from_user' => $userid, 'encouter_id' => $encouterid, 'type' => $encouter['type'], 'to_user' => $encouter['user_id'], 'status' => 4, 'created' => date("Y-m-d H:i:s"));
+                                $receiveid=$db->create('encouter_receive', $receive);
+                        }else{
+                                $receive = $db->getRow('encouter_receive',array('from_user' => $userid, 'encouter_id' => $encouterid),array('id'));
+                                $receiveid = $receive['id'];
+                                $db->update('encouter_receive', array('created'=> date("Y-m-d H:i:s")),array('id' => $receiveid));
+                        }
                         break;
                 case 5://5等候 为Ta买单
                         if ($encouter['status'] != 5) {
                                 echo json_result(null, '203', '很抱歉您晚了一步');return;
                         }
-                        if($encouter['lock']!=1){
-                                $remenus=floor((time()-strtotime($encouter['update'])) / 60);
-                                if($remenus<8){//8分钟锁定
+                        if($encouter['paylock']!=1){
+                                $remenus=floor((time()-strtotime($encouter['updated'])) / 60);
+                                if($remenus<3){//8分钟锁定
                                         json_result(null, '208', '这杯咖啡正在等待他人操作,请稍后再来尝试');return;
                                 }
                         }
                         if($encouter['status']!=5){
                                 json_result(null, '209', '很抱歉,您晚了一步');return;
                         }
-                        $receive = array('from_user' => $userid, 'encouter_id' => $encouterid, 'type' => $encouter['type'], 'to_user' => $encouter['user_id'], 'status' => 4, 'created' => date("Y-m-d H:i:s"));
-                        $receiveid=$db->create('encouter_receive', $receive);
+                        if($db->getCount('encouter_receive',array('encouter_id'=>$encouterid,'from_user'=>$userid))==0){
+                                $receive = array('from_user' => $userid, 'encouter_id' => $encouterid, 'type' => $encouter['type'], 'to_user' => $encouter['user_id'], 'status' => 6, 'created' => date("Y-m-d H:i:s"));
+                                $receiveid=$db->create('encouter_receive', $receive);
+                        }else{
+                                $receive = $db->getRow('encouter_receive',array('from_user' => $userid, 'encouter_id' => $encouterid),array('id'));
+                                $receiveid = $receive['id'];
+                                $db->update('encouter_receive', array('created'=> date("Y-m-d H:i:s")),array('id' => $receiveid));
+                        }
                         break;
                 default :
                         break;
@@ -438,8 +461,7 @@ function receive() {
         if(empty($receive)){
                 echo json_result(null,'4','数据返回错误');return;
         }
-        sendNotifyMsgByReceive($receiveid);
-        echo json_result(array('success' => 'TRUE'));
+        echo json_result(array('receiveid' => $receiveid));
 }
 
 //寄存者同意 type 2缘分 3约会
