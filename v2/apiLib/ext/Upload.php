@@ -123,6 +123,9 @@ class UpLoad {
 		$res=array();
 		$filepaths=array();
 		for($i=0;$i<count($filenames);$i++){
+                        if(empty($filenames[$i])){
+                            continue;
+                        }
 			if ($this->max_file_size < $sizes[$i]){ // 检查文件大小
 				$res = array('status'=>'2','errMsg'=>"文件太大!");
 				$flag=false;
