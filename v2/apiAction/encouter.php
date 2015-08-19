@@ -315,7 +315,7 @@ function nearCafe() {
 
         $sql.=(!empty($lng) && !empty($lat)) ? " order by sqrt(power(shop.lng-{$lng},2)+power(shop.lat-{$lat},2)),id " : ' order by id ';
         $sql .= " limit $start,$page_size";
-        $sql = "select * from ($sql) s group by s.user_id";
+        //$sql = "select * from ($sql) s group by s.user_id";
         $data = $db->getAllBySql($sql);
         //echo json_result(array('shops'=>$shops));
         echo json_result($data);
