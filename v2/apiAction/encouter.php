@@ -325,9 +325,10 @@ function nearCafe() {
 function cafeInfo() {
         global $db;
         $id = filter($_REQUEST['id']);
-        $sql = "select encouter.id as encouter_id,encouter.type,encouter.user_id,user.head_photo,user.nick_name,encouter.shop_id,shop.title as shop_title,shop.img as shop_img,shop.lng,shop.lat,encouter.days,encouter.product1 as cafe1,encouter.product_img1 as cafe_img1,encouter.price1,encouter.product2 as cafe2,encouter.product_img2 as cafe_img2,encouter.price2,encouter.msg,encouter.question,encouter.topic,encouter.tag_sex from " . DB_PREFIX . "encouter encouter "
+        $sql = "select encouter.id as encouter_id,encouter.type,encouter.user_id,user.head_photo,user.nick_name,encouter.shop_id,shop.title as shop_title,shop.img as shop_img,shop.lng,shop.lat,encouter.days,encouter.people_num,encouter.transfer_num,encouter.product1 as cafe1,encouter.product_img1 as cafe_img1,encouter.price1,encouter.product2 as cafe2,encouter.product_img2 as cafe_img2,encouter.price2,encouter.msg,encouter.question,encouter.topic,encouter.tag_sex from " . DB_PREFIX . "encouter encouter "
                 . "left join " . DB_PREFIX . "user user on encouter.user_id=user.id "
                 . "left join " . DB_PREFIX . "shop shop on encouter.shop_id=shop.id "
+                . "left join " . DB_PREFIX . "encouter prencouter on prencouter.id=encouter.prev_encouter_id "
                 . "where encouter.id = {$id}";
         $data = $db->getRowBySql($sql);
         $tagsql = "select tag.name from " . DB_PREFIX . "encouter_usertag usertag "

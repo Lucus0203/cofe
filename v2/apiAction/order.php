@@ -90,11 +90,11 @@ function pay() {
                         break;
         }
         $menus = array();
-        $menubody = $shop['title'];
+        $menubody = filterSql($shop['title']);
         $totalamount = 0;
-        $product = $encouter['product1'];
+        $product = filterSql($encouter['product1']);
         $price = $encouter['price1'];
-        $product.=empty($encouter['product2']) ? '' : ',' . $encouter['product2'];
+        $product.=empty($encouter['product2']) ? '' : ',' . filterSql($encouter['product2']);
         $price+=empty($encouter['price2']) ? 0 : $encouter['price2'] * 1;
         $menubody .= '(' . $product . ')';
         $totalamount = $price * 100;
@@ -124,6 +124,9 @@ function pay() {
                          $order['encouter_receive_id']=$receiveid;
                 }
                 $orderid = $db->create('order', $order);
+                if(!$orderid){
+                        echo json_result(null, '209', '支付失败,请联系客服');return;
+                }
                 for ($i = 1; $i <= 2; $i++) {
                         if (!empty($encouter['product' . $i])) {
                                 $od = array('order_id' => $orderid, 'user_id' => $loginid, 'shop_id' => $encouter['shop_id'], 'name' => $encouter['product' . $i], 'img' => $encouter['product_img' . $i], 'price' => $encouter['price' . $i], 'created' => date("Y-m-d H:i:s"));
@@ -170,35 +173,38 @@ function secondPay(){
                 case 4://传递
                         if(empty($encouter['prev_encouter_id'])){
                                 if($encouter['status']!=1){
-                                        echo json_result(null, '205', '您的订单无需再支付');return;
+                                        echo json_result(null, '203', '您的订单无需再支付');return;
                                 }  
                         }else{
                                 $prev_encouter=$db->getRow('encouter',array('id'=>$encouter['prev_encouter_id']));
                                 if($prev_encouter['paylock']!=1){
-                                        $remenus=floor((time()-strtotime($prev_encouter['update'])) / 60);
+                                        $remenus=floor((time()-strtotime($prev_encouter['updated'])) / 60);
                                         if($remenus<3){//8分钟锁定
-                                                echo json_result(null, '206', '这杯咖啡正在等待他人操作,请稍后再来尝试');return;
+                                                echo json_result(null, '204', '这杯咖啡正在等待他人操作,请稍后再来尝试');return;
                                         }
                                 }
                                 if($prev_encouter['status']!=2){
-                                        echo json_result(null, '207', '很抱歉,这杯咖啡已由他人接力');return;
+                                        echo json_result(null, '205', '很抱歉您晚了一步,这杯咖啡已由他人接力');return;
                                 }
                                 $db->update('encouter',array('paylock'=>2,'updated'=>date("Y-m-d H:i:s")),array('id'=>$encouter['prev_encouter_id']));//锁定支付
                         }
                         break;
                 case 5://等候
+                        if($db->getCount('encouter_receive',array('id'=>$receiveid,'from_user'=>$loginid))==0){
+                                echo json_result(null, '208', '很抱歉您还未领取这杯咖啡,请重新领取');return;
+                        }
                         if($encouter['paylock']!=1){
-                                $remenus=floor((time()-strtotime($encouter['update'])) / 60);
-                                if($remenus<3){//8分钟锁定
-                                        echo json_result(null, '208', '这杯咖啡正在等待他人操作,请稍后再来尝试');return;
+                                $remenus=floor((time()-strtotime($encouter['updated'])) / 60);
+                                if($remenus<3){//3分钟锁定
+                                        echo json_result(null, '206', '这杯咖啡正在等待他人操作,请稍后再来尝试');return;
                                 }
                         }
                         if($encouter['status']!=5){
-                                $paid_order=$db->getRow('order',array('encouter_id'=>$old_order['encouter_id'],'paid'=>1));
+                                $paid_order=$db->getRow('order',array('encouter_id'=>$encouterid,'paid'=>1));
                                 if($paid_order['user_id']!=$loginid){
-                                        echo json_result(null, '209', '很抱歉,您晚了一步');return;
+                                        echo json_result(null, '207', '很抱歉您晚了一步,这杯咖啡已由他人买单');return;
                                 }else{
-                                        echo json_result(null, '210', '您的订单无需再次支付');return;
+                                        echo json_result(null, '203', '您的订单无需再次支付');return;
                                 }
                         }
                         $db->update('encouter',array('paylock'=>2,'updated'=>date("Y-m-d H:i:s")),array('id'=>$encouterid));//锁定支付
@@ -207,11 +213,11 @@ function secondPay(){
                         break;
         }
         $menus = array();
-        $menubody = $shop['title'];
+        $menubody = filterSql($shop['title']);
         $totalamount = 0;
-        $product = $encouter['product1'];
+        $product = filterSql($encouter['product1']);
         $price = $encouter['price1'];
-        $product.=empty($encouter['product2']) ? '' : ',' . $encouter['product2'];
+        $product.=empty($encouter['product2']) ? '' : ',' . filterSql($encouter['product2']);
         $price+=empty($encouter['price2']) ? 0 : $encouter['price2'] * 1;
         $menubody .= '(' . $product . ')';
         $totalamount = $price * 100;
@@ -289,7 +295,7 @@ function updateOrderEncouter($order){
                 case 1://爱心
                 case 2://缘分
                 case 3://约会
-                        $db->update('encouter', array('status' => 3), array('id' => $order['encouter_id']));
+                        $db->update('encouter', array('status' => 2), array('id' => $order['encouter_id']));
                         //其他订单失效
                         $updateOrderSql="update ".DB_PREFIX."order set status='2' where id <> ".$order['id']." and encouter_id = ".$order['encouter_id'];
                         $db->excuteSql($updateOrderSql);

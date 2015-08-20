@@ -31,6 +31,15 @@ function filter($value) {
 	return $value;
 }
 
+function filterSql($value) {
+        if(!get_magic_quotes_gpc()) { 
+                $str = addslashes($value); // 进行过滤 
+        }
+        $str =  str_replace("_", "\_", $str);
+        $str =  str_replace("%", "\%", $str);
+        return $str;
+}
+
 //过滤非法字符
 function filterIlegalWord($value){
 	$words=explode(',', ILLEGAL_WORD);
