@@ -66,9 +66,9 @@ function depositInfo(){
         $data['waitingtime']=strtotime($red['created'])-strtotime($data['created']);
     }
     //领取的人
-    $receiveSql = "select user.id as user_id,user.nick_name,receive.msg,receive.created from ".DB_PREFIX."encouter_receive receive "
+    $receiveSql = "select receive.id as receive_id,user.id as user_id,user.nick_name,user.head_photo,receive.msg,receive.created from ".DB_PREFIX."encouter_receive receive "
             . "left join ".DB_PREFIX."user user on user.id = receive.from_user "
-            . "where receive.encouter_id = {$encouterid} order by receive.id desc ";
+            . "where receive.encouter_id = {$encouterid} and receive.status <> 4 and receive.status <> 99 order by receive.id desc ";
     $receiveSql .= " limit $start,$page_size";
     $receives=$db->getAllBySql($receiveSql);
     $data['receives']=$receives;
@@ -89,7 +89,7 @@ function receiveList() {
     $sql = "select receive.id as receive_id,receive.encouter_id,if(choice_menu=2,encouter.product2,encouter.product1) as menu,if(choice_menu=2,encouter.product_img2,product_img1) as menu_img,shop.title as shop_name,shop.lng,shop.lat,receive.created,receive.status from " . DB_PREFIX . "encouter_receive receive "
             . "left join " . DB_PREFIX . "encouter encouter on receive.encouter_id = encouter.id "
             . "left join " . DB_PREFIX . "shop shop on shop.id=encouter.shop_id "
-            . "where receive.from_user = {$loginid} and receive.type <> 5 order by receive.id desc ";
+            . "where receive.from_user = {$loginid} and receive.type <> 5 and receive.status <> 4 and receive.status <> 99 order by receive.id desc ";
     $sql .= " limit $start,$page_size";
     $data = $db->getAllBySql($sql);
     foreach ($data as $k => $v) {
@@ -105,7 +105,7 @@ function receiveInfo(){
     global $db;
     $loginid = filter($_REQUEST['loginid']);
     $receiveid=filter($_REQUEST['receiveid']);
-    $sql = "select encouter.shop_id,user.nick_name,receive.encouter_id,receive.type,if(choice_menu=2,encouter.product2,encouter.product1) as menu,if(choice_menu=2,encouter.product_img2,product_img1) as menu_img,if(choice_menu=2,encouter.price2,price1) as price,encouter.shop_id,shop.title as shop_name,receive.verifycode,encouter.created,receive.status from " . DB_PREFIX . "encouter_receive receive "
+    $sql = "select encouter.shop_id,user.nick_name,user.head_photo,receive.encouter_id,receive.type,if(choice_menu=2,encouter.product2,encouter.product1) as menu,if(choice_menu=2,encouter.product_img2,product_img1) as menu_img,if(choice_menu=2,encouter.price2,price1) as price,encouter.shop_id,shop.title as shop_name,receive.verifycode,encouter.created,receive.status from " . DB_PREFIX . "encouter_receive receive "
             . "left join " .DB_PREFIX . "encouter encouter on encouter.id = receive.encouter_id "
             . "left join " . DB_PREFIX . "shop shop on shop.id = encouter.shop_id "
             . "left join " . DB_PREFIX . "user user on user.id = encouter.user_id "
@@ -151,7 +151,7 @@ function waitInfo(){
     $encouterid=filter($_REQUEST['encouterid']);
     //$encouter['status'] 1待付款 2待领取 3待到店领取 4已领走 5等候待付款 6等候待到店领取 7等候已领走
     //$receive['status'] 1等待回复2可领取3被拒绝4等候待支付5等候已支付
-    $sql = "select user.id as user_id,user.nick_name,encouter.id as encouter_id,encouter.product1 as menu,encouter.product_img1 as menu_img,encouter.price1 as price,encouter.shop_id,shop.title as shop_name,encouter.verifycode,encouter.created,encouter.status from " . DB_PREFIX . "encouter encouter "
+    $sql = "select user.id as user_id,user.nick_name,user.head_photo,encouter.id as encouter_id,encouter.product1 as menu,encouter.product_img1 as menu_img,encouter.price1 as price,encouter.shop_id,shop.title as shop_name,encouter.verifycode,encouter.created,encouter.status from " . DB_PREFIX . "encouter encouter "
             . "left join " .DB_PREFIX . "encouter_receive receive on encouter.id = receive.encouter_id and receive.status = 5 "
             . "left join " . DB_PREFIX . "shop shop on shop.id = encouter.shop_id "
             . "left join " . DB_PREFIX . "user user on user.id = receive.from_user "

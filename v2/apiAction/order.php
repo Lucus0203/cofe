@@ -133,7 +133,7 @@ function pay() {
                                 $db->create('order_detail', $od);
                         }
                 }
-                echo $ch;
+                echo $ch;//json_result($ch);
         } catch (\Pingpp\Error\Base $e) {
                 header('Status: ' . $e->getHttpStatus());
                 echo($e->getHttpBody());

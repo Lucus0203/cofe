@@ -76,6 +76,7 @@ function nearbyShops(){
         $sql.=(!empty($circle_id))?" and addcircle_id={$circle_id} ":'';
         $sql.=(!empty($keyword))?" and ( INSTR(title,'".addslashes($keyword)."') or INSTR(subtitle,'".addslashes($keyword)."') or INSTR(address,'".addslashes($keyword)."') ) ":'';
         $sql.=(!empty($tag_ids))?" and shop_tag.tag_id in ({$tag_ids}) ":'';
+        $sql .= " group by shop.id ";
         
         $sql.=(!empty($lng)&&!empty($lat))?" order by sqrt(power(lng-{$lng},2)+power(lat-{$lat},2)),id ":' order by id ';
 	$sql .= " limit $start,$page_size";
