@@ -28,6 +28,9 @@ switch ($act) {
         case 'permit':
                 permit();
                 break;
+        case 'getgroupid':
+                getGroupID();
+                break;
         default:
                 break;
 }
@@ -288,32 +291,44 @@ function nearCafe() {
         $lng = filter($_REQUEST['lng']);
         $lat = filter($_REQUEST['lat']);
         $city_code = filter($_REQUEST['city_code']);
-        $sex = filter($_REQUEST['sex']);
         $area_id = filter($_REQUEST['area_id']);
         $circle_id = filter($_REQUEST['circel_id']);
         $tag_ids = filter($_REQUEST['tag_ids']);
+        $tag_sex = filter($_REQUEST['tag_sex']);//1男2女
         $type = filter($_REQUEST['type']);
         $page_no = isset($_GET ['page']) ? $_GET ['page'] : 1;
         $page_size = PAGE_SIZE;
-        $start = ($page_no - 1) * $page_size;
 
         $sql = "select encouter.id,encouter.user_id,encouter.type,user.head_photo as img "
                 . "from " . DB_PREFIX . "encouter encouter "
                 . "left join " . DB_PREFIX . "shop shop on encouter.shop_id=shop.id "
                 . "left join " . DB_PREFIX . "user user on encouter.user_id=user.id "
                 . "left join " . DB_PREFIX . "user_tag user_tag on user.id=user_tag.user_id "
-                . "where encouter.status=2 or encouter.status=5 "; //1待付款2待领取3待到店领取4已领走4等候待付款5等候待到店领取6等候已领走
+                . "where (encouter.status=2 or encouter.status=5) "; //1待付款2待领取3待到店领取4已领走4等候待付款5等候待到店领取6等候已领走
         if (!empty($city_code)) {
                 $city = $db->getRow('shop_addcity', array('code' => $city_code));
                 $sql.=(!empty($city['id'])) ? " and addcity_id={$city['id']} " : '';
         }
         $sql.=(!empty($area_id)) ? " and addarea_id={$area_id} " : '';
         $sql.=(!empty($circle_id)) ? " and addcircle_id={$circle_id} " : '';
-        $sql.=(!empty($sex)) ? " and tag_sex={$sex} " : '';
+        $sql.=(!empty($tag_sex)) ? " and tag_sex={$tag_sex} " : '';
         $sql.=(!empty($tag_ids)) ? " and user_tag.tag_id in ({$tag_ids}) " : '';
-        $sql.=(!empty($type)) ? " and encouter.type = ({$type}) " : '';
+        if(!empty($type)){
+                $typeCond='';
+                $types=explode(',', $type);
+                foreach ($types as $t){
+                        $typeCond.=($typeCond!='')?" or encouter.type = {$t} ":" encouter.type = {$t} ";
+                }
+                $sql.=" and ({$typeCond}) ";
+        }
 
         $sql.=(!empty($lng) && !empty($lat)) ? " order by sqrt(power(shop.lng-{$lng},2)+power(shop.lat-{$lat},2)),id " : ' order by id ';
+        $total = $db->getCountBySql($sql);
+        
+        $page_total = floor($total/$page_size) + 1;
+        $page_no = ($page_no % $page_total);
+        $page_no = $page_no==0?$page_total:$page_no;
+        $start = ($page_no - 1) * $page_size;
         $sql .= " limit $start,$page_size";
         //$sql = "select * from ($sql) s group by s.user_id";
         $data = $db->getAllBySql($sql);
@@ -491,4 +506,10 @@ function permit() {
         sendNotifyMsgByPermiter($receiveid);
         echo json_result(array('success' => 'TRUE'));
         
+}
+
+//获取群组id
+function getGroupID($encouter_id){
+        $chatgroup=$db->getRow('chatgroup',array('encouter_id'=>$encouter_id));
+        echo json_result(array('hx_groupid' => $chatgroup['hx_groupid']));
 }

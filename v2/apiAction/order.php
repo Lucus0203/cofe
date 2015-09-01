@@ -314,6 +314,17 @@ function updateOrderEncouter($order){
                                $db->excuteSql($updateOrderSql);
                                //可领取
                                $db->update('encouter_receive',array('status'=>2),array('id'=>$receiveid));
+                        }else{
+                                $maxusers=empty($encouter['people_num'])?200:$encouter['people_num'];
+                                $user=$db->getRow('user',array('id'=>$encouter['user_id']));
+                                //环信创建群组
+                                $HuanxinObj=Huanxin::getInstance();
+                                $huserObj=$HuanxinObj->createGroup($encouter['topic'],$encouter['topic'],$maxusers,$user['user_name']);
+                                        //addNewAppUser(strtolower($mobile), md5($user_pass));
+                                $hxgroupid=$huserObj->data->groupid;
+                                if(!empty($groupid)){
+                                        $db->create('chatgroup',array('hx_group_id'=>$hxgroupid,'user_id'=>$user['id'],'encouter_id'=>$order['encouter_id'],'name'=>$encouter['topic']));
+                                }
                         }
                         //自己寄存的咖啡改变为可领取状态
                         $db->update('encouter', array('status' => 2), array('id' => $order['encouter_id']));
