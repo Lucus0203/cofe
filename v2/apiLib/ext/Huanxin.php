@@ -104,12 +104,79 @@ Class Huanxin {
                     'target'=>array($to),
                     'msg'=>array('type'=>'txt','msg'=>$msg),
                     'from'=>$from);
-		$url = $this->url . "messages";
+		$url = $this->url . "chatgroups";
 		$access_token = $this->getToken ();
 		$header [] = 'Authorization: Bearer ' . $access_token;
 		return $this->postCurl ( $url, $data, $header, $type = "POST" );
         }
-	
+	//创建群
+        function createGroup($groupname,$desc,$maxusers,$owner){
+		$data=array('groupname'=>$groupname,//群组名称, 此属性为必须的
+                    'desc'=>$desc,//群组描述, 此属性为必须的
+                    'public'=>true,//是否是公开群, 此属性为必须的,为false时为私有群
+                    'maxusers'=>$maxusers,//群组成员最大数(包括群主), 值为数值类型,默认值200,此属性为可选的
+                    'approval'=>false,
+                    'owner'=>$owner
+                    );
+		$url = $this->url . "chatgroups";
+		$access_token = $this->getToken ();
+		$header [] = 'Authorization: Bearer ' . $access_token;
+		return $this->postCurl ( $url, $data, $header, $type = "POST" );
+        }
+	//获取建群
+        function getGroup($groupid){
+		$url = $this->url . "chatgroups/{$groupid}";
+		$access_token = $this->getToken ();
+		$header [] = 'Authorization: Bearer ' . $access_token;
+		return $this->postCurl ( $url, '', $header, $type = "GET" );
+        }
+        //修改群
+        function updateGroup($groupid,$groupname,$desc,$maxusers){
+		$data=array('groupname'=>$groupname,//群组名称, 此属性为必须的
+                    'description'=>$desc,//群组描述, 此属性为必须的
+                    'maxusers'=>$maxusers//群组成员最大数(包括群主), 值为数值类型,默认值200,此属性为可选的
+                    );
+		$url = $this->url . "chatgroups/{$groupid}";
+		$access_token = $this->getToken ();
+		$header [] = 'Authorization: Bearer ' . $access_token;
+		return $this->postCurl ( $url, $data, $header, $type = "PUT" );
+        }
+        //删除群
+        function delGroup($groupid){
+		$url = $this->url . "chatgroups/{$groupid}";
+		$access_token = $this->getToken ();
+		$header [] = 'Authorization: Bearer ' . $access_token;
+		return $this->postCurl ( $url, '', $header, $type = "DELETE" );
+        }
+        //获取群成员
+        function getGroupUsers($groupid){
+		$url = $this->url . "chatgroups/{$groupid}/users";
+		$access_token = $this->getToken ();
+		$header [] = 'Authorization: Bearer ' . $access_token;
+		return $this->postCurl ( $url, '', $header, $type = "GET" );
+        }
+        //增加群成员
+        function addGroupUser($groupid,$username){
+		$url = $this->url . "chatgroups/{$groupid}/users/{$username}";
+		$access_token = $this->getToken ();
+		$header [] = 'Authorization: Bearer ' . $access_token;
+		return $this->postCurl ( $url, $data, $header, $type = "POST" );
+        }
+        //减少群成员
+        function delGroupUser($groupid,$username){
+		$url = $this->url . "chatgroups/{$groupid}/users/{$username}";
+		$access_token = $this->getToken ();
+		$header [] = 'Authorization: Bearer ' . $access_token;
+		return $this->postCurl ( $url, '', $header, $type = "POST" );
+        }
+        //获取一个用户参与的所有群组
+        function getGroups($username){
+		$url = $this->url . "users/{$username}/joined_chatgroups";
+		$access_token = $this->getToken ();
+		$header [] = 'Authorization: Bearer ' . $access_token;
+		return $this->postCurl ( $url, '', $header, $type = "GET" );
+        }
+        
 	/**
 	 * CURL Post
 	 */

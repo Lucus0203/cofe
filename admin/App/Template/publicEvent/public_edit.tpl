@@ -1,6 +1,4 @@
-<link href="{$smarty.const.SITE}resource/js/kindeditor/themes/default/default.css" rel="stylesheet" type="text/css">
-<script type="text/javascript" src="{$smarty.const.SITE}resource/js/kindeditor/kindeditor-min.js"></script>
-<script type="text/javascript" src="{$smarty.const.SITE}resource/js/kindeditor/lang/zh_CN.js"></script>
+<script type="text/javascript" src="{$smarty.const.SITE}resource/js/ckeditor/ckeditor.js"></script>
 <script type="text/javascript" src="{$smarty.const.SITE}resource/js/public_add.js"></script>
 <script type="text/javascript" src="http://api.map.baidu.com/api?v=2.0&ak=ho6LXkYw6eWBzWFlPvcMpLhR"></script>
 <td valign="top" align="center">

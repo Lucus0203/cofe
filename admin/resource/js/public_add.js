@@ -1,7 +1,22 @@
-KindEditor.ready(function(K) {
-        window.editor = K.create('#editor');
-});
+//KindEditor.ready(function(K) {
+//        window.editor = K.create('#editor');
+//});
 $(function(){
+        CKEDITOR.replace( 'content' , {
+                // Define the toolbar groups as it is a more accessible solution.
+                toolbarGroups: [
+                        {"name":"links","groups":["links"]},
+                        {"name":"paragraph","groups":["list","blocks"]},
+                        {"name":"document","groups":["mode"]},
+                        {"name":"insert","groups":["insert"]},
+                        {"name":"styles","groups":["styles"]}
+                ],
+                // Remove the redundant buttons from toolbar groups defined above.
+                removeButtons: 'Strike,Subscript,Superscript,Anchor,Styles,Specialchar',
+        });
+        CKEDITOR.config.width = '600';
+        CKEDITOR.config.height = '600';
+	CKEDITOR.config.filebrowserUploadUrl='index.php?controller=PublicEvent&action=UploadImage';
 	$('#photo_add').click(function(){
 		$(this).before('<tr><td style="text-align:center;">海报图片</td>'+
                 '<td><input name="photos[]" type="file" style="width:240px;"></td></tr>');

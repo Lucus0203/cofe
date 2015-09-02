@@ -191,6 +191,26 @@ class Controller_PublicEvent extends FLEA_Controller_Action {
 		$Upload->setReadDir(APP_SITE.'upload/'.$f.'/'.date("Ymd")."/");
 		return $Upload;
 	}
+        
+        function actionUploadImage(){
+                $extensions = array("jpg","bmp","gif","png");  
+                $uploadFilename = $_FILES['upload']['name'];  
+                $extension = pathInfo($uploadFilename,PATHINFO_EXTENSION);  
+                echo $extension;
+                if(in_array($extension,$extensions)){
+                        $Upload=$this->getUploadObj('publicPhoto');
+                        $img=$Upload->upload('upload');
+                        $callback = $_REQUEST["CKEditorFuncNum"];
+                        echo $callback;
+                        if($img['status']==1){
+                                echo "<script type='text/javascript'>window.parent.CKEDITOR.tools.callFunction($callback,'".$img['file_path']."','');</script>";
+                        }else{
+                                echo "<font color=\"red\"size=\"2\">*文件上传失败</font>";  
+                        }
+                }else{
+                        echo "<font color=\"red\"size=\"2\">*文件格式不正确（必须为.jpg/.gif/.bmp/.png文件）</font>";  
+                }
+        }
 	
 	
 }

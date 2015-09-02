@@ -1,0 +1,3 @@
+RewriteEngine On
+RewriteCond %{REQUEST_URI} ^\/mix\/
+RewriteRule ^(.*)$ http://v2.coffee15.com/
