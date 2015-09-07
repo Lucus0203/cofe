@@ -182,6 +182,40 @@ class Controller_Shop extends FLEA_Controller_Action {
 			$data ['holidays'] = implode(',', $data ['holidays']);
 			$data ['holidayhours1'] = $data ['holidayhours1'].':'.$data ['holidayminutes1'];
 			$data ['holidayhours2'] = $data ['holidayhours2'].':'.$data ['holidayminutes2'];
+                        //营业时间
+                        if(!empty($data['hours1'])){
+                                $hours=$data['hours1'].'~'.$data['hours2'];
+                                $holiday="";
+                                if($data['holidayflag']!='1'){
+                                        if(strpos($data['holidays'] , '1')!==false){
+                                                $holiday.='一';
+                                        }
+                                        if(strpos($data['holidays'] , '2')!==false){
+                                                $holiday.= empty($holiday)?'二':',二';
+                                        }
+                                        if(strpos($data['holidays'] , '3')!==false){
+                                                $holiday.= empty($holiday)?'三':',三';
+                                        }
+                                        if(strpos($data['holidays'] , '4')!==false){
+                                                $holiday.= empty($holiday)?'四':',四';
+                                        }
+                                        if(strpos($data['holidays'] , '5')!==false){
+                                                $holiday.= empty($holiday)?'五':',五';
+                                        }
+                                        if(strpos($data['holidays'] , '6')!==false){
+                                                $holiday.= empty($holiday)?'六':',六';
+                                        }
+                                        if(strpos($data['holidays'] , '0')!==false){
+                                                $holiday.= empty($holiday)?'日':',日';
+                                        }
+                                }
+                                if($data['holidayflag']=='2'){
+                                        $holiday = !empty($holiday)?'  休息日:'.$holiday:'';
+                                }elseif($data['holidayflag']=='3'){
+                                        $holiday = !empty($holiday)?'  休息日:'.$holiday.' 时间:'.$data['holidayhours1'].'~'.$data['holidayhours2']:'';
+                                }
+                        }
+                        $data['hours']=$hours.$holiday;
                         if(empty($data['province_id']))
                             $data['province_id']=NULL;
                         if(empty($data['city_id']))
@@ -265,6 +299,41 @@ class Controller_Shop extends FLEA_Controller_Action {
 			$data ['holidays'] = implode(',', $data ['holidays']);
 			$data ['holidayhours1'] = $data ['holidayhours1'].':'.$data ['holidayminutes1'];
 			$data ['holidayhours2'] = $data ['holidayhours2'].':'.$data ['holidayminutes2'];
+                        //营业时间
+                        if(!empty($data['hours1'])){
+                                $hours=$data['hours1'].'~'.$data['hours2'];
+                                $holiday="";
+                                if($data['holidayflag']!='1'){
+                                        if(strpos($data['holidays'] , '1')!==false){
+                                                $holiday.='一';
+                                        }
+                                        if(strpos($data['holidays'] , '2')!==false){
+                                                $holiday.= empty($holiday)?'二':',二';
+                                        }
+                                        if(strpos($data['holidays'] , '3')!==false){
+                                                $holiday.= empty($holiday)?'三':',三';
+                                        }
+                                        if(strpos($data['holidays'] , '4')!==false){
+                                                $holiday.= empty($holiday)?'四':',四';
+                                        }
+                                        if(strpos($data['holidays'] , '5')!==false){
+                                                $holiday.= empty($holiday)?'五':',五';
+                                        }
+                                        if(strpos($data['holidays'] , '6')!==false){
+                                                $holiday.= empty($holiday)?'六':',六';
+                                        }
+                                        if(strpos($data['holidays'] , '0')!==false){
+                                                $holiday.= empty($holiday)?'日':',日';
+                                        }
+                                }
+                                if($data['holidayflag']=='2'){
+                                        $holiday = !empty($holiday)?'  休息日:'.$holiday:'';
+                                }elseif($data['holidayflag']=='3'){
+                                        $holiday = !empty($holiday)?'  休息日:'.$holiday.' 时间:'.$data['holidayhours1'].'~'.$data['holidayhours2']:'';
+                                }
+                        }
+                        $data['hours']=$hours.$holiday;
+                
                         if(empty($data['province_id']))
                             $data['province_id']=NULL;
                         if(empty($data['city_id']))
@@ -364,7 +433,7 @@ class Controller_Shop extends FLEA_Controller_Action {
 		$shopid=$_POST['shopid'];
 		$file=$_POST['image-data'];
 
-		$folder='../upload/shop/';
+		$folder='../v2/upload/shop/';
 		if (! file_exists ( $folder )) {
 			mkdir ( $folder, 0777 );
 		}
@@ -394,7 +463,7 @@ class Controller_Shop extends FLEA_Controller_Action {
 			$imgpress->image_png_size_press($filepath,$filepath);
 			list($width,$height,$type)=getimagesize($filepath);
 
-			$path=str_replace('../',APP_SITE, $filepath);
+			$path=str_replace('../v2/',APP_SITE, $filepath);
 			$pp = array (
 					'shop_id' => $shopid,
 					'img' => $path,
@@ -468,7 +537,7 @@ class Controller_Shop extends FLEA_Controller_Action {
 	//图片处理
 	function delAppImg($path){
 		if(!empty($path)){
-			$file=str_replace(APP_SITE, '../', $path);
+			$file=str_replace(APP_SITE, '../v2/', $path);
 			if(file_exists($file))
 			unlink($file);
 		}

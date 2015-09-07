@@ -84,7 +84,7 @@ class Controller_ShopMenu extends FLEA_Controller_Action {
 		$title=$_POST['title'];
 		$file=$_POST['image-data'];
 		
-		$folder='../upload/shopMenu/';
+		$folder='../v2/upload/shopMenu/';
 		if (! file_exists ( $folder )) {
 			mkdir ( $folder, 0777 );
 		}
@@ -109,7 +109,7 @@ class Controller_ShopMenu extends FLEA_Controller_Action {
 			$imgpress = & get_singleton ( "Service_ImgSizePress" );
 			$imgpress->image_png_size_press($filepath,$filepath);
 		
-			$path=str_replace('../',APP_SITE, $filepath);
+			$path=str_replace('../v2/',APP_SITE, $filepath);
 			$pp = array (
 					'shop_id' => $shopid,
 					'title' => $title,
