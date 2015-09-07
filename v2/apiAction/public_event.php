@@ -7,6 +7,9 @@ switch ($act){
 	case 'eventInfo':
 		eventInfo();
 		break;
+	case 'collectEvents'://用户收藏的活动
+		collectEvents();
+		break;
 	case 'collectEvent'://收藏
 		collectEvent();
 		break;
@@ -65,6 +68,31 @@ function getEvents(){
 		$list[$k]['distance']=(!empty($v['lat'])&&!empty($v['lng'])&&!empty($lng)&&!empty($lat))?getDistance($lat,$lng,$v['lat'],$v['lng']):lang_UNlOCATE;
 	}
 	echo json_result($list);
+}
+//用户收藏的活动
+function collectEvents(){
+        global $db;
+	$loginid=filter($_REQUEST['loginid']);
+	if(empty($loginid)){
+		echo json_result(null,'21','用户未登录');
+		return;
+	}
+	$lng=filter($_REQUEST['lng']);
+	$lat=filter($_REQUEST['lat']);
+	$page_no = isset ( $_GET ['page'] ) ? $_GET ['page'] : 1;
+	$page_size = PAGE_SIZE;
+	$start = ($page_no - 1) * $page_size;
+
+	$sql="select pe.id as event_id,pe.title,pe.datetime,pe.lng,pe.lat from ".DB_PREFIX."public_event pe left join ".DB_PREFIX."public_users pu on pe.id=pu.public_event_id where pu.user_id=".$loginid;
+	$sql.=(!empty($lng)&&!empty($lat))?" order by sqrt(power(lng-{$lng},2)+power(lat-{$lat},2))":'';
+
+	$sql .= " limit $start,$page_size";
+	$pes=$db->getAllBySql($sql);
+	foreach ($pes as $k=>$v){
+		$pes[$k]['distance']=(!empty($v['lat'])&&!empty($v['lng'])&&!empty($lng)&&!empty($lat))?getDistance($lat,$lng,$v['lat'],$v['lng']):lang_UNlOCATE;
+	}
+	//echo json_result(array('shops'=>$shops));
+	echo json_result(array('events'=>$pes));
 }
 
 //收藏活动

@@ -4,11 +4,8 @@ switch ($act){
 	case 'nearbyShops':
 		nearbyShops();//附近店铺
 		break;
-	case 'getShopByConditions':
-		getShopByConditions();//店铺筛选
-		break;
-	case 'favoriteShops':
-		favoriteShops();//用户收藏的店铺
+	case 'collectShops':
+		collectShops();//用户收藏的店铺
 		break;
 	case 'removeFavoriteShopById'://取消收藏
 		removeFavoriteShopById();
@@ -46,27 +43,7 @@ function nearbyShops(){
 	$page_size = PAGE_SIZE;
 	$start = ($page_no - 1) * $page_size;
 	//是否营业中,1营业中,2休息
-	$isopensql=" if(holidayflag = '3' , 
-			if(locate(dayofweek(now())-1,holidays) > 0,
-				if(holidayhours2<holidayhours1,
-					if(holidayhours1 <= DATE_FORMAT(now(),'%H:%i') or holidayhours2 >= DATE_FORMAT(now(),'%H:%i'),1,2),
-					if(holidayhours1 <= DATE_FORMAT(now(),'%H:%i') and DATE_FORMAT(now(),'%H:%i') <= holidayhours2,1,2)
-				),
-			if(hours2 <= hours1,
-				if(hours1 <= DATE_FORMAT(now(),'%H:%i') or hours2 >= DATE_FORMAT(now(),'%H:%i'),1,2),
-				if(hours1 <= DATE_FORMAT(now(),'%H:%i') and DATE_FORMAT(now(),'%H:%i') <= hours2,1,2)
-			)),
-		if(holidayflag = '2',
-			if(locate(dayofweek(now())-1,holidays) = 0,
-				if(hours2<hours1,
-					if(hours1 <= DATE_FORMAT(now(),'%H:%i') or hours2 >= DATE_FORMAT(now(),'%H:%i'),1,2),
-					if(hours1 <= DATE_FORMAT(now(),'%H:%i') and DATE_FORMAT(now(),'%H:%i') <= hours2,1,2)
-				),
-			2),
-		if(hours2 <= hours1,
-			if(hours1 <= DATE_FORMAT(now(),'%H:%i') or hours2 >= DATE_FORMAT(now(),'%H:%i'),1,2),
-			if(hours1 <= DATE_FORMAT(now(),'%H:%i') and DATE_FORMAT(now(),'%H:%i') <= hours2,1,2)
-		))) as isopen ";
+	$isopensql=getIsopensql();
 	$sql="select shop.id,title,img,lng,lat,".$isopensql." from ".DB_PREFIX."shop shop left join ".DB_PREFIX."shop_tag shop_tag on shop_tag.shop_id=shop.id where status=2 ";
         if(!empty($city_code)){
                 $city=$db->getRow('shop_addcity',array('code'=>$city_code));
@@ -85,58 +62,6 @@ function nearbyShops(){
 		$shops[$k]['distance']=(!empty($v['lat'])&&!empty($v['lng'])&&!empty($lng)&&!empty($lat))?getDistance($lat,$lng,$v['lat'],$v['lng']):lang_UNlOCATE;
 	}
 	//echo json_result(array('shops'=>$shops));
-	echo json_result($shops);
-}
-
-//筛选出的店铺
-function getShopByConditions(){
-	global $db;
-	$lng=filter($_REQUEST['lng']);
-	$lat=filter($_REQUEST['lat']);
-	$keyword = !empty ( $_GET ['keyword'] ) ? $_GET ['keyword'] : '';//关键字
-	$provinceid = !empty ( $_GET ['provinceid'] ) ? $_GET ['provinceid'] : '';//省
-	$cityid = !empty ( $_GET ['cityid'] ) ? $_GET ['cityid'] : '';//市
-	$townid = !empty ( $_GET ['townid'] ) ? $_GET ['townid'] : '';//区
-	$circleid = !empty ( $_GET ['circleid'] ) ? $_GET ['circleid'] : '';//商圈
-	$page_no = isset ( $_GET ['page'] ) ? $_GET ['page'] : 1;
-	$page_size = PAGE_SIZE;
-	$start = ($page_no - 1) * $page_size;
-	
-	$conditions="";
-	if(!empty($keyword)){
-		//$conditions.=" and (INSTR(title,'".addslashes($keyword)."') or INSTR(subtitle,'".addslashes($keyword)."') or INSTR(address,'".addslashes($keyword)."') ) ";
-		$conditions.=" and ( INSTR(title,'".addslashes($keyword)."') or INSTR(subtitle,'".addslashes($keyword)."') ) ";
-		$conditions.=" and round(6378.138*2*asin(sqrt(pow(sin( ($lat*pi()/180-lat*pi()/180)/2),2)+cos($lat*pi()/180)*cos(lat*pi()/180)* pow(sin( ($lng*pi()/180-lng*pi()/180)/2),2)))*1000) <= ".RANGE_KILO;
-	}
-	if(!empty($provinceid)){
-		$conditions.=" and province_id=$provinceid ";
-	}
-	if(!empty($cityid)){
-		$conditions.=" and city_id=$cityid ";
-	}
-	if(!empty($townid)){
-		$conditions.=" and town_id=$townid ";
-	}
-	
-	$circlerOrder="";
-	if(!empty($circleid)){
-		$locat=$db->getRow('business_circle',array('id'=>$circleid),array("lng","lat"));
-		$circle_lng=$locat['lng'];
-		$circle_lat=$locat['lat'];
-		$circlerOrder=" sqrt(power(lng-{$circle_lng},2)+power(lat-{$circle_lat},2)) , ";
-	}
-	
-	$sql="select * from ".DB_PREFIX."shop where status=2 $conditions ";
-	$count=$db->getCountBySql($sql);
-	
-	$sql.=(!empty($lng)&&!empty($lat))?" order by $circlerOrder sqrt(power(lng-{$lng},2)+power(lat-{$lat},2)),id ":' order by id ';
-	$sql .= " limit $start,$page_size";
-	$shops=$db->getAllBySql($sql);
-	foreach ($shops as $k=>$v){
-		$shops[$k]['distance']=(!empty($v['lat'])&&!empty($v['lng'])&&!empty($lng)&&!empty($lat))?getDistance($lat,$lng,$v['lat'],$v['lng']):lang_UNlOCATE;
-	}
-	//echo json_result(array('count'=>$count,'shops'=>$shops));
-
 	echo json_result($shops);
 }
 
@@ -163,48 +88,17 @@ function shopInfo(){
 		$shop['menus']=$db->getAll('shop_menu',array('shop_id'=>$shopid,'status'=>2),array('title','img'));
 		$shop['introduction']=empty($shop['introduction'])?'        信息正在更新中...':$shop['introduction'];
 		//特色
-                $shoptagsql="select base_tag.name from ".DB_PREFIX."shop_tag tag left join ".DB_PREFIX."base_shop_tag base_tag  on tag.tag_id = base_tag.id where tag.shop_id={$shopid} ";
+                $shoptagsql="select tag.id,base_tag.name from ".DB_PREFIX."shop_tag tag left join ".DB_PREFIX."base_shop_tag base_tag  on tag.tag_id = base_tag.id where tag.shop_id={$shopid} ";
 		$features=$db->getAllBySql($shoptagsql);
                 foreach ($features as $f){
-                        $shop['features'][]=$f['name'];
+                        if(!empty($f['name'])){
+                                $shop['features'][]=$f['name'];
+                        }else{
+                              $db->delete('shop_tag',array('id'=>$f['id']));
+                        }
                 }
 		//店铺图片
 		$shop['imgs']=$db->getAll('shop_img',array('shop_id'=>$shopid),array('img','width','height'));
-		
-		//营业时间
-		if(!empty($shop['hours1'])){
-			$hours=$shop['hours1'].'~'.$shop['hours2'];
-			$holiday="";
-			if($shop['holidayflag']!='1'){
-				if(strpos($shop['holidays'] , '1')!==false){
-					$holiday.='一';
-				}
-				if(strpos($shop['holidays'] , '2')!==false){
-					$holiday.= empty($holiday)?'二':',二';
-				}
-				if(strpos($shop['holidays'] , '3')!==false){
-					$holiday.= empty($holiday)?'三':',三';
-				}
-				if(strpos($shop['holidays'] , '4')!==false){
-					$holiday.= empty($holiday)?'四':',四';
-				}
-				if(strpos($shop['holidays'] , '5')!==false){
-					$holiday.= empty($holiday)?'五':',五';
-				}
-				if(strpos($shop['holidays'] , '6')!==false){
-					$holiday.= empty($holiday)?'六':',六';
-				}
-				if(strpos($shop['holidays'] , '0')!==false){
-					$holiday.= empty($holiday)?'日':',日';
-				}
-			}
-			if($shop['holidayflag']=='2'){
-				$holiday = !empty($holiday)?'  休息日:'.$holiday:'';
-			}elseif($shop['holidayflag']=='3'){
-				$holiday = !empty($holiday)?'  休息日:'.$holiday.' 时间:'.$shop['holidayhours1'].'~'.$shop['holidayhours2']:'';
-			}
-		}
-		$shop['hours']=$hours.$holiday;
 		//是否营业中 1营业中2休息
 		if($shop['holidayflag']!=1){
 			if(strpos($shop['holidays'] , date("w"))!==false){
@@ -298,7 +192,7 @@ function removeFavoriteShopById(){
 
 
 //收藏的店铺
-function favoriteShops(){
+function collectShops(){
 	global $db;
 	$loginid=filter($_REQUEST['loginid']);
 	if(empty($loginid)){
@@ -311,17 +205,17 @@ function favoriteShops(){
 	$page_size = PAGE_SIZE;
 	$start = ($page_no - 1) * $page_size;
 
-	$sql="select shop.id,shop.title,shop.subtitle,shop.address,shop.img,shopuser.shop_id,shop.lng,shop.lat from ".DB_PREFIX."shop shop left join ".DB_PREFIX."shop_users shopuser on shop.id=shopuser.shop_id where shopuser.user_id=".$loginid." and status=2 ";
+	$isopensql=getIsopensql();
+	$sql="select shop.id as shop_id,shop.title,shop.subtitle,shop.img,shop.lng,shop.lat,".$isopensql." from ".DB_PREFIX."shop shop left join ".DB_PREFIX."shop_users shopuser on shop.id=shopuser.shop_id where shopuser.user_id=".$loginid." and status=2 ";
 	$sql.=(!empty($lng)&&!empty($lat))?" order by sqrt(power(lng-{$lng},2)+power(lat-{$lat},2))":'';
 
 	$sql .= " limit $start,$page_size";
 	$shops=$db->getAllBySql($sql);
 	foreach ($shops as $k=>$v){
-		$shops[$k]['num']=$db->getCount('shop_users',array('shop_id'=>$v['shop_id']));
 		$shops[$k]['distance']=(!empty($v['lat'])&&!empty($v['lng'])&&!empty($lng)&&!empty($lat))?getDistance($lat,$lng,$v['lat'],$v['lng']):lang_UNlOCATE;
 	}
 	//echo json_result(array('shops'=>$shops));
-	echo json_result($shops);
+	echo json_result(array('shops'=>$shops));
 }
 
 //是否收藏
@@ -380,5 +274,30 @@ function shopFeedback(){
 	}
 	$db->create('feedback', $feedback);
 	echo json_result('success');
+}
+
+function getIsopensql(){
+        $isopensql=" if(holidayflag = '3' , 
+			if(locate(dayofweek(now())-1,holidays) > 0,
+				if(holidayhours2<holidayhours1,
+					if(holidayhours1 <= DATE_FORMAT(now(),'%H:%i') or holidayhours2 >= DATE_FORMAT(now(),'%H:%i'),1,2),
+					if(holidayhours1 <= DATE_FORMAT(now(),'%H:%i') and DATE_FORMAT(now(),'%H:%i') <= holidayhours2,1,2)
+				),
+			if(hours2 <= hours1,
+				if(hours1 <= DATE_FORMAT(now(),'%H:%i') or hours2 >= DATE_FORMAT(now(),'%H:%i'),1,2),
+				if(hours1 <= DATE_FORMAT(now(),'%H:%i') and DATE_FORMAT(now(),'%H:%i') <= hours2,1,2)
+			)),
+		if(holidayflag = '2',
+			if(locate(dayofweek(now())-1,holidays) = 0,
+				if(hours2<hours1,
+					if(hours1 <= DATE_FORMAT(now(),'%H:%i') or hours2 >= DATE_FORMAT(now(),'%H:%i'),1,2),
+					if(hours1 <= DATE_FORMAT(now(),'%H:%i') and DATE_FORMAT(now(),'%H:%i') <= hours2,1,2)
+				),
+			2),
+		if(hours2 <= hours1,
+			if(hours1 <= DATE_FORMAT(now(),'%H:%i') or hours2 >= DATE_FORMAT(now(),'%H:%i'),1,2),
+			if(hours1 <= DATE_FORMAT(now(),'%H:%i') and DATE_FORMAT(now(),'%H:%i') <= hours2,1,2)
+		))) as isopen ";
+        return $isopensql;
 }
 

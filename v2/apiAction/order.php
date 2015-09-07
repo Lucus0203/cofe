@@ -105,7 +105,7 @@ function pay() {
         try {
                 $ch = \Pingpp\Charge::create(
                         array(
-                            "subject" => "[咖啡约我]订单支付",
+                            "subject" => "[搅拌]订单支付",
                             "body" => $menubody,
                             "amount" => $totalamount,
                             "order_no" => $orderNo,
@@ -228,7 +228,7 @@ function secondPay(){
         try {
                 $ch = \Pingpp\Charge::create(
                         array(
-                            "subject" => "[咖啡约我]订单支付",
+                            "subject" => "[搅拌]订单支付",
                             "body" => $menubody,
                             "amount" => $totalamount,
                             "order_no" => $orderNo,
