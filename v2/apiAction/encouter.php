@@ -46,7 +46,7 @@ function shopList(){
 	$page_size = PAGE_SIZE;
 	$start = ($page_no - 1) * $page_size;
 	//是否营业中,1营业中,2休息
-	$sql="select shop.id,title,img,holidayflag,hours1,hours2,holidays,holidayhours1,holidayhours2,lng,lat from ".DB_PREFIX."shop shop left join ".DB_PREFIX."shop_tag shop_tag on shop_tag.shop_id=shop.id where status=2 ";
+	$sql="select shop.id,title,img,holidayflag,hours1,hours2,holidays,holidayhours1,holidayhours2,lng,lat from ".DB_PREFIX."shop shop where status=2 ";
         if(!empty($city_code)){
                 $city=$db->getRow('shop_addcity',array('code'=>$city_code));
                 $sql.=(!empty($city['id']))?" and addcity_id={$city['id']} ":'';

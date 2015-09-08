@@ -76,7 +76,7 @@ function shopInfo(){
 	//$page_size = PAGE_SIZE;
 	//$start = ($page_no - 1) * $page_size;
 	if(!empty($shopid)){
-		$shop=$db->getRow('shop',array('id'=>$shopid),array('title','tel','address','feature','introduction','hours','hours1','hours2','holidayflag','holidays','holidayhours1','holidayhours2','lng','lat'));
+		$shop=$db->getRow('shop',array('id'=>$shopid),array('id','title','tel','address','feature','introduction','hours','hours1','hours2','holidayflag','holidays','holidayhours1','holidayhours2','lng','lat'));
 		$shop['tel']=trim($shop['tel']);
 		$shop['distance']=(!empty($shop['lat'])&&!empty($shop['lng'])&&!empty($lng)&&!empty($lat))?getDistance($lat,$lng,$shop['lat'],$shop['lng']):lang_UNlOCATE;
                 //店内咖啡

@@ -100,7 +100,7 @@ function getShopCityAreaCircle(){
                         }
 		}
 		$circledata=json_result($data);
-		//file_put_contents($circlefile, $circledata);
+		file_put_contents($circlefile, $circledata);
 	}
 	
         echo $circledata;
