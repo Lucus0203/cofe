@@ -31,6 +31,15 @@ switch ($act) {
         case 'getgroupid':
                 getGroupID();
                 break;
+        case 'waitAgain':
+                waitAgain();
+                break;
+        case 'watiCafeDelImg':
+                watiCafeDelImg();
+                break;
+        case 'watiCafeUploadImg':
+                watiCafeUploadImg();
+                break;
         default:
                 break;
 }
@@ -304,7 +313,7 @@ function nearCafe() {
                 . "left join " . DB_PREFIX . "shop shop on encouter.shop_id=shop.id "
                 . "left join " . DB_PREFIX . "user user on encouter.user_id=user.id "
                 . "left join " . DB_PREFIX . "user_tag user_tag on user.id=user_tag.user_id "
-                . "where (encouter.status=2 or encouter.status=5) "; //1待付款2待领取3待到店领取4已领走4等候待付款5等候待到店领取6等候已领走
+                . "where TIMESTAMPDIFF(DAY,encouter.created,now())>encouter.days and (encouter.status=2 or encouter.status=5) "; //1待付款2待领取3待到店领取4已领走4等候待付款5等候待到店领取6等候已领走
         if (!empty($city_code)) {
                 $city = $db->getRow('shop_addcity', array('code' => $city_code));
                 $sql.=(!empty($city['id'])) ? " and addcity_id={$city['id']} " : '';
@@ -346,7 +355,7 @@ function cafeInfo() {
                 . "left join " . DB_PREFIX . "encouter prencouter on prencouter.id=encouter.prev_encouter_id "
                 . "where encouter.id = {$id}";
         $data = $db->getRowBySql($sql);
-        $tagsql = "select tag.name from " . DB_PREFIX . "encouter_usertag usertag "
+        $tagsql = "select tag.id,tag.name from " . DB_PREFIX . "encouter_usertag usertag "
                 . "left join " . DB_PREFIX . "base_user_tag tag on usertag.tag_id=tag.id "
                 . "where usertag.encouter_id={$id}";
         $data['tags'] = $db->getAllBySql($tagsql);
@@ -512,4 +521,62 @@ function permit() {
 function getGroupID($encouter_id){
         $chatgroup=$db->getRow('chatgroup',array('encouter_id'=>$encouter_id));
         echo json_result(array('hx_groupid' => $chatgroup['hx_groupid']));
+}
+
+//再次等候
+function waitAgain(){
+        global $db;
+        $encouterid = filter(!empty($_REQUEST['encouterid']) ? $_REQUEST['encouterid'] : '');
+        $userid = filter(!empty($_REQUEST['loginid']) ? $_REQUEST['loginid'] : '');
+        $days = filter(!empty($_REQUEST['days']) ? $_REQUEST['days'] : '');
+        $people_num = filter(!empty($_REQUEST['people_num']) ? $_REQUEST['people_num'] : '');
+        $question = filter(!empty($_REQUEST['question']) ? $_REQUEST['question'] : '');
+        $topic = filter(!empty($_REQUEST['topic']) ? $_REQUEST['topic'] : '');
+        $msg = filter(!empty($_REQUEST['msg']) ? $_REQUEST['msg'] : '');
+        $tag_ids = filter(!empty($_REQUEST['tag_ids']) ? $_REQUEST['tag_ids'] : '');
+        //status 1待付款2待领取3待到店领取4已领走5等候待付款6等候待到店领取7等候已领走
+
+
+        $data = array();
+        if (empty($userid)) {
+                echo json_result(null, '2', '请您先登录');
+                return;
+        } else {
+                $data['user_id'] = $userid;
+        }
+        if ($db->getCount('encouter',array('id'=>$encouterid,'user_id'=>$userid))<=0){
+                echo json_result(null, '3', '这不是您寄存的咖啡,不可续存');
+                return;
+        }
+        $old_encouter=$db->getRow('encouter',array('id'=>$encouterid));
+        $type=$old_encouter['type'];
+        if (empty($days)) {
+                echo json_result(null, '4', '请选择寄存天数');
+                return;
+        } else {
+                $data['days'] = $days;
+        }
+        if($type!=5){
+                echo json_result(null, '5', '您操作的不是等候咖啡');
+                return;
+        }
+        if (empty($msg)) {
+                echo json_result(null, '10', '请输入你的寄语');
+                return;
+        } else {
+                $data['msg'] = $msg;
+        }
+        $data['created'] = date("Y-m-d H:i:s");
+        $db->update('encouter',array('id'=>$encouterid), $data);
+        echo json_result(array('success' => 'TRUE'));
+}
+
+//删除等候的图片
+function watiCafeDelImg(){
+        
+}
+
+//上传等候的图片
+function watiCafeUploadImg(){
+        
 }
