@@ -529,11 +529,7 @@ function waitAgain(){
         $encouterid = filter(!empty($_REQUEST['encouterid']) ? $_REQUEST['encouterid'] : '');
         $userid = filter(!empty($_REQUEST['loginid']) ? $_REQUEST['loginid'] : '');
         $days = filter(!empty($_REQUEST['days']) ? $_REQUEST['days'] : '');
-        $people_num = filter(!empty($_REQUEST['people_num']) ? $_REQUEST['people_num'] : '');
-        $question = filter(!empty($_REQUEST['question']) ? $_REQUEST['question'] : '');
-        $topic = filter(!empty($_REQUEST['topic']) ? $_REQUEST['topic'] : '');
         $msg = filter(!empty($_REQUEST['msg']) ? $_REQUEST['msg'] : '');
-        $tag_ids = filter(!empty($_REQUEST['tag_ids']) ? $_REQUEST['tag_ids'] : '');
         //status 1待付款2待领取3待到店领取4已领走5等候待付款6等候待到店领取7等候已领走
 
 
