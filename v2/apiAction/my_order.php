@@ -34,7 +34,7 @@ function orderlist(){
         }elseif ($type==2) {
                 $sql.=" and paid=2 and od.status=1 ";
         }else{
-                $sql.=" and TIMESTAMPDIFF(DAY,encouter.created,now())>encouter.days and encouter.status=2 ";
+                $sql.=" and TIMESTAMPDIFF(DAY,encouter.created,now())>encouter.days and encouter.days!=0 and encouter.status=2 ";
         }
 	$sql .=" order by od.id desc ";
 	$sql .= " limit $start,$page_size ";
@@ -63,8 +63,6 @@ function depositAgain(){
         if (empty($userid)) {
                 echo json_result(null, '2', '请您先登录');
                 return;
-        } else {
-                $data['user_id'] = $userid;
         }
         if ($db->getCount('encouter',array('id'=>$encouterid,'user_id'=>$userid))<=0){
                 echo json_result(null, '3', '这不是您寄存的咖啡,不可续存');

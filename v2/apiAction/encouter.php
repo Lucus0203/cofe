@@ -313,7 +313,7 @@ function nearCafe() {
                 . "left join " . DB_PREFIX . "shop shop on encouter.shop_id=shop.id "
                 . "left join " . DB_PREFIX . "user user on encouter.user_id=user.id "
                 . "left join " . DB_PREFIX . "user_tag user_tag on user.id=user_tag.user_id "
-                . "where TIMESTAMPDIFF(DAY,encouter.created,now())>encouter.days and (encouter.status=2 or encouter.status=5) "; //1待付款2待领取3待到店领取4已领走4等候待付款5等候待到店领取6等候已领走
+                . "where (TIMESTAMPDIFF(DAY,encouter.created,now())>encouter.days or encouter.days==0) and (encouter.status=2 or encouter.status=5) "; //1待付款2待领取3待到店领取4已领走4等候待付款5等候待到店领取6等候已领走
         if (!empty($city_code)) {
                 $city = $db->getRow('shop_addcity', array('code' => $city_code));
                 $sql.=(!empty($city['id'])) ? " and addcity_id={$city['id']} " : '';
@@ -362,7 +362,7 @@ function cafeInfo() {
         if(!empty($data['tag_sex'])){
                 $data['tags'][]['name']=$data['tag_sex']==1?'帅哥':'美女';
         }
-        $data['user_imgs'] = $db->getAll('encouter_img', array('encouter_id' => $id), array('img'));
+        $data['user_imgs'] = $db->getAll('encouter_img', array('encouter_id' => $id), array('id','img'));
         echo json_result($data);
 }
 
@@ -537,8 +537,6 @@ function waitAgain(){
         if (empty($userid)) {
                 echo json_result(null, '2', '请您先登录');
                 return;
-        } else {
-                $data['user_id'] = $userid;
         }
         if ($db->getCount('encouter',array('id'=>$encouterid,'user_id'=>$userid))<=0){
                 echo json_result(null, '3', '这不是您寄存的咖啡,不可续存');
@@ -569,10 +567,57 @@ function waitAgain(){
 
 //删除等候的图片
 function watiCafeDelImg(){
-        
+        global $db;
+        $encouterid = filter(!empty($_REQUEST['encouterid']) ? $_REQUEST['encouterid'] : '');
+        $userid = filter(!empty($_REQUEST['loginid']) ? $_REQUEST['loginid'] : '');
+        $imgid = filter(!empty($_REQUEST['imgid']) ? $_REQUEST['imgid'] : '');
+        if (empty($userid)) {
+                echo json_result(null, '2', '请您先登录');
+                return;
+        }
+        if ($db->getCount('encouter',array('id'=>$encouterid,'user_id'=>$userid))<=0){
+                echo json_result(null, '3', '这不是您等候的咖啡,不可续存');
+                return;
+        }
+        $img=$db->getRow('encouter_img',array('id'=>$imgid));
+        $img['img'];
+        $path=str_replace(APP_SITE, "", $img['img']);
+	unlink($path);
+        $db->delete('encouter_img',array('id'=>$imgid));
+        echo json_result(array('success'=>'TRUE'));
 }
 
 //上传等候的图片
 function watiCafeUploadImg(){
+        global $db;
+        $encouterid = filter(!empty($_REQUEST['encouterid']) ? $_REQUEST['encouterid'] : '');
+        $userid = filter(!empty($_REQUEST['loginid']) ? $_REQUEST['loginid'] : '');
+        if (empty($userid)) {
+                echo json_result(null, '2', '请您先登录');
+                return;
+        }
+        if ($db->getCount('encouter',array('id'=>$encouterid,'user_id'=>$userid))<=0){
+                echo json_result(null, '3', '这不是您等候的咖啡');
+                return;
+        }
+        $upload = new UpLoad();
+        $folder = "upload/encouterPhoto/";
+        if (!file_exists($folder)) {
+                mkdir($folder, 0777);
+        }
+        $upload->setDir($folder . date("Ymd") . "/");
+        $upload->setPrefixName('user' . $userid);
+        $file = $upload->upLoad('photo'); //$_File['photo'.$i]
+        if ($file['status'] != 1) {
+                echo json_result(null, '701', $file['errMsg']);
+                return;
+        }else{
+            $photo=array();
+            $photo['img'] = APP_SITE . $file['file_path'];
+            $photo['user_id'] = $userid;
+            $photo['encouter_id'] = $encouterid;
+            $photo['created'] = date("Y-m-d H:i:s");
+            $db->create('encouter_img', $photo);
+        }
         
 }
