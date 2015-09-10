@@ -207,7 +207,7 @@ function collectShops(){
 	$start = ($page_no - 1) * $page_size;
 
 	$isopensql=getIsopensql();
-	$sql="select shop.id as shop_id,shop.title,shop.subtitle,shop.img,shop.lng,shop.lat,".$isopensql." from ".DB_PREFIX."shop shop left join ".DB_PREFIX."shop_users shopuser on shop.id=shopuser.shop_id where shopuser.user_id=".$loginid." and status=2 ";
+	$sql="select shop.id as shop_id,shop.title,shop.subtitle,shop.hours,shop.img,shop.lng,shop.lat,".$isopensql." from ".DB_PREFIX."shop shop left join ".DB_PREFIX."shop_users shopuser on shop.id=shopuser.shop_id where shopuser.user_id=".$loginid." and status=2 ";
 	$sql.=(!empty($lng)&&!empty($lat))?" order by sqrt(power(lng-{$lng},2)+power(lat-{$lat},2))":'';
 
 	$sql .= " limit $start,$page_size";

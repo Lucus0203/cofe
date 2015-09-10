@@ -83,7 +83,7 @@ function collectEvents(){
 	$page_size = PAGE_SIZE;
 	$start = ($page_no - 1) * $page_size;
 
-	$sql="select pe.id as event_id,pe.title,pe.datetime,pe.lng,pe.lat from ".DB_PREFIX."public_event pe left join ".DB_PREFIX."public_users pu on pe.id=pu.public_event_id where pu.user_id=".$loginid;
+	$sql="select pe.id as event_id,pe.img,pe.title,pe.datetime,pe.lng,pe.lat from ".DB_PREFIX."public_event pe left join ".DB_PREFIX."public_users pu on pe.id=pu.public_event_id where pu.user_id=".$loginid;
 	$sql.=(!empty($lng)&&!empty($lat))?" order by sqrt(power(lng-{$lng},2)+power(lat-{$lat},2))":'';
 
 	$sql .= " limit $start,$page_size";

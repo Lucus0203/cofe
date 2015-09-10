@@ -175,7 +175,8 @@ function register(){
 	$user['uuid']=$uuid;
 	$flag=$db->update('user', $user ,array('mobile'=>$mobile,'captcha_code'=>$code));
 	if($flag){
-		echo json_result('success');//成功
+                $userobj=$db->getRow('user',array('user_name'=>$mobile,'user_password'=>md5($user_pass)));
+		echo json_result(array('user_id'=>$userobj['id']));//成功
 	}else{
 		echo json_result(null,'101','注册失败,请联系客服');//失败
 	}

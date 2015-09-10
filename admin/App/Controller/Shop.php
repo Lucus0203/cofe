@@ -210,9 +210,9 @@ class Controller_Shop extends FLEA_Controller_Action {
                                         }
                                 }
                                 if($data['holidayflag']=='2'){
-                                        $holiday = !empty($holiday)?'  休息日:'.$holiday:'';
+                                        $holiday = !empty($holiday)?'  休息日:周'.$holiday:'';
                                 }elseif($data['holidayflag']=='3'){
-                                        $holiday = !empty($holiday)?'  休息日:'.$holiday.' 时间:'.$data['holidayhours1'].'~'.$data['holidayhours2']:'';
+                                        $holiday = !empty($holiday)?'  休息日:周'.$holiday.' 时间:'.$data['holidayhours1'].'~'.$data['holidayhours2']:'';
                                 }
                         }
                         $data['hours']=$hours.$holiday;
@@ -327,9 +327,9 @@ class Controller_Shop extends FLEA_Controller_Action {
                                         }
                                 }
                                 if($data['holidayflag']=='2'){
-                                        $holiday = !empty($holiday)?'  休息日:'.$holiday:'';
+                                        $holiday = !empty($holiday)?'  休息日:周'.$holiday:'';
                                 }elseif($data['holidayflag']=='3'){
-                                        $holiday = !empty($holiday)?'  休息日:'.$holiday.' 时间:'.$data['holidayhours1'].'~'.$data['holidayhours2']:'';
+                                        $holiday = !empty($holiday)?'  休息日:周'.$holiday.' 时间:'.$data['holidayhours1'].'~'.$data['holidayhours2']:'';
                                 }
                         }
                         $data['hours']=$hours.$holiday;
