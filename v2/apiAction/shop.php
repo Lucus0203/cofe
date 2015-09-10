@@ -76,7 +76,7 @@ function shopInfo(){
 	//$page_size = PAGE_SIZE;
 	//$start = ($page_no - 1) * $page_size;
 	if(!empty($shopid)){
-		$shop=$db->getRow('shop',array('id'=>$shopid),array('id','title','tel','address','feature','introduction','hours','hours1','hours2','holidayflag','holidays','holidayhours1','holidayhours2','lng','lat'));
+		$shop=$db->getRow('shop',array('id'=>$shopid),array('id','title','img','tel','address','feature','introduction','hours','hours1','hours2','holidayflag','holidays','holidayhours1','holidayhours2','lng','lat'));
 		$shop['tel']=trim($shop['tel']);
 		$shop['distance']=(!empty($shop['lat'])&&!empty($shop['lng'])&&!empty($lng)&&!empty($lat))?getDistance($lat,$lng,$shop['lat'],$shop['lng']):lang_UNlOCATE;
                 //店内咖啡
@@ -98,7 +98,8 @@ function shopInfo(){
                         }
                 }
 		//店铺图片
-		$shop['imgs']=$db->getAll('shop_img',array('shop_id'=>$shopid),array('img','width','height'));
+                $imgsql="select img,width,height from ".DB_PREFIX."shop_img where shop_id = $shopid and img <> '{$shop['img']}' ";
+		$shop['imgs']=$db->getAllBySql($imgsql);
 		//是否营业中 1营业中2休息
 		if($shop['holidayflag']!=1){
 			if(strpos($shop['holidays'] , date("w"))!==false){

@@ -8,6 +8,9 @@ switch ($act) {
         case 'pay':
                 pay(); //同步ping++支付,创建订单
                 break;
+        case 'refund':
+                refund(); //同步ping++支付,申请退款
+                break;
         case 'secondPay':
                 secondPay();
                 break;
@@ -141,6 +144,48 @@ function pay() {
                 header('Status: ' . $e->getHttpStatus());
                 echo($e->getHttpBody());
         }
+}
+
+//申请退款
+function refund(){
+        global $db;
+        $orderid = !empty($input_data['orderid']) ? filter($input_data['orderid']) : '';
+        $loginid = !empty($input_data['loginid']) ? filter($input_data['loginid']) : '';
+        if (empty($loginid)) {
+                echo json_result(null, '2', '请您先登录');
+                return;
+        }
+        if ($db->getCount('order',array('id'=>$orderid,'user_id'=>$loginid))<=0){
+                echo json_result(null, '3', '订单获取失败');
+                return;
+        }
+        $order = $db->getRow('order', array('id' => $orderid));
+        $encouter=$db->getRow('encouter',array('id'=>$order['encouter_id']));
+        $days=floor( time() - strtotime($encouter['created']) / 60 / 60 / 24 );
+        if($encouter['days']==0 || $days < $encouter['days']){
+                echo json_result(null, '4', '您的咖啡还未过期');
+                return;
+        }
+        \Pingpp\Pingpp::setApiKey('sk_test_SSm1OOvD8anLzLaHSOGmnzzP');
+        $ch = \Pingpp\Charge::retrieve($order['charge_id']);
+        try {
+                $ch->refunds->create(
+                    array(
+                        'amount' => $order['pay_amount'],
+                        'description' => '[搅拌]申请退款'
+                    )
+                );
+                $db->excuteSql("begin;"); //使用事务查询状态并改变
+                $db->update('order',array('id'=>$orderid),array('refunded'=>1,'status'=>3));//申请退款中
+                $db->update('encouter',array('id'=>$order['encouter_id']),array('status'=>8));//取消寄存
+                $db->update('encouter_receive',array('encouter_id'=>$order['encouter_id']),array('status'=>3));//拒绝领取者
+                $db->excuteSql("commit;");
+                echo $ch;//json_result($ch);
+        } catch (\Pingpp\Error\Base $e) {
+                header('Status: ' . $e->getHttpStatus());
+                echo($e->getHttpBody());
+        }
+
 }
 
 //未支付的订单再次支付
@@ -281,7 +326,35 @@ function webhooks() {
                         header($_SERVER['SERVER_PROTOCOL'] . ' 200 OK');
                         break;
                 case "refund.succeeded":
-                        // 开发者在此处加入对退款异步通知的处理代码
+                        /**
+                         * 
+                         * alipay
+支付宝发起退款会返回一个 status 字段为 pending 的 Refund 对象，并在里面的 Refund 对象中的 failure_msg 字段里提供支付宝退款所需的退款页面的 URL，你需要打开该链接输入支付密码、确认并且完成退款，完成退款时你会收到退款成功的 Webhooks 通知。
+                         * 
+                         * wx
+微信发起退款后返回 Refund 对象，不过分为两种场景：
+对于微信旧渠道的零钱袋支付的订单，会返回 succeed 字段为 true 、status 为 succeeded 的 Refund 对象，你也会收到 Ping++ 的异步通知；对于微信新渠道的零钱袋支付的订单，会返回 succeed 字段为 false 、status 为 pending 的 Refund 对象，Ping++ 推送的 Webhooks 中返回 succeed 字段为 true 、status 为 succeeded；
+微信使用银行卡支付的订单，返回的是 succeed 字段为 false 、status 为 pending 的 Refund 对象，直到微信完成退款到银行卡的动作后你才会收到 Webhooks 通知，此时事件中 Refund 对象内的 status 为 succeeded。通常退款到银行卡所需的时间会比较长：借记卡是 1~3 个工作日，信用卡是 3~7 个工作日。
+                         * 
+                         */
+                        $data['refund_id'] = $event->data->object->id;
+                        $data['status']= $event->data->object->status; //支付状态1支付2未付
+                        $data['order_no'] = $event->data->object->order_no; //订单号
+                        $data['pay_amount'] = $event->data->object->amount; //支付金额
+                        $data['amount'] = floor($data['pay_amount']/100);
+                        $data['failure_msg'] = $event->data->object->failure_msg;
+                        $data['charge_id'] = $event->data->object->charge;
+                        $data['description']=$event->data->object->description;
+                        $data['failure_code']=$event->data->object->failure_code;
+                        $data['failure_msg']=$event->data->object->failure_msg;//支付宝退款链接
+                        if($db->getCount('order_refund',array('refund_id'=>$data['refund_id']))>0){
+                                $db->update('order_refund',array('refund_id'=>$refundid),$data);
+                        }else{
+                                $db->create('order_refund',$data);
+                        }
+                        if($data['status']=='succeeded'){
+                                $db->update('order',array('order_no'=>$data['order_no']),array('status'=>4));//已退款
+                        }
                         header($_SERVER['SERVER_PROTOCOL'] . ' 200 OK');
                         break;
                 default:

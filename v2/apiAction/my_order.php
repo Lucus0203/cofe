@@ -109,13 +109,13 @@ function depositAgain(){
         }
         
         if (empty($msg)) {
-                echo json_result(null, '10', '请输入你的寄语');
+                echo json_result(null, '11', '请输入你的寄语');
                 return;
         } else {
                 $data['msg'] = $msg;
         }
         $data['created'] = date("Y-m-d H:i:s");
-        $db->update('encouter',array('id'=>$encouterid), $data);
+        $db->update('encouter', $data , array('id'=>$encouterid));
         //插入人物标签
         if (!empty($tag_ids)) {
                 $db->delete('encouter_usertag',array('encouter_id'=>$encouterid));
