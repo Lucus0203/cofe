@@ -79,7 +79,7 @@ function getVerificationCode(){
 		$db->create('user', $user);
 	}
 	$sms=new Sms();
-	$sms->sendMsg("您本次验证码是:".$code."，欢迎您使用", $mobile);
+	$sms->sendMsg("您本次验证码是:".$code, $mobile);
 	echo json_result('success');//array('code'=>$code)
 	
 }

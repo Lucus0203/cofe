@@ -25,9 +25,11 @@ switch ($act){
 	case 'togetherEvent'://对求伴者发起搭伴邀请
 		togetherEvent();
 		break;
-	case 'eventFeedback';
+	case 'eventFeedback':
 		eventFeedback();//活动反馈纠错
 		break;
+        case 'collectUsers':
+                collectUsers();
 	default:
 		break;
 }
@@ -163,7 +165,7 @@ function eventInfo(){
 	$groupusersql="select u.id as user_id,u.nick_name,u.user_name,u.photo_head from ".DB_PREFIX."public_event_together pet left join ".DB_PREFIX."user u on pet.user_id = u.id where pet.other_id is null order by id asc ";
 	$pub_event['groupusers']=$db->getAllBySql($groupusersql);
 	//活动用户及头像地址
-	$sql="select u.id as user_id,u.nick_name,u.user_name,up.path from ".DB_PREFIX."public_users pu left join ".DB_PREFIX."user u on pu.user_id = u.id left join ".DB_PREFIX."user_photo up on u.head_photo_id = up.id where pu.public_event_id=".$id;
+	$sql="select u.id as user_id,u.nick_name,u.user_name,u.head_photo as path from ".DB_PREFIX."public_users pu left join ".DB_PREFIX."user u on pu.user_id = u.id where pu.public_event_id=".$id;
 	$pub_event['user_count']=$db->getCountBySql($sql);//关注人数
 	$pub_event['users_photo']=$db->getAllBySql($sql);
 	//是否收藏
@@ -212,3 +214,34 @@ function eventFeedback(){
 	echo json_result('success');
 }
 
+//关注/收藏的人
+function collectUsers(){
+        global $db;
+	$eventid=filter($_REQUEST['eventid']);
+	$loginid=filter($_REQUEST['loginid']);
+        $page_no = isset($_GET ['page']) ? $_GET ['page'] : 1;
+        $page_size = PAGE_SIZE;
+        $start = ($page_no - 1) * $page_size;
+        if(!empty($loginid)){
+                $sql="select user.id as user_id,user.nick_name,user.head_photo,user.sex,user.birthday,if(ur.id is null,1,2) as isfollowed from ".DB_PREFIX."public_users pu "
+                        . "left join ".DB_PREFIX."user user on pu.user_id=user.id "
+                        . "left join ".DB_PREFIX."user_relation ur on ur.user_id=$loginid and ur.relation_id=user.id "
+                        . "where pu.public_event_id = ".$eventid." and pu.user_id != $loginid ";
+        }else{
+                 $sql="select user.id as user_id,user.nick_name,user.head_photo,user.sex,user.birthday,1 as status from ".DB_PREFIX."public_users pu "
+                        . "left join ".DB_PREFIX."user user on pu.user_id=user.id "
+                        . "where pu.public_event_id = ".$eventid;
+        }
+        $sql .= " limit $start,$page_size";
+        $data=$db->getAllBySql($sql);
+        foreach ($data as $k => $v) {
+                $data[$k]['age']='';
+                $data[$k]['constellation']='保密';
+                if(!empty($v['birthday'])){
+                        $data[$k]['age'] = floor((time()-strtotime($v['birthday'])) / 60 / 60 / 24 / 365);
+                        $data[$k]['constellation'] =  get_zodiac_sign(date("n",strtotime($v['birthday'])), date("j",strtotime($v['birthday'])));
+                }
+        }
+        echo json_result(array('users'=>$data));
+        
+}
