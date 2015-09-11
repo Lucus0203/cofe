@@ -36,7 +36,7 @@ function nearbyShops(){
 	$lat=filter($_REQUEST['lat']);
 	$city_code=filter($_REQUEST['city_code']);
 	$area_id=filter($_REQUEST['area_id']);
-	$circle_id=filter($_REQUEST['circel_id']);
+	$circle_id=filter($_REQUEST['circle_id']);
 	$keyword=filter($_REQUEST['keyword']);
 	$tag_ids=filter($_REQUEST['tag_ids']);
 	$page_no = isset ( $_GET ['page'] ) ? $_GET ['page'] : 1;

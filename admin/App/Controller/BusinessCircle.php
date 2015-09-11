@@ -102,7 +102,7 @@ class Controller_BusinessCircle extends FLEA_Controller_Action {
 	function actionAddCity(){ //添加城市
 		$data=$_POST;
                 foreach ($data['name'] as $n){
-                    if(!empty($n)){
+                    if(!empty($n)&&!empty($data['province_id'])){
                         $obj=array('province_id'=>$data['province_id'],'name'=>$n);
                         $obj['pinyin']=$this->_common->getFirstCharter($n);
                         $geo=$this->_common->getLngFromBaidu($n);
@@ -119,7 +119,7 @@ class Controller_BusinessCircle extends FLEA_Controller_Action {
 	function actionAddArea(){ //添加区域
 		$data=$_POST;
                 foreach ($data['name'] as $n){
-                    if(!empty($n)){
+                    if(!empty($n)&&!empty($data['province_id'])&&!empty($data['city_id'])){
                         $obj=array('province_id'=>$data['province_id'],'city_id'=>$data['city_id'],'name'=>$n);
                         $this->_shop_addarea->create($obj);
                     }
@@ -130,7 +130,7 @@ class Controller_BusinessCircle extends FLEA_Controller_Action {
 	function actionAddCircle(){ //添加商圈
 		$data=$_POST;
                 foreach ($data['name'] as $n){
-                    if(!empty($n)){
+                    if(!empty($n)&&!empty($data['province_id'])&&!empty($data['city_id'])&&!empty($data['area_id'])){
                         $obj=array('province_id'=>$data['province_id'],'city_id'=>$data['city_id'],'area_id'=>$data['area_id'],'name'=>$n);
                         $this->_shop_addcircle->create($obj);
                     }
