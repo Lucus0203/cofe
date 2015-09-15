@@ -52,6 +52,9 @@ if (!empty($c)) {
         case 'myOrder':
             include 'apiAction/my_order.php';
             break;
+        case 'setting':
+            include 'apiAction/setting.php';
+            break;
         default:
             break;
     }
