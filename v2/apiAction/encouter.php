@@ -340,19 +340,18 @@ function nearCafe() {
 function cafeInfo() {
         global $db;
         $id = filter($_REQUEST['id']);
-        $sql = "select encouter.id as encouter_id,encouter.type,encouter.user_id,user.head_photo,user.nick_name,encouter.shop_id,shop.title as shop_title,shop.img as shop_img,shop.lng,shop.lat,encouter.days,encouter.people_num,encouter.transfer_num,encouter.product1 as cafe1,encouter.product_img1 as cafe_img1,encouter.price1,encouter.product2 as cafe2,encouter.product_img2 as cafe_img2,encouter.price2,encouter.msg,encouter.question,encouter.topic,encouter.tag_sex from " . DB_PREFIX . "encouter encouter "
+        $sql = "select encouter.id as encouter_id,encouter.type,encouter.user_id,user.head_photo,user.nick_name,prev_user.head_photo as prev_head_photo,prev_user.nick_name as prev_nick_name,encouter.shop_id,shop.title as shop_title,shop.img as shop_img,shop.lng,shop.lat,prev_shop.lng as prev_lng,prev_shop.lat as prev_lat,encouter.days,encouter.people_num,encouter.transfer_num,encouter.product1 as cafe1,encouter.product_img1 as cafe_img1,encouter.price1,encouter.product2 as cafe2,encouter.product_img2 as cafe_img2,encouter.price2,encouter.msg,encouter.question,encouter.topic,encouter.tag_sex,encouter.status from " . DB_PREFIX . "encouter encouter "
                 . "left join " . DB_PREFIX . "user user on encouter.user_id=user.id "
                 . "left join " . DB_PREFIX . "shop shop on encouter.shop_id=shop.id "
-                . "left join " . DB_PREFIX . "encouter prencouter on prencouter.id=encouter.prev_encouter_id "
+                . "left join " . DB_PREFIX . "encouter prev_encouter on prev_encouter.id=encouter.prev_encouter_id "
+                . "left join " . DB_PREFIX . "user prev_user on prev_encouter.user_id=user.id "
+                . "left join " . DB_PREFIX . "shop prev_shop on prev_encouter.shop_id=prev_shop.id "
                 . "where encouter.id = {$id}";
         $data = $db->getRowBySql($sql);
-        $tagsql = "select tag.id,tag.name from " . DB_PREFIX . "encouter_usertag usertag "
+        $tagsql = "select tag.id as tag_id,tag.name as tag_name from " . DB_PREFIX . "encouter_usertag usertag "
                 . "left join " . DB_PREFIX . "base_user_tag tag on usertag.tag_id=tag.id "
                 . "where usertag.encouter_id={$id}";
         $data['tags'] = $db->getAllBySql($tagsql);
-        if(!empty($data['tag_sex'])){
-                $data['tags'][]['name']=$data['tag_sex']==1?'帅哥':'美女';
-        }
         $data['user_imgs'] = $db->getAll('encouter_img', array('encouter_id' => $id), array('id','img'));
         echo json_result($data);
 }

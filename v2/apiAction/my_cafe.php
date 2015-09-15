@@ -64,7 +64,7 @@ function depositInfo(){
     $page_no = isset($_GET ['page']) ? $_GET ['page'] : 1;
     $page_size = PAGE_SIZE;
     $start = ($page_no - 1) * $page_size;
-    $sql = "select encouter.id as encouter_id,encouter.type,encouter.product1 as menu1,encouter.product_img1 as menu_img1,encouter.price1,encouter.product2 as menu2,encouter.product_img2 as menu_img2,encouter.price2,encouter.shop_id,shop.title as shop_name,encouter.status,encouter.verifycode,encouter.created from " . DB_PREFIX . "encouter encouter "
+    $sql = "select encouter.id as encouter_id,encouter.type,encouter.product1 as menu1,encouter.product_img1 as menu_img1,encouter.price1,encouter.product2 as menu2,encouter.product_img2 as menu_img2,encouter.price2,encouter.shop_id,shop.title as shop_name,shop.img as shop_img,encouter.status,encouter.verifycode,encouter.created from " . DB_PREFIX . "encouter encouter "
             . "left join " . DB_PREFIX . "shop shop on shop.id=encouter.shop_id "
             . "where encouter.id = {$encouterid} and encouter.user_id = {$loginid}";
     $data = $db->getRowBySql($sql);

@@ -149,6 +149,8 @@ function pay() {
 //申请退款
 function refund(){
         global $db;
+        //$input_data = json_decode(file_get_contents('php://input'), true);
+        $input_data = $_POST;
         $orderid = !empty($input_data['orderid']) ? filter($input_data['orderid']) : '';
         $loginid = !empty($input_data['loginid']) ? filter($input_data['loginid']) : '';
         if (empty($loginid)) {
@@ -160,10 +162,14 @@ function refund(){
                 return;
         }
         $order = $db->getRow('order', array('id' => $orderid));
+        if($order['status']==3){
+                echo json_result(null, '4', '您的订单已申请退款,正在处理中');
+                return;
+        }
         $encouter=$db->getRow('encouter',array('id'=>$order['encouter_id']));
         $days=floor( time() - strtotime($encouter['created']) / 60 / 60 / 24 );
         if($encouter['days']==0 || $days < $encouter['days']){
-                echo json_result(null, '4', '您的咖啡还未过期');
+                echo json_result(null, '5', '您的咖啡还未过期');
                 return;
         }
         \Pingpp\Pingpp::setApiKey('sk_test_SSm1OOvD8anLzLaHSOGmnzzP');
@@ -176,14 +182,13 @@ function refund(){
                     )
                 );
                 $db->excuteSql("begin;"); //使用事务查询状态并改变
-                $db->update('order',array('id'=>$orderid),array('refunded'=>1,'status'=>3));//申请退款中
-                $db->update('encouter',array('id'=>$order['encouter_id']),array('status'=>8));//取消寄存
-                $db->update('encouter_receive',array('encouter_id'=>$order['encouter_id']),array('status'=>3));//拒绝领取者
+                $db->update('order',array('refunded'=>1,'status'=>3),array('id'=>$orderid));//申请退款中
+                $db->update('encouter',array('status'=>8),array('id'=>$order['encouter_id']));//取消寄存
+                $db->update('encouter_receive',array('status'=>3),array('encouter_id'=>$order['encouter_id']));//拒绝领取者
                 $db->excuteSql("commit;");
-                echo $ch;//json_result($ch);
+                echo json_result(array('success'=>'TURE'));
         } catch (\Pingpp\Error\Base $e) {
-                header('Status: ' . $e->getHttpStatus());
-                echo($e->getHttpBody());
+                echo json_result(null,'6','退款失败,状态:'.$e->getHttpStatus());
         }
 
 }

@@ -162,7 +162,7 @@ function eventInfo(){
 	//活动海报
 	$pub_event['photos']=$db->getAll("public_photo",array('public_event_id'=>$id));//活动海报
 	//获取搭伴用户
-	$groupusersql="select u.id as user_id,u.nick_name,u.user_name,u.photo_head from ".DB_PREFIX."public_event_together pet left join ".DB_PREFIX."user u on pet.user_id = u.id where pet.other_id is null order by id asc ";
+	$groupusersql="select u.id as user_id,u.nick_name,u.user_name,u.head_photo from ".DB_PREFIX."public_event_together pet left join ".DB_PREFIX."user u on pet.user_id = u.id where pet.other_id is null order by pet.id asc ";
 	$pub_event['groupusers']=$db->getAllBySql($groupusersql);
 	//活动用户及头像地址
 	$sql="select u.id as user_id,u.nick_name,u.user_name,u.head_photo as path from ".DB_PREFIX."public_users pu left join ".DB_PREFIX."user u on pu.user_id = u.id where pu.public_event_id=".$id;
@@ -196,7 +196,10 @@ function togetherEvent(){
 	$datetime=filter($_REQUEST['datetime']);
 	$address=filter($_REQUEST['address']);
 	$note=filter($_REQUEST['note']);
-	$db->create('public_event_together_others', array('public_event_id'=>$id,'user_id'=>$userid,'other_id'=>$loginid,'datetime'=>$datetime,'address'=>$address,'note'=>$note));
+	$pay_type=filter($_REQUEST['pay_type']);//1我买单2请我吧3AA制
+        $event=$db->getRow('pubilc_event',array('id'=>$id));
+        
+	$db->create('public_event_together_others', array('public_event_id'=>$id,'title'=>$event['title'],'user_id'=>$userid,'other_id'=>$loginid,'datetime'=>$datetime,'address'=>$address,'note'=>$note,'pay_type'=>$pay_type,'isreaded_other'=>1));
 	echo json_result('success');
 }
 
