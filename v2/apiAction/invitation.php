@@ -88,7 +88,7 @@ function getInvitation(){
 		return;
         }
         if($invt_type==1){//普通邀请函
-            $sql="select 1 as invt_type,invitation.title,invitation.datetime,invitation.address,invitation.shop_id,invitation.pay_type,invitation.note,invitation.stauts,invitation.user_id,invitation.to_user_id,from_user.id as left_user_id,from_user.head_photo as left_head_photo,to_user.id as right_user_id,to_user.head_photo as right_head_photo from ".DB_PREFIX."invitation invitation "
+            $sql="select 1 as invt_type,invitation.title,invitation.datetime,invitation.address,invitation.shop_id,invitation.pay_type,invitation.note,invitation.status,invitation.user_id,invitation.to_user_id,from_user.id as left_user_id,from_user.head_photo as left_head_photo,to_user.id as right_user_id,to_user.head_photo as right_head_photo from ".DB_PREFIX."invitation invitation "
                     . "left join ".DB_PREFIX."user from_user on from_user.id=invitation.user_id "
                     . "left join ".DB_PREFIX."user to_user on to_user.id=invitation.to_user_id ";
             $invitation=$db->getRowBySql($sql);
@@ -101,7 +101,7 @@ function getInvitation(){
             }
             unset($invitation['to_user_id']);
         }else{//活动邀请函
-            $sql="select 2 as invt_type,invitation.title,invitation.datetime,invitation.address,invitation.public_event_id as event_id,invitation.pay_type,invitation.note,invitation.stauts,invitation.user_id,invitation.other_id,from_user.id as left_user_id,from_user.head_photo as left_head_photo,to_user.id as right_user_id,to_user.head_photo as right_head_photo from ".DB_PREFIX."public_event_together_others invitation "
+            $sql="select 2 as invt_type,invitation.title,invitation.datetime,invitation.address,invitation.public_event_id as event_id,invitation.pay_type,invitation.note,invitation.status,invitation.user_id,invitation.other_id,from_user.id as left_user_id,from_user.head_photo as left_head_photo,to_user.id as right_user_id,to_user.head_photo as right_head_photo from ".DB_PREFIX."public_event_together_others invitation "
                     . "left join ".DB_PREFIX."user from_user on from_user.id=invitation.other_id "
                     . "left join ".DB_PREFIX."user to_user on to_user.id=invitation.user_id ";
             $invitation=$db->getRowBySql($sql);

@@ -55,6 +55,9 @@ if (!empty($c)) {
         case 'setting':
             include 'apiAction/setting.php';
             break;
+        case 'diary':
+            include 'apiAction/diary.php';
+            break;
         default:
             break;
     }

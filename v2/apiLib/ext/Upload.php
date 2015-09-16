@@ -37,7 +37,9 @@ class UpLoad {
 				'image/pjpeg',
 				'image/gif',
 				'image/bmp',
-				'image/x-png' 
+				'image/x-png',
+                                'audio/x-wav',
+                                'audio/wav'
 		);
 	}
 	/**

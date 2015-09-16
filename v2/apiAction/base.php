@@ -40,7 +40,8 @@ function getVer(){
                     'ShopTag'=>'1.0',
                     'UserTag'=>'1.0',
                     'Topic'=>'1.0',
-                    'Question'=>'1.0'
+                    'Question'=>'1.0',
+                    'CountryCityArea'=>'1.0'
                     ));
 }
 
