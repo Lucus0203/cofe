@@ -190,16 +190,42 @@ function joinEvent(){
 //对求伴者发起搭伴邀请
 function togetherEvent(){
 	global $db;
-	$id=filter($_REQUEST['eventid']);
+	$eventid=filter($_REQUEST['eventid']);
 	$userid=filter($_REQUEST['userid']);
 	$loginid=filter($_REQUEST['loginid']);
 	$datetime=filter($_REQUEST['datetime']);
 	$address=filter($_REQUEST['address']);
 	$note=filter($_REQUEST['note']);
 	$pay_type=filter($_REQUEST['pay_type']);//1我买单2请我吧3AA制
-        $event=$db->getRow('pubilc_event',array('id'=>$id));
-        
-	$db->create('public_event_together_others', array('public_event_id'=>$id,'title'=>$event['title'],'user_id'=>$userid,'other_id'=>$loginid,'datetime'=>$datetime,'address'=>$address,'note'=>$note,'pay_type'=>$pay_type,'isreaded_other'=>1));
+        $event=$db->getRow('public_event',array('id'=>$eventid));
+        $lng=$event['lng'];
+        $lat=$event['lat'];
+	if(empty($loginid)){
+		echo json_result(null,'2','请重新登录');
+		return;
+	}
+	if(empty($userid)){
+		echo json_result(null,'3','请选择你要搭伴的人');
+		return;
+	}
+	if(empty($datetime)){
+		echo json_result(null,'4','请选择时间');
+		return;
+	}
+	if(empty($note)){
+		echo json_result(null,'5','请填写寄语');
+		return;
+	}
+	if(empty($pay_type)){
+		echo json_result(null,'6','请选择资费类型');
+		return;
+	}
+        if($address!=$event['address']){
+            $reslg=getLngFromBaidu($address);
+            $lng=$reslg['lng'];
+            $lat=$reslg['lat'];
+        }
+	$db->create('public_event_together_others', array('public_event_id'=>$eventid,'title'=>$event['title'],'user_id'=>$userid,'other_id'=>$loginid,'datetime'=>$datetime,'address'=>$address,'lng'=>$lng,'lat'=>$lat,'note'=>$note,'pay_type'=>$pay_type,'status'=>1,'isreaded_other'=>1));
 	echo json_result('success');
 }
 

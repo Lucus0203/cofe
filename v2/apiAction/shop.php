@@ -98,8 +98,13 @@ function shopInfo(){
                         }
                 }
 		//店铺图片
-                $imgsql="select img,width,height from ".DB_PREFIX."shop_img where shop_id = $shopid and img <> '{$shop['img']}' ";
+                $imgsql="select id,img,width,height from ".DB_PREFIX."shop_img where shop_id = $shopid and img <> '{$shop['img']}' ";
 		$shop['imgs']=$db->getAllBySql($imgsql);
+                $first_img_sql="select id,img,width,height from ".DB_PREFIX."shop_img where shop_id = $shopid and img = '{$shop['img']}' ";
+                $first_img=$db->getRowBySql($first_img_sql);
+                if(!empty($first_img)){
+                    array_unshift($shop['imgs'],$first_img);
+                }
 		//是否营业中 1营业中2休息
 		if($shop['holidayflag']!=1){
 			if(strpos($shop['holidays'] , date("w"))!==false){

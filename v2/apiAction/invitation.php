@@ -34,7 +34,7 @@ switch ($act){
 function sendInvitation(){
 	global $db;
 	
-	$userid=filter(!empty($_REQUEST['userid'])?$_REQUEST['userid']:'');
+	$userid=filter(!empty($_REQUEST['loginid'])?$_REQUEST['loginid']:'');
 	$to_userid=filter(!empty($_REQUEST['touserid'])?$_REQUEST['touserid']:'');
 	$title=filterIlegalWord(!empty($_REQUEST['title'])?$_REQUEST['title']:'');
 	$datetime=filter(!empty($_REQUEST['datetime'])?$_REQUEST['datetime']:'');
@@ -88,9 +88,10 @@ function getInvitation(){
 		return;
         }
         if($invt_type==1){//普通邀请函
-            $sql="select 1 as invt_type,invitation.title,invitation.datetime,invitation.address,invitation.shop_id,invitation.pay_type,invitation.note,invitation.status,invitation.user_id,invitation.to_user_id,from_user.id as left_user_id,from_user.head_photo as left_head_photo,to_user.id as right_user_id,to_user.head_photo as right_head_photo from ".DB_PREFIX."invitation invitation "
+            $sql="select invitation.id as inviteid,1 as invt_type,invitation.title,invitation.datetime,invitation.address,invitation.shop_id,invitation.pay_type,invitation.note,invitation.status,invitation.user_id,invitation.to_user_id,from_user.id as left_user_id,from_user.head_photo as left_head_photo,to_user.id as right_user_id,to_user.head_photo as right_head_photo from ".DB_PREFIX."invitation invitation "
                     . "left join ".DB_PREFIX."user from_user on from_user.id=invitation.user_id "
-                    . "left join ".DB_PREFIX."user to_user on to_user.id=invitation.to_user_id ";
+                    . "left join ".DB_PREFIX."user to_user on to_user.id=invitation.to_user_id "
+                    . "where invitation.id=$invt_id ";
             $invitation=$db->getRowBySql($sql);
             if($invitation['user_id']==$loginid){
                     $db->update('invitation', array('isreaded_user'=>1),array('id'=>$invt_id));
@@ -101,9 +102,10 @@ function getInvitation(){
             }
             unset($invitation['to_user_id']);
         }else{//活动邀请函
-            $sql="select 2 as invt_type,invitation.title,invitation.datetime,invitation.address,invitation.public_event_id as event_id,invitation.pay_type,invitation.note,invitation.status,invitation.user_id,invitation.other_id,from_user.id as left_user_id,from_user.head_photo as left_head_photo,to_user.id as right_user_id,to_user.head_photo as right_head_photo from ".DB_PREFIX."public_event_together_others invitation "
+            $sql="select invitation.id as inviteid,2 as invt_type,invitation.title,invitation.datetime,invitation.address,invitation.lng,invitation.lat,invitation.public_event_id as event_id,invitation.pay_type,invitation.note,invitation.status,invitation.user_id,invitation.other_id,from_user.id as left_user_id,from_user.head_photo as left_head_photo,to_user.id as right_user_id,to_user.head_photo as right_head_photo from ".DB_PREFIX."public_event_together_others invitation "
                     . "left join ".DB_PREFIX."user from_user on from_user.id=invitation.other_id "
-                    . "left join ".DB_PREFIX."user to_user on to_user.id=invitation.user_id ";
+                    . "left join ".DB_PREFIX."user to_user on to_user.id=invitation.user_id "
+                    . "where invitation.id=$invt_id ";
             $invitation=$db->getRowBySql($sql);
             if($invitation['user_id']==$loginid){
                     $db->update('public_event_together_others', array('isreaded_user'=>1),array('id'=>$invt_id));
@@ -312,7 +314,7 @@ function invitationBySend(){
                 left join ".DB_PREFIX."user tu on inv.to_user_id = tu.id where 1=1 "
                 . " and inv.user_id=$loginid and inv.del_user <> '1' ";
         
-        $sql2="select pto.id as invt_id,2 as invt_type,pto.user_id as to_user_id,p_tu.head_photo as to_head_photo,p_tu.nick_name as to_nick_name,pto.status,pto.isreaded_other as isreaded,pto.isreaded_user as to_isreaded,pto.created from ".DB_PREFIX."public_event_together_others pto "
+        $sql2="select pto.id as invt_id,2 as invt_type,pto.user_id as to_user_id,p_tu.nick_name as to_nick_name,p_tu.head_photo as to_head_photo,pto.status,pto.isreaded_other as isreaded,pto.isreaded_user as to_isreaded,pto.created from ".DB_PREFIX."public_event_together_others pto "
                 . "left join ".DB_PREFIX."user p_u on pto.other_id = p_u.id "
                 . "left join ".DB_PREFIX."user p_tu on pto.user_id = p_tu.id where 1=1 "
                 . " and pto.other_id=$loginid and pto.del_other <> '1' ";

@@ -277,7 +277,7 @@ function info(){
 	$data=filter($_REQUEST);
 	$user_id=$data['userid'];
 	$loginid=$data['loginid'];//登陆者id
-	$info=$db->getRow('user',array('id'=>$user_id),array('id','head_photo','sex','birthday','nick_name','height','emotion','frequented','weight','blood','hometown','home_province_id','home_city_id','home_town_id','profession','salary','career','hobby','personality'));
+	$info=$db->getRow('user',array('id'=>$user_id),array('id','head_photo','sex','birthday','user_name','nick_name','height','emotion','frequented','weight','blood','hometown','home_province_id','home_city_id','home_town_id','profession','salary','career','hobby','personality'));
 	//查询人物关系 当loginid不为空的时候
 	if(!empty($loginid)){
 		//好友关系
@@ -358,15 +358,16 @@ function infoEdit(){
                 $city=$db->getRow('address_city',array('id'=>$info['home_city_id']));
 	}
 	if(!empty($data['home_town_id'])){
-                $town=$db->getRow('address_town',array('id'=>$info['home_town_id']));
 		$info['home_town_id']=$data['home_town_id'];
+                $town=$db->getRow('address_town',array('id'=>$info['home_town_id']));
 	}
         if(!empty($data['home_province_id'])||!empty($data['home_city_id'])||!empty($data['home_town_id'])){
                 if($province['name']==$city['name']){
-                        $info['hometown']=$city['name'].$town['name'];
+                        $hometown=$city['name'].$town['name'];
                 }else{
-                        $info['hometown']=$province['name'].$city['name'].$town['name'];
+                        $hometown=$province['name'].$city['name'].$town['name'];
                 }
+                $info['hometown'] =  str_replace('-', '', $hometown);
         }
 	if(!empty($data['profession'])){//行业
 		$info['profession']=$data['profession'];
@@ -391,7 +392,7 @@ function infoEdit(){
 //		$info['ad_lat']=$loc->result->location->lat;
 //	}
 	$db->update('user', $info,array('id'=>$loginid));
-        $info=$db->getRow('user',array('id'=>$loginid),array('id','head_photo','sex','age','constellation','nick_name','height','emotion','frequented','weight','blood','hometown','profession','salary','career','hobby','personality'));
+        $info=$db->getRow('user',array('id'=>$loginid),array('id','head_photo','sex','age','constellation','user_name','nick_name','height','emotion','frequented','weight','blood','hometown','home_province_id','home_city_id','home_town_id','profession','salary','career','hobby','personality'));
 	echo json_result($info);
 }
 
@@ -435,8 +436,9 @@ function uploadImg(){
                 $photo['path']=APP_SITE.$file['file_path'];
                 $photo['user_id']=$user_id;
                 $photo['created']=date("Y-m-d H:i:s");
-                $db->create('user_photo', $photo);
+                $photo['id']=$db->create('user_photo', $photo);
 	}
+        $info['pid']=$photo['id'];
 	$info['user_photo']=$photo['path'];
 	echo json_result($info);
 }
@@ -487,7 +489,7 @@ function uploadHeadImg(){
 	$upload->setSWidth(260);
 	$upload->setLHeight(640);
 	$upload->setLWidth(640);
-	$file=$upload->upLoadImg('head_photo');//$_File['photo'.$i]
+	$file=$upload->upLoadImg('photo');//$_File['photo'.$i]
 	if($file['status']!=0&&$file['status']!=1){
 		echo json_result(null,'37',$file['errMsg']);
 		return;
@@ -501,7 +503,10 @@ function uploadHeadImg(){
                         unlink($path);
                 }
 		$info['head_photo']=APP_SITE.$file['s_path'];
-	}
+	}else{
+            echo json_result(null,'3',$file['errMsg']);
+            return ;
+        }
         $db->update('user', $info,array('id'=>$user_id));
 	echo json_result($info);
 }
