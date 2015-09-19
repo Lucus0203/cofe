@@ -252,7 +252,7 @@ function collectUsers(){
         $page_size = PAGE_SIZE;
         $start = ($page_no - 1) * $page_size;
         if(!empty($loginid)){
-                $sql="select user.id as user_id,user.nick_name,user.head_photo,user.sex,user.birthday,if(ur.id is null,1,2) as isfollowed from ".DB_PREFIX."public_users pu "
+                $sql="select user.id as user_id,user.nick_name,user.head_photo,user.sex,user.birthday,user.constellation,if(ur.id is null,1,2) as isfollowed from ".DB_PREFIX."public_users pu "
                         . "left join ".DB_PREFIX."user user on pu.user_id=user.id "
                         . "left join ".DB_PREFIX."user_relation ur on ur.user_id=$loginid and ur.relation_id=user.id "
                         . "where pu.public_event_id = ".$eventid." and pu.user_id != $loginid ";
@@ -265,10 +265,8 @@ function collectUsers(){
         $data=$db->getAllBySql($sql);
         foreach ($data as $k => $v) {
                 $data[$k]['age']='';
-                $data[$k]['constellation']='保密';
                 if(!empty($v['birthday'])){
                         $data[$k]['age'] = floor((time()-strtotime($v['birthday'])) / 60 / 60 / 24 / 365);
-                        $data[$k]['constellation'] =  get_zodiac_sign(date("n",strtotime($v['birthday'])), date("j",strtotime($v['birthday'])));
                 }
         }
         echo json_result(array('users'=>$data));

@@ -47,7 +47,7 @@ function addDiary(){
         $upload->setDir($folder . date("Ymd") . "/");
         $upload->setPrefixName('diary' . $loginid);
         $file = $upload->upLoad('voice');
-        if ($file['status'] == 4){
+        if ($file['status'] != 0 && $file['status'] != 1){
             echo json_result(null,'3',$file['errMsg']);
             return ;
         }elseif ($file['status'] == 1) {
@@ -67,7 +67,10 @@ function addDiary(){
                 foreach ($file['filepaths'] as $path) {
                         $photo['diary_id'] = $diary_id;
                         $photo['user_id'] = $loginid;
+                        list($width,$height,$type)=getimagesize($path);
                         $photo['img'] = APP_SITE . $path;
+                        $photo['width'] = $width;
+                        $photo['height'] = $height;
                         $photo['created'] = date("Y-m-d H:i:s");
                         $db->create('diary_img', $photo);
                 }
@@ -85,6 +88,10 @@ function getDiarys(){
 	$start = ($page_no - 1) * $page_size;
         if(empty($loginid)){
             echo json_result(null,'2','请重新登录');
+            return ;
+        }
+        if(empty($userid)){
+            echo json_result(null,'3','请选择你想查看的用户');
             return ;
         }
         $userallow=$db->getRow('user',array('id'=>$userid),array('allow_news'));//访问权限
@@ -106,14 +113,14 @@ function getDiarys(){
             echo json_result(null,'4','想看更多内容的话,请先成为TA的好友吧');
             return ;
         }
-        $sql="select id as diary_id,note,voice,voice_time,address,lng,lat,created from ".DB_PREFIX."diary diary where isdel=2 and user_id = $userid ";//isdel 1删除2正常
+        $sql="select id as diary_id,note,voice,voice_time,address,lng,lat,created from ".DB_PREFIX."diary diary where isdel=2 and user_id = $userid order by created desc ";//isdel 1删除2正常
 	$sql .= " limit $start,$page_size";
 	$diarys=$db->getAllBySql($sql);
         
         //获取相册留言等内容
         foreach ($diarys as $k=>$d){
             //相册
-            $imgsql="select id as img_id,img from ".DB_PREFIX."diary_img as img where diary_id=".$d['diary_id'];
+            $imgsql="select id as img_id,img,width,height from ".DB_PREFIX."diary_img as img where diary_id=".$d['diary_id'];
             $imgs=$db->getAllBySql($imgsql);
             if(count($imgs)>0){
                 $diarys[$k]['imgs']=$imgs;
@@ -160,8 +167,32 @@ function delDiaryImg(){
             echo json_result(null,'2','请重新登录');
             return ;
         }
+        $img=$db->getRow('diary_img',array('id'=>$imgid));
         $db->delete('diary_img',array('id'=>$imgid,'user_id'=>$loginid));
-        echo json_result(array('success'=>'TRUE'));
+        //返回慢生活信息
+        if(empty($img['diary_id'])){
+            echo json_result(null,'2','图片已删除');
+            return ;
+        }
+        $diary_id=$img['diary_id'];
+        $sql="select id as diary_id,note,voice,voice_time,address,lng,lat,created from ".DB_PREFIX."diary diary where id=$diary_id ";//isdel 1删除2正常
+	$diary=$db->getRowBySql($sql);
+        
+        //获取相册留言等内容
+        //相册
+        $imgsql="select id as img_id,img,width,height from ".DB_PREFIX."diary_img as img where diary_id=".$diary_id;
+        $imgs=$db->getAllBySql($imgsql);
+        if(count($imgs)>0){
+            $diary['imgs']=$imgs;
+        }
+        //留言
+        $msgsql="select msg.id as msg_id,msg.user_id as from_user_id,from_user.nick_name as from_nick_name,from_user.head_photo as from_head_photo,msg.to_user_id,to_user.nick_name as to_nick_name,to_user.head_photo as to_head_photo,msg.msg from ".DB_PREFIX."diary_msg msg left join " .DB_PREFIX. "user from_user on from_user.id=msg.user_id left join ".DB_PREFIX."user to_user on to_user.id=msg.to_user_id "
+                . "where msg.diary_id = ".$diary_id;
+        $msgs=$db->getAllBySql($msgsql);
+        if(count($msgs)>0){
+            $diary['msgs']=$msgs;
+        }
+        echo json_result(array('diary'=>$diary));
 }
 
 //留言
@@ -184,7 +215,10 @@ function leaveMsg(){
             $data['to_user_id']=$to_userid;
         }
         $db->create('diary_msg',$data);
-        echo json_result(array('success'=>'TRUE'));
+        $msgsql="select msg.id as msg_id,msg.user_id as from_user_id,from_user.nick_name as from_nick_name,from_user.head_photo as from_head_photo,msg.to_user_id,to_user.nick_name as to_nick_name,to_user.head_photo as to_head_photo,msg.msg from ".DB_PREFIX."diary_msg msg left join " .DB_PREFIX. "user from_user on from_user.id=msg.user_id left join ".DB_PREFIX."user to_user on to_user.id=msg.to_user_id "
+                    . "where msg.diary_id = ".$diaryid;
+        $msges=$db->getAllBySql($msgsql);
+        echo json_result(array('msges'=>$msges));
         
 }
 
@@ -197,8 +231,13 @@ function delMsg(){
             echo json_result(null,'2','请重新登录');
             return ;
         }
+        $msg=$db->getRow('diary_msg',array('id'=>$msgid));
+        $diary_id=$msg['diary_id'];
         $db->delete('diary_msg',array('id'=>$msgid,'user_id'=>$loginid));
-        echo json_result(array('success'=>'TRUE'));
+        $msgsql="select msg.id as msg_id,msg.user_id as from_user_id,from_user.nick_name as from_nick_name,from_user.head_photo as from_head_photo,msg.to_user_id,to_user.nick_name as to_nick_name,to_user.head_photo as to_head_photo,msg.msg from ".DB_PREFIX."diary_msg msg left join " .DB_PREFIX. "user from_user on from_user.id=msg.user_id left join ".DB_PREFIX."user to_user on to_user.id=msg.to_user_id "
+                    . "where msg.diary_id = ".$diary_id;
+        $msges=$db->getAllBySql($msgsql);
+        echo json_result(array('msges'=>$msges));
         
         
 }
