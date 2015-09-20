@@ -83,7 +83,7 @@ function getDiarys(){
         global $db;
 	$userid=filter(!empty($_REQUEST['userid'])?$_REQUEST['userid']:'');
 	$loginid=filter(!empty($_REQUEST['loginid'])?$_REQUEST['loginid']:'');
-	$page_no = isset ( $_GET ['page'] ) ? $_GET ['page'] : 1;
+	$page_no = isset ( $_REQUEST ['page'] ) ? $_REQUEST ['page'] : 1;
 	$page_size = PAGE_SIZE;
 	$start = ($page_no - 1) * $page_size;
         if(empty($loginid)){

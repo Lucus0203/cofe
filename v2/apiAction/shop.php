@@ -39,7 +39,7 @@ function nearbyShops(){
 	$circle_id=filter($_REQUEST['circle_id']);
 	$keyword=filter($_REQUEST['keyword']);
 	$tag_ids=filter($_REQUEST['tag_ids']);
-	$page_no = isset ( $_GET ['page'] ) ? $_GET ['page'] : 1;
+	$page_no = isset ( $_REQUEST ['page'] ) ? $_REQUEST ['page'] : 1;
 	$page_size = PAGE_SIZE;
 	$start = ($page_no - 1) * $page_size;
 	//是否营业中,1营业中,2休息
@@ -72,7 +72,7 @@ function shopInfo(){
 	$loginid=filter($_REQUEST['loginid']);
 	$lng=filter($_REQUEST['lng']);
 	$lat=filter($_REQUEST['lat']);
-	//$page_no = isset ( $_GET ['page'] ) ? $_GET ['page'] : 1;
+	//$page_no = isset ( $_REQUEST ['page'] ) ? $_REQUEST ['page'] : 1;
 	//$page_size = PAGE_SIZE;
 	//$start = ($page_no - 1) * $page_size;
 	if(!empty($shopid)){
@@ -207,7 +207,7 @@ function collectShops(){
 	}
 	$lng=filter($_REQUEST['lng']);
 	$lat=filter($_REQUEST['lat']);
-	$page_no = isset ( $_GET ['page'] ) ? $_GET ['page'] : 1;
+	$page_no = isset ( $_REQUEST ['page'] ) ? $_REQUEST ['page'] : 1;
 	$page_size = PAGE_SIZE;
 	$start = ($page_no - 1) * $page_size;
 

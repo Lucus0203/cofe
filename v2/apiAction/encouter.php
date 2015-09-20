@@ -42,7 +42,7 @@ function shopList(){
 	$lng=filter($_REQUEST['lng']);
 	$lat=filter($_REQUEST['lat']);
 	$city_code=filter($_REQUEST['city_code']);
-	$page_no = isset ( $_GET ['page'] ) ? $_GET ['page'] : 1;
+	$page_no = isset ( $_REQUEST ['page'] ) ? $_REQUEST ['page'] : 1;
 	$page_size = PAGE_SIZE;
 	$start = ($page_no - 1) * $page_size;
 	//是否营业中,1营业中,2休息
@@ -296,7 +296,7 @@ function nearCafe() {
         $tag_ids = filter($_REQUEST['tag_ids']);
         $tag_sex = filter($_REQUEST['tag_sex']);//1男2女
         $type = filter($_REQUEST['type']);
-        $page_no = isset($_GET ['page']) ? $_GET ['page'] : 1;
+        $page_no = isset($_REQUEST ['page']) ? $_REQUEST ['page'] : 1;
         $page_size = PAGE_SIZE;
 
         $sql = "select encouter.id,encouter.user_id,encouter.type,user.head_photo as img "

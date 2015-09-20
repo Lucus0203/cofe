@@ -40,7 +40,7 @@ function getEvents(){
 	$lng=filter($_REQUEST['lng']);
 	$lat=filter($_REQUEST['lat']);
 	$loginid=filter(!empty($_REQUEST['loginid'])?$_REQUEST['loginid']:'');
-	$page_no = isset ( $_GET ['page'] ) ? $_GET ['page'] : 1;
+	$page_no = isset ( $_REQUEST ['page'] ) ? $_REQUEST ['page'] : 1;
 	$page_size = PAGE_SIZE;
 	$start = ($page_no - 1) * $page_size;
 	
@@ -81,7 +81,7 @@ function collectEvents(){
 	}
 	$lng=filter($_REQUEST['lng']);
 	$lat=filter($_REQUEST['lat']);
-	$page_no = isset ( $_GET ['page'] ) ? $_GET ['page'] : 1;
+	$page_no = isset ( $_REQUEST ['page'] ) ? $_REQUEST ['page'] : 1;
 	$page_size = PAGE_SIZE;
 	$start = ($page_no - 1) * $page_size;
 
@@ -248,7 +248,7 @@ function collectUsers(){
         global $db;
 	$eventid=filter($_REQUEST['eventid']);
 	$loginid=filter($_REQUEST['loginid']);
-        $page_no = isset($_GET ['page']) ? $_GET ['page'] : 1;
+        $page_no = isset($_REQUEST ['page']) ? $_REQUEST ['page'] : 1;
         $page_size = PAGE_SIZE;
         $start = ($page_no - 1) * $page_size;
         if(!empty($loginid)){

@@ -51,7 +51,7 @@ function getEvents(){
 	global $db;
 	$lng=filter(!empty($_REQUEST['lng'])?$_REQUEST['lng']:'');
 	$lat=filter(!empty($_REQUEST['lat'])?$_REQUEST['lat']:'');
-	$page_no = isset ( $_GET ['page'] ) ? $_GET ['page'] : 1;
+	$page_no = isset ( $_REQUEST ['page'] ) ? $_REQUEST ['page'] : 1;
 	$page_size = PAGE_SIZE;
 	$start = ($page_no - 1) * $page_size;
 	$list=array();
@@ -79,7 +79,7 @@ function getEvents(){
 function myEvents(){
 	global $db;
 	$userid=filter($_REQUEST['userid']);
-	$page_no = isset ( $_GET ['page'] ) ? $_GET ['page'] : 1;
+	$page_no = isset ( $_REQUEST ['page'] ) ? $_REQUEST ['page'] : 1;
 	$page_size = PAGE_SIZE;
 	$start = ($page_no - 1) * $page_size;
 	if(empty($userid)){
@@ -102,7 +102,7 @@ function myEvents(){
 function myJoinEvents(){
 	global $db;
 	$userid=filter($_REQUEST['userid']);
-	$page_no = isset ( $_GET ['page'] ) ? $_GET ['page'] : 1;
+	$page_no = isset ( $_REQUEST ['page'] ) ? $_REQUEST ['page'] : 1;
 	$page_size = PAGE_SIZE;
 	$start = ($page_no - 1) * $page_size;
 	if(empty($userid)){
@@ -130,7 +130,7 @@ function eventInfo(){
 	$eventid=filter($_REQUEST['eventid']);
 	$lng=filter($_REQUEST['lng']);
 	$lat=filter($_REQUEST['lat']);
-	$page_no = isset ( $_GET ['page'] ) ? $_GET ['page'] : 1;
+	$page_no = isset ( $_REQUEST ['page'] ) ? $_REQUEST ['page'] : 1;
 	$page_size = PAGE_SIZE;
 	$start = ($page_no - 1) * $page_size;
 	if(empty($eventid)){
@@ -319,7 +319,7 @@ function someoneEvents(){
 	$userid=filter($_REQUEST['userid']);
 	$lng=filter($_REQUEST['lng']);
 	$lat=filter($_REQUEST['lat']);
-	$page_no = isset ( $_GET ['page'] ) ? $_GET ['page'] : 1;
+	$page_no = isset ( $_REQUEST ['page'] ) ? $_REQUEST ['page'] : 1;
 	$page_size = PAGE_SIZE;
 	$start = ($page_no - 1) * $page_size;
 	if(empty($userid)){

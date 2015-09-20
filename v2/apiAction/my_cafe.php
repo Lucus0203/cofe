@@ -40,7 +40,7 @@ function depositList() {
     $loginid = filter($_REQUEST['loginid']);
     $lng = filter($_REQUEST['lng']);
     $lat = filter($_REQUEST['lat']);
-    $page_no = isset($_GET ['page']) ? $_GET ['page'] : 1;
+    $page_no = isset($_REQUEST ['page']) ? $_REQUEST ['page'] : 1;
     $page_size = PAGE_SIZE;
     $start = ($page_no - 1) * $page_size;
     $sql = "select encouter.id as encouter_id,encouter.product1 as menu,encouter.product_img1 as menu_img,shop.title as shop_name,shop.lng,shop.lat,encouter.created,encouter.status,count(receive.id) as num from " . DB_PREFIX . "encouter encouter "
@@ -61,7 +61,7 @@ function depositInfo(){
     global $db;
     $loginid = filter($_REQUEST['loginid']);
     $encouterid = filter($_REQUEST['encouterid']);
-    $page_no = isset($_GET ['page']) ? $_GET ['page'] : 1;
+    $page_no = isset($_REQUEST ['page']) ? $_REQUEST ['page'] : 1;
     $page_size = PAGE_SIZE;
     $start = ($page_no - 1) * $page_size;
     $sql = "select encouter.id as encouter_id,encouter.type,encouter.product1 as menu1,encouter.product_img1 as menu_img1,encouter.price1,encouter.product2 as menu2,encouter.product_img2 as menu_img2,encouter.price2,encouter.shop_id,shop.title as shop_name,shop.img as shop_img,encouter.status,encouter.verifycode,encouter.created from " . DB_PREFIX . "encouter encouter "
@@ -93,7 +93,7 @@ function receiveList() {
     $loginid = filter($_REQUEST['loginid']);
     $lng = filter($_REQUEST['lng']);
     $lat = filter($_REQUEST['lat']);
-    $page_no = isset($_GET ['page']) ? $_GET ['page'] : 1;
+    $page_no = isset($_REQUEST ['page']) ? $_REQUEST ['page'] : 1;
     $page_size = PAGE_SIZE;
     $start = ($page_no - 1) * $page_size;
     $sql = "select receive.id as receive_id,receive.encouter_id,if(choice_menu=2,encouter.product2,encouter.product1) as menu,if(choice_menu=2,encouter.product_img2,product_img1) as menu_img,shop.title as shop_name,shop.lng,shop.lat,receive.created,receive.status from " . DB_PREFIX . "encouter_receive receive "
@@ -137,7 +137,7 @@ function waitList(){
     $loginid = filter($_REQUEST['loginid']);
     $lng = filter($_REQUEST['lng']);
     $lat = filter($_REQUEST['lat']);
-    $page_no = isset($_GET ['page']) ? $_GET ['page'] : 1;
+    $page_no = isset($_REQUEST ['page']) ? $_REQUEST ['page'] : 1;
     $page_size = PAGE_SIZE;
     $start = ($page_no - 1) * $page_size;
     $sql = "select encouter.id as wait_id,encouter.product1 as menu,encouter.product_img1 as menu_img,shop.title as shop_name,shop.lng,shop.lat,encouter.created,if(TIMESTAMPDIFF(DAY,encouter.created,now())>encouter.days && encouter.status=5,8,encouter.status) as status from " . DB_PREFIX . "encouter encouter "

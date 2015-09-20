@@ -300,7 +300,7 @@ function delInvitation(){
 function invitationBySend(){
 	global $db;
 	$loginid=filter(!empty($_REQUEST['loginid'])?$_REQUEST['loginid']:'');//登录者id
-	$page_no = isset ( $_GET ['page'] ) ? $_GET ['page'] : 1;
+	$page_no = isset ( $_REQUEST ['page'] ) ? $_REQUEST ['page'] : 1;
 	$page_size = 10;
 	$start = ($page_no - 1) * $page_size;
 	
@@ -327,7 +327,7 @@ function invitationBySend(){
 function invitationByAccept(){
 	global $db;
 	$loginid=filter(!empty($_REQUEST['loginid'])?$_REQUEST['loginid']:'');//登录者id
-	$page_no = isset ( $_GET ['page'] ) ? $_GET ['page'] : 1;
+	$page_no = isset ( $_REQUEST ['page'] ) ? $_REQUEST ['page'] : 1;
 	$page_size = 10;
 	$start = ($page_no - 1) * $page_size;
 	

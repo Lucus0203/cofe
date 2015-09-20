@@ -22,7 +22,7 @@ function orderlist(){
 	}
 	$type = filter($_REQUEST['type']);//1已付2未付3过期
         $type = empty($type)?1:$type;
-	$page_no = isset ( $_GET ['page'] ) ? $_GET ['page'] : 1;
+	$page_no = isset ( $_REQUEST ['page'] ) ? $_REQUEST ['page'] : 1;
 	$page_size = PAGE_SIZE;
 	$start = ($page_no - 1) * $page_size;
         $sql="select od.id as order_id,od.encouter_id,encouter.type as encouter_type,encouter.product_img1,encouter.product1,encouter.price1,encouter.product_img2,encouter.product2,encouter.price2,shop.title as shop,od.amount,od.created from ".DB_PREFIX."order od "
