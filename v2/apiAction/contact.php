@@ -77,7 +77,7 @@ function getFriends(){//好友/所有联系人(互相关注)
 	$s=$sql." and if ( (ur1.relation_name!='' and ur1.relation_name is not null),if(ur1.relation_pinyin='' or ur1.relation_pinyin is null,1,0),if(u.pinyin='' or u.pinyin is null,1,0) )  ORDER BY convert(nick_name using gbk); ";
         $others=$db->getAllBySql($s);
         if(!empty($others)){
-            $data['other']=$others;
+            $data['#']=$others;
         }
 	echo json_result($data);
 	
