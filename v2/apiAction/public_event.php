@@ -30,6 +30,10 @@ switch ($act){
 		break;
         case 'collectUsers':
                 collectUsers();
+                break;
+        case 'share':
+                share();
+                break;
 	default:
 		break;
 }
@@ -271,4 +275,20 @@ function collectUsers(){
         }
         echo json_result(array('users'=>$data));
         
+}
+
+//分享活动
+function share(){
+	global $db;
+	$eventid=filter($_REQUEST['eventid']);
+        if(empty($eventid)){
+            echo json_result(null,'2','请选择你要分享的活动');
+            return ;
+        }
+        $event=$db->getRow('public_event',array('id'=>$eventid));
+        $url=WEB_SITE.'eventDetail.html?p='.  base64_encode($eventid);
+        $title=$event['title'];
+        $img=$event['img'];
+        $share=array('url'=>$url,'title'=>$title,'img'=>$img);
+        echo json_result(array('share'=>$share));
 }

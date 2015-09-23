@@ -25,6 +25,9 @@ switch ($act){
 	case 'isCollect'://查看是否收藏
 		isCollect();
 		break;
+        case 'share'://分享
+                share();
+                break;
 	default:
 		break;
 }
@@ -240,33 +243,6 @@ function isCollect(){
 	}
 }
 
-//店铺留言
-function leaveMsg(){
-	global $db;
-	$shopid=filter($_REQUEST['shopid']);
-	$loginid=filter($_REQUEST['loginid']);
-	$content=filterIlegalWord($_REQUEST['content']);
-	if(empty($shopid)){
-		echo json_result(null,'24','该店铺已删除');
-		return;
-	}
-	if(empty($loginid)){
-		echo json_result(null,'25','用户未登录');
-		return;
-	}
-	if(empty($content)){
-		echo json_result(null,'26','留言内容为空');
-		return;
-	}
-	if($db->getCount('shop_bbs',array('user_id'=>$loginid,'shop_id'=>$shopid))>0){
-		echo json_result(null,'27','您已经评论过,非常感谢!');
-		return;
-	}
-	$num=$db->getCount('shop_bbs',array('shop_id'=>$shopid))+1;
-	$bbs=array('user_id'=>$loginid,'shop_id'=>$shopid,'num'=>$num,'content'=>$content,'created'=>date("Y-m-d H:i:s"));
-	$db->create('shop_bbs', $bbs);
-	echo json_result($bbs);
-}
 
 //店铺反馈
 function shopFeedback(){
@@ -280,6 +256,23 @@ function shopFeedback(){
 	}
 	$db->create('feedback', $feedback);
 	echo json_result('success');
+}
+
+//店铺分享
+function share(){
+	global $db;
+	$shopid=filter($_REQUEST['shopid']);
+        if(empty($shopid)){
+            echo json_result(null,'2','请选择你要分享的店铺');
+            return ;
+        }
+        $shop=$db->getRow('shop',array('id'=>$shopid));
+        $url=WEB_SITE.'shopDetail.html?s='.base64_decode($shopid);
+        $title=$shop['title'];
+        $img=$shop['img'];
+        $share=array('url'=>$url,'title'=>$title,'img'=>$img);
+        echo json_result(array('share'=>$share));
+        
 }
 
 function getIsopensql(){

@@ -2,6 +2,7 @@
 require_once APP_DIR.DS.'apiLib'.DS.'ext'.DS.'Upload.php';
 require_once APP_DIR.DS.'apiLib'.DS.'ext'.DS.'Huanxin.php';
 require_once APP_DIR.DS.'apiLib'.DS.'ext'.DS.'Sms.php';
+require_once APP_DIR.DS.'apiLib'.DS.'ext'.DS.'Qrcode.php';
 $act=filter($_REQUEST['act']);
 switch ($act){
 	case 'getVerificationCode':
@@ -45,6 +46,9 @@ switch ($act){
                 break;
 	case 'allowNews':
 		allowNews();//允许新消息
+		break;
+        case 'qrcode':
+                qrcode();//二维码名片
 		break;
 	default:
 		break;
@@ -543,12 +547,28 @@ function allowNews(){
 	$user_id=$data['userid'];
 	$allow=$data['allow'];//1允许2不允许
 	if (empty($user_id)){
-		echo json_result(null,'17','您还未登录');
+		echo json_result(null,'2','请先登录');
 		return;
 	}
 	$db->update('user',array('allow_news'=>$allow),array('id'=>$user_id));
 	echo json_result(array('userid'=>$user_id));
 }
+
+//二维码名片
+function qrcode(){
+	$loginid=filter($_REQUEST['loginid']);
+        if(empty($loginid)){
+		echo json_result(null,'2','请先登录');
+		return;
+        }
+        $qrfile="upload/qrcode/user/user{$loginid}.png";
+        $str=WEB_SITE.'userqrcode.html?u='. base64_encode($loginid);//带用户id的下载页面
+        if(!file_exists($qrfile)){
+            QRcode::png($str,$qrfile,0,10,1);//生成二维码
+        }
+        echo json_result(array('qrcode'=>APP_SITE.$qrfile));
+}
+
 
 function getRelationStatus($myself_id,$user_id){
 	global $db;
