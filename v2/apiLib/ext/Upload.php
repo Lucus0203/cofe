@@ -38,8 +38,8 @@ class UpLoad {
 				'image/gif',
 				'image/bmp',
 				'image/x-png',
-                                'audio/x-wav',
-                                'audio/wav'
+                                'audio/x-amr',
+                                'audio/amr'
 		);
 	}
 	/**
